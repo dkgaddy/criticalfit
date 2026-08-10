@@ -272,8 +272,20 @@ if ('serviceWorker' in navigator) {
   );
 }
 
+// ---- Splash Screen ----
+
+function initSplash() {
+  const splash = document.getElementById('splash');
+  if (!splash) return;
+  setTimeout(() => {
+    splash.classList.add('fade-out');
+    splash.addEventListener('transitionend', () => splash.remove(), { once: true });
+  }, 3000);
+}
+
 // ---- Init ----
 
 document.addEventListener('DOMContentLoaded', () => {
+  initSplash();
   if (document.getElementById('home-page')) initHome();
 });
