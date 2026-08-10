@@ -57,7 +57,7 @@ function updateCalcs() {
   const tdee = bmr ? Math.round(bmr * ACTIVITY_LEVELS[currentActivity].mult) : 0;
   const goal = tdee ? Math.max(1200, Math.round(tdee - 500)) : 0;
 
-  const fmt = n => n ? n.toLocaleString() + ' kcal' : '—';
+  const fmt = n => n ? n.toLocaleString() + ' cals' : '—';
   document.getElementById('calc-bmr').textContent  = fmt(bmr);
   document.getElementById('calc-tdee').textContent = fmt(tdee);
   document.getElementById('calc-goal').textContent = fmt(goal);
