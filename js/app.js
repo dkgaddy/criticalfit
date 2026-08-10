@@ -280,7 +280,7 @@ function initSplash() {
   setTimeout(() => {
     splash.classList.add('fade-out');
     splash.addEventListener('transitionend', () => splash.remove(), { once: true });
-  }, 3000);
+  }, 5000);
 }
 
 // ---- Init ----
