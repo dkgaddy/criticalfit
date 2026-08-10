@@ -1,0 +1,25 @@
+{
+  "name": "Critical Fit",
+  "short_name": "CritFit",
+  "description": "The calmest calorie tracker — your adventure journal for health.",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F4E9D8",
+  "theme_color": "#4B3A2F",
+  "icons": [
+    {
+      "src": "images/criticalfitLogo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "images/criticalfitLogo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["health", "fitness", "lifestyle"]
+}

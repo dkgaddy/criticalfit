@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#4B3A2F">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Critical Fit">
+  <meta name="description" content="The calmest calorie tracker — your adventure journal for health.">
+  <title>Critical Fit — Journal</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="images/criticalfitLogo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body id="home-page">
+
+  <!-- ======= Header ======= -->
+  <header class="app-header">
+    <img class="logo" src="images/criticalfitLogo.png" alt="">
+    <h1>Critical Fit</h1>
+  </header>
+
+  <!-- ======= Journal Page ======= -->
+  <main class="journal-page">
+
+    <!-- Dragon Companion -->
+    <section class="dragon-section">
+      <img id="dragon-img" class="dragon-img" src="images/Dragon_Lvl0.png" alt="Your dragon companion">
+      <h2 id="dragon-title" class="dragon-title">Hatchling</h2>
+      <p id="dragon-streak" class="dragon-streak">Beginning the Quest</p>
+    </section>
+
+    <div class="journal-divider">✦</div>
+
+    <!-- Energy Balance -->
+    <section class="card">
+      <h3 class="card-title">Energy Balance</h3>
+      <div class="energy-grid">
+        <div class="energy-stat">
+          <span class="stat-label">Calories In</span>
+          <span class="stat-value" id="cal-in">0</span>
+        </div>
+        <div class="energy-stat">
+          <span class="stat-label">Calories Out</span>
+          <span class="stat-value" id="cal-out">0</span>
+        </div>
+        <div class="energy-stat">
+          <span class="stat-label">Deficit</span>
+          <span class="stat-value" id="cal-deficit">0</span>
+        </div>
+      </div>
+      <div class="energy-bar-wrap">
+        <div class="energy-bar" id="energy-bar" style="width: 0%"></div>
+      </div>
+      <p class="energy-status" id="energy-status">Log your first ration to begin</p>
+    </section>
+
+    <div class="journal-divider">✦</div>
+
+    <!-- Quest Progress -->
+    <section class="card">
+      <h3 class="card-title">Quest Progress — 14 Days</h3>
+      <div class="quest-chart-wrap" id="quest-chart"></div>
+    </section>
+
+    <div class="journal-divider">✦</div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <a href="log-ration.html" class="btn btn-primary">Log Ration</a>
+      <a href="log-training.html" class="btn btn-secondary">Log Training</a>
+    </div>
+
+    <div class="journal-divider">✦</div>
+
+    <!-- Today's Journal -->
+    <section class="card">
+      <h3 class="card-title">Today's Journal</h3>
+      <div id="journal-entries">
+        <p class="empty-state">No rations recorded yet today.<br>Begin your quest.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======= Bottom Navigation ======= -->
+  <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
+
+    <a href="index.html" class="nav-item active" aria-current="page">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M4 19.5V6a2 2 0 012-2h12a2 2 0 012 2v13.5" stroke-linecap="round"/>
+        <path d="M4 19.5h16" stroke-linecap="round"/>
+        <path d="M9 7h6M9 11h6M9 15h4" stroke-linecap="round"/>
+      </svg>
+      Journal
+    </a>
+
+    <a href="log-ration.html" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 8v8M8 12h8" stroke-linecap="round"/>
+      </svg>
+      Rations
+    </a>
+
+    <a href="log-training.html" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M6 12h12M4 8.5h2m12 0h2M4 15.5h2m12 0h2" stroke-linecap="round"/>
+      </svg>
+      Training
+    </a>
+
+    <a href="progress.html" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <polyline points="4 19 8 13 12 15 16 9 20 5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Progress
+    </a>
+
+    <a href="profile.html" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke-linecap="round"/>
+      </svg>
+      Profile
+    </a>
+
+  </nav>
+
+  <!-- ======= Level-Up Toast ======= -->
+  <div id="levelup-overlay" class="levelup-overlay" role="dialog" aria-modal="true" aria-label="Dragon evolution">
+    <div class="levelup-card">
+      <p class="levelup-label">Your Companion Has Grown</p>
+      <p class="levelup-message" id="levelup-message"></p>
+      <button class="levelup-dismiss">Continue the Quest</button>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

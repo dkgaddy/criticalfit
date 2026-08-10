@@ -1,0 +1,523 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap');
+
+/* ============================================================
+   DESIGN SYSTEM
+   ============================================================ */
+
+:root {
+  --bg:           #F4E9D8;
+  --paper:        #EFE3C7;
+  --leather:      #4B3A2F;
+  --army:         #566246;
+  --forest:       #37402A;
+  --bronze:       #8C6A3A;
+  --gold:         #B89547;
+  --text:         #2B2B2B;
+  --text-mid:     #5A4535;
+  --text-light:   #8A7060;
+  --success:      #566246;
+  --warning:      #8C6A3A;
+  --danger:       #7A3020;
+  --cream:        #E8DCC8;
+
+  --font-display: 'Cinzel', Georgia, serif;
+  --font-serif:   'Cormorant Garamond', Georgia, serif;
+  --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+
+  --radius:    6px;
+  --radius-lg: 14px;
+  --shadow:    0 2px 14px rgba(75, 58, 47, 0.09);
+  --border:    1px solid rgba(139, 106, 58, 0.22);
+
+  --header-h:  56px;
+  --nav-h:     60px;
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
+  overflow-x: hidden;
+}
+
+img { display: block; max-width: 100%; }
+
+a { color: inherit; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(139, 106, 58, 0.4); border-radius: 3px; }
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.app-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: calc(var(--header-h) + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  background: var(--leather);
+  border-bottom: 2px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  z-index: 100;
+}
+
+.app-header .logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.app-header h1 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   PAGE LAYOUT
+   ============================================================ */
+
+.journal-page {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ============================================================
+   DRAGON SECTION
+   ============================================================ */
+
+.dragon-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.75rem 1rem 1.25rem;
+  text-align: center;
+}
+
+.dragon-img {
+  width: min(260px, 68vw);
+  height: auto;
+  animation: breathe 4.5s ease-in-out infinite;
+  filter: drop-shadow(0 8px 28px rgba(75, 58, 47, 0.18));
+  transition: opacity 0.6s ease;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1) translateY(0px); }
+  50%       { transform: scale(1.018) translateY(-5px); }
+}
+
+.dragon-title {
+  margin-top: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--leather);
+  letter-spacing: 0.06em;
+}
+
+.dragon-streak {
+  margin-top: 0.25rem;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--text-mid);
+}
+
+/* ============================================================
+   DIVIDER
+   ============================================================ */
+
+.journal-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  color: var(--bronze);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  opacity: 0.7;
+  margin: 0.125rem 0;
+}
+
+.journal-divider::before,
+.journal-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(139, 106, 58, 0.45), transparent);
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.card {
+  background: var(--paper);
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.25rem 1.125rem;
+  box-shadow: var(--shadow);
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bronze);
+  margin-bottom: 1rem;
+}
+
+/* ============================================================
+   ENERGY BALANCE
+   ============================================================ */
+
+.energy-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.energy-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-light);
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--leather);
+  line-height: 1;
+}
+
+.stat-value.deficit { color: var(--army); }
+.stat-value.surplus { color: var(--danger); }
+
+.energy-bar-wrap {
+  height: 7px;
+  background: rgba(75, 58, 47, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.energy-bar {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--army);
+  transition: width 0.7s ease, background-color 0.4s ease;
+}
+
+.energy-bar.warning { background: var(--bronze); }
+.energy-bar.surplus { background: var(--danger); }
+
+.energy-status {
+  margin-top: 0.5rem;
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--text-light);
+  text-align: center;
+}
+
+/* ============================================================
+   QUEST PROGRESS CHART
+   ============================================================ */
+
+.quest-chart-wrap {
+  width: 100%;
+  height: 90px;
+}
+
+.quest-chart-wrap svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ============================================================
+   QUICK ACTIONS
+   ============================================================ */
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.875rem;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active { transform: scale(0.97); opacity: 0.85; }
+
+.btn-primary {
+  background: var(--leather);
+  color: var(--gold);
+  border: 1px solid var(--gold);
+}
+
+.btn-secondary {
+  background: var(--army);
+  color: var(--cream);
+  border: 1px solid rgba(232, 220, 200, 0.28);
+}
+
+/* ============================================================
+   TODAY'S JOURNAL
+   ============================================================ */
+
+.journal-entries {
+  display: flex;
+  flex-direction: column;
+}
+
+.journal-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(139, 106, 58, 0.13);
+}
+
+.journal-entry:last-child { border-bottom: none; }
+
+.entry-info { display: flex; flex-direction: column; gap: 0.15rem; }
+
+.entry-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.entry-detail {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+.entry-cal {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--leather);
+  white-space: nowrap;
+}
+
+.entry-cal.burned { color: var(--army); }
+
+.empty-state {
+  text-align: center;
+  color: var(--text-light);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  padding: 0.75rem 0;
+}
+
+/* ============================================================
+   BOTTOM NAVIGATION
+   ============================================================ */
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--leather);
+  border-top: 1px solid var(--gold);
+  display: flex;
+  z-index: 100;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  text-decoration: none;
+  color: rgba(232, 220, 200, 0.45);
+  font-family: var(--font-display);
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-item.active { color: var(--gold); }
+
+.nav-icon {
+  width: 21px;
+  height: 21px;
+}
+
+/* ============================================================
+   LEVEL-UP TOAST
+   ============================================================ */
+
+.levelup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(75, 58, 47, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.levelup-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.levelup-card {
+  background: var(--paper);
+  border: 2px solid var(--gold);
+  border-radius: var(--radius-lg);
+  padding: 2.25rem 2rem;
+  text-align: center;
+  max-width: 320px;
+  width: 90%;
+  box-shadow: 0 12px 48px rgba(75, 58, 47, 0.35);
+  transform: scale(0.92);
+  transition: transform 0.4s ease;
+}
+
+.levelup-overlay.show .levelup-card {
+  transform: scale(1);
+}
+
+.levelup-label {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bronze);
+  margin-bottom: 1rem;
+}
+
+.levelup-message {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 1.7;
+  color: var(--text-mid);
+}
+
+.levelup-dismiss {
+  margin-top: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0.5rem 1rem;
+}
+
+/* ============================================================
+   PLACEHOLDER PAGES
+   ============================================================ */
+
+.placeholder-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.placeholder-page h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  color: var(--leather);
+}
+
+.placeholder-page p {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--text-light);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (min-width: 480px) {
+  .journal-page { padding: 2rem 1.5rem; }
+  .dragon-img { width: 280px; }
+  .dragon-title { font-size: 2rem; }
+  .stat-value { font-size: 1.65rem; }
+}
+
+@media (min-width: 768px) {
+  .journal-page { max-width: 560px; }
+}
