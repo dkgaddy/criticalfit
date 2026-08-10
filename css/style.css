@@ -352,6 +352,13 @@ a { color: inherit; }
   border: 1px solid rgba(232, 220, 200, 0.28);
 }
 
+.btn-tertiary {
+  grid-column: 1 / -1;
+  background: var(--paper);
+  color: var(--bronze);
+  border: 1px solid var(--bronze);
+}
+
 /* ============================================================
    TODAY'S JOURNAL
    ============================================================ */
