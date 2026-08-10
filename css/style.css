@@ -439,8 +439,8 @@ a { color: inherit; }
 .nav-item.active { color: var(--gold); }
 
 .nav-icon {
-  width: 21px;
-  height: 21px;
+  font-size: 1.25rem;
+  line-height: 1;
 }
 
 /* ============================================================
