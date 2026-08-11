@@ -85,7 +85,6 @@ function toggleUnits(unit) {
   const prev = currentUnit;
   currentUnit = unit;
 
-  // Convert weight
   const wEl  = document.getElementById('prof-weight');
   const gwEl = document.getElementById('prof-goal-weight');
 
@@ -98,7 +97,6 @@ function toggleUnits(unit) {
     gwEl.value = prev === 'imperial' ? round1(lbsToKg(gw)) : round1(kgToLbs(gw));
   }
 
-  // Convert height
   if (prev === 'imperial') {
     const ft = parseFloat(document.getElementById('prof-ft').value) || 0;
     const inches = parseFloat(document.getElementById('prof-in').value) || 0;
@@ -125,8 +123,8 @@ function setToggleGroup(groupEl, value) {
 
 // ---- Load / Save ----
 
-function loadProfile() {
-  const p = JSON.parse(localStorage.getItem('cf_user') || 'null');
+async function loadProfile() {
+  const p = await store.getUser();
   if (!p) return;
 
   currentUnit     = p.unit     || 'imperial';
@@ -152,7 +150,7 @@ function loadProfile() {
   updateCalcs();
 }
 
-function saveProfile() {
+async function saveProfile() {
   const age      = parseInt(document.getElementById('prof-age').value) || null;
   const weightKg = getWeightKg();
   const heightCm = getHeightCm();
@@ -180,9 +178,13 @@ function saveProfile() {
     profile.cm = parseFloat(document.getElementById('prof-cm').value) || null;
   }
 
-  localStorage.setItem('cf_user', JSON.stringify(profile));
-
+  const btn    = document.getElementById('save-profile');
   const status = document.getElementById('save-status');
+  btn.disabled = true;
+
+  await store.saveUser(profile);
+
+  btn.disabled = false;
   status.textContent = 'Profile saved.';
   status.classList.add('visible');
   setTimeout(() => status.classList.remove('visible'), 2500);
@@ -191,12 +193,10 @@ function saveProfile() {
 // ---- Init ----
 
 function initProfile() {
-  // Unit toggle
   document.querySelectorAll('.unit-btn').forEach(btn =>
     btn.addEventListener('click', () => toggleUnits(btn.dataset.unit))
   );
 
-  // Gender
   const genderGroup = document.getElementById('gender-group');
   genderGroup.querySelectorAll('.toggle-btn').forEach(btn =>
     btn.addEventListener('click', () => {
@@ -206,7 +206,6 @@ function initProfile() {
     })
   );
 
-  // Activity
   const activityGroup = document.getElementById('activity-group');
   activityGroup.querySelectorAll('.toggle-btn').forEach(btn =>
     btn.addEventListener('click', () => {
@@ -216,13 +215,11 @@ function initProfile() {
     })
   );
 
-  // Live recalc on any numeric input
   ['prof-age', 'prof-weight', 'prof-ft', 'prof-in', 'prof-cm', 'prof-goal-weight'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', updateCalcs);
   });
 
-  // Save
   document.getElementById('save-profile').addEventListener('click', saveProfile);
 
   loadProfile();

@@ -11,40 +11,83 @@ const DRAGON_STAGES = [
   { level: 5, title: 'Ancient Dragon', days: 180, img: 'images/Dragon_Lvl5.png' },
 ];
 
-// ---- Storage layer (localStorage → API swap-ready) ----
+// ---- API storage layer ----
 
 const store = {
-  getUser: () =>
-    JSON.parse(localStorage.getItem('cf_user') || 'null'),
-
-  getDailySummary: (date) => {
-    const all = JSON.parse(localStorage.getItem('cf_daily') || '{}');
-    return all[date] || { caloriesIn: 0, caloriesOut: 0 };
+  getUser: async () => {
+    const r = await fetch('api/user.php');
+    const j = await r.json();
+    return j.ok ? j.data : null;
   },
 
-  getDragonProgress: () =>
-    JSON.parse(localStorage.getItem('cf_dragon') || '{"streak":0,"maxLevel":0}'),
-
-  getRecentSummaries: (days) => {
-    const all = JSON.parse(localStorage.getItem('cf_daily') || '{}');
-    const result = [];
-    for (let i = days - 1; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const key = d.toISOString().slice(0, 10);
-      result.push(all[key] || { caloriesIn: 0, caloriesOut: 0 });
-    }
-    return result;
+  saveUser: async (profile) => {
+    await fetch('api/user.php', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(profile),
+    });
   },
 
-  getFoodEntries: (date) => {
-    const all = JSON.parse(localStorage.getItem('cf_food') || '{}');
-    return all[date] || [];
+  getDailySummary: async (date) => {
+    const r = await fetch(`api/daily.php?date=${date}`);
+    const j = await r.json();
+    return j.ok ? j.data : { caloriesIn: 0, caloriesOut: 0 };
   },
 
-  getExerciseEntries: (date) => {
-    const all = JSON.parse(localStorage.getItem('cf_exercise') || '{}');
-    return all[date] || [];
+  getDragonProgress: async () => {
+    const r = await fetch('api/dragon.php');
+    const j = await r.json();
+    return j.ok ? j.data : { streak: 0, maxLevel: 0 };
+  },
+
+  saveDragonProgress: async (progress) => {
+    await fetch('api/dragon.php', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(progress),
+    });
+  },
+
+  getRecentSummaries: async (days) => {
+    const r = await fetch(`api/summaries.php?days=${days}`);
+    const j = await r.json();
+    return j.ok ? j.data : [];
+  },
+
+  getFoodEntries: async (date) => {
+    const r = await fetch(`api/food.php?date=${date}`);
+    const j = await r.json();
+    return j.ok ? j.data : [];
+  },
+
+  addFoodEntry: async (entry) => {
+    const r = await fetch('api/food.php', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(entry),
+    });
+    const j = await r.json();
+    return j.ok ? j.data : null;
+  },
+
+  getExerciseEntries: async (date) => {
+    const r = await fetch(`api/exercise.php?date=${date}`);
+    const j = await r.json();
+    return j.ok ? j.data : [];
+  },
+
+  getRecentFoods: async () => {
+    const r = await fetch('api/recent-foods.php');
+    const j = await r.json();
+    return j.ok ? j.data : [];
+  },
+
+  saveRecentFood: async (food) => {
+    await fetch('api/recent-foods.php', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(food),
+    });
   },
 };
 
@@ -85,7 +128,6 @@ function renderChart(container, summaries) {
   svg.setAttribute('preserveAspectRatio', 'none');
   svg.setAttribute('aria-hidden', 'true');
 
-  // Clip paths for above/below baseline coloring
   const defs = document.createElementNS(NS, 'defs');
 
   const mkClip = (id, y, h) => {
@@ -101,7 +143,6 @@ function renderChart(container, summaries) {
   defs.appendChild(mkClip('cf-clip-below', midY, H));
   svg.appendChild(defs);
 
-  // Area path
   const lineD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
   const areaD = `${lineD} L${pts[n - 1][0].toFixed(1)},${midY} L${pts[0][0].toFixed(1)},${midY} Z`;
 
@@ -116,7 +157,6 @@ function renderChart(container, summaries) {
   svg.appendChild(mkPath('rgba(86,98,70,0.2)', 'cf-clip-above'));
   svg.appendChild(mkPath('rgba(122,48,32,0.18)', 'cf-clip-below'));
 
-  // Baseline
   const base = document.createElementNS(NS, 'line');
   base.setAttribute('x1', padX); base.setAttribute('y1', midY);
   base.setAttribute('x2', W - padX); base.setAttribute('y2', midY);
@@ -125,7 +165,6 @@ function renderChart(container, summaries) {
   base.setAttribute('stroke-dasharray', '4,3');
   svg.appendChild(base);
 
-  // Line
   const line = document.createElementNS(NS, 'polyline');
   line.setAttribute('points', pts.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' '));
   line.setAttribute('fill', 'none');
@@ -135,7 +174,6 @@ function renderChart(container, summaries) {
   line.setAttribute('stroke-linecap', 'round');
   svg.appendChild(line);
 
-  // Dots
   pts.forEach(([x, y], i) => {
     const dot = document.createElementNS(NS, 'circle');
     dot.setAttribute('cx', x.toFixed(1));
@@ -168,11 +206,19 @@ function showLevelUp(fromStage, toStage) {
 
 // ---- Home Screen ----
 
-function initHome() {
+async function initHome() {
   const today = todayKey();
-  const summary = store.getDailySummary(today);
-  const dragon  = store.getDragonProgress();
-  const stage   = getDragonStage(dragon.streak);
+
+  const [summary, dragon, food, exercise, summaries, user] = await Promise.all([
+    store.getDailySummary(today),
+    store.getDragonProgress(),
+    store.getFoodEntries(today),
+    store.getExerciseEntries(today),
+    store.getRecentSummaries(14),
+    store.getUser(),
+  ]);
+
+  const stage = getDragonStage(dragon.streak);
 
   // Dragon
   const dragonImg    = document.getElementById('dragon-img');
@@ -212,7 +258,6 @@ function initHome() {
     if (caloriesOut === 0) {
       elBar.style.width = '0%';
       if (elStatus) {
-        const user = store.getUser();
         elStatus.textContent = user && user.dailyGoal
           ? `Daily Intake Goal: ${user.dailyGoal.toLocaleString()} cals`
           : 'Set up your profile to see your energy balance';
@@ -235,14 +280,11 @@ function initHome() {
 
   // Quest Progress chart
   const chartEl = document.getElementById('quest-chart');
-  if (chartEl) renderChart(chartEl, store.getRecentSummaries(14));
+  if (chartEl) renderChart(chartEl, summaries);
 
   // Today's Journal entries
   const journalEl = document.getElementById('journal-entries');
   if (journalEl) {
-    const food     = store.getFoodEntries(today);
-    const exercise = store.getExerciseEntries(today);
-
     if (food.length === 0 && exercise.length === 0) {
       journalEl.innerHTML = `<p class="empty-state">No rations recorded yet today.<br>Begin your quest.</p>`;
     } else {
@@ -251,7 +293,7 @@ function initHome() {
           <div class="journal-entry">
             <div class="entry-info">
               <span class="entry-name">${e.name}</span>
-              <span class="entry-detail">${e.serving || ''}</span>
+              <span class="entry-detail">${e.grams ? e.grams + 'g' : ''}</span>
             </div>
             <span class="entry-cal">${fmtCal(e.calories)} kcal</span>
           </div>`),
@@ -259,7 +301,7 @@ function initHome() {
           <div class="journal-entry">
             <div class="entry-info">
               <span class="entry-name">${e.name}</span>
-              <span class="entry-detail">${e.duration} min · Training</span>
+              <span class="entry-detail">${e.duration ? e.duration + ' min · Training' : 'Training'}</span>
             </div>
             <span class="entry-cal burned">−${fmtCal(e.calories)} kcal</span>
           </div>`),

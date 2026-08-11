@@ -2,29 +2,14 @@
 // Critical Fit — Log Ration Modal
 // ============================================================
 
-const MAX_RECENT      = 20;
 const DEBOUNCE_MS     = 420;
 const SEARCH_ENDPOINT = 'api/food-search.php';
 
-// ---- Recent foods (localStorage) ----
-
-function getRecentFoods() {
-  return JSON.parse(localStorage.getItem('cf_recent_foods') || '[]');
-}
-
-function saveToRecent(food) {
-  let recent = getRecentFoods().filter(f => f.fdcId !== food.fdcId);
-  recent.unshift({ ...food, usedAt: new Date().toISOString() });
-  if (recent.length > MAX_RECENT) recent.length = MAX_RECENT;
-  localStorage.setItem('cf_recent_foods', JSON.stringify(recent));
-}
-
 // ---- Log a food entry ----
 
-function logFoodEntry(food, grams) {
+async function logFoodEntry(food, grams) {
   const ratio = grams / 100;
   const entry = {
-    id:       Date.now(),
     fdcId:    food.fdcId,
     name:     food.name,
     grams,
@@ -32,26 +17,11 @@ function logFoodEntry(food, grams) {
     protein:  Math.round(food.protein  * ratio * 10) / 10,
     carbs:    Math.round(food.carbs    * ratio * 10) / 10,
     fat:      Math.round(food.fat      * ratio * 10) / 10,
-    loggedAt: new Date().toISOString(),
+    date:     new Date().toISOString().slice(0, 10),
   };
 
-  const today = new Date().toISOString().slice(0, 10);
-
-  // Append to food log
-  const foodLog = JSON.parse(localStorage.getItem('cf_food') || '{}');
-  if (!foodLog[today]) foodLog[today] = [];
-  foodLog[today].push(entry);
-  localStorage.setItem('cf_food', JSON.stringify(foodLog));
-
-  // Update daily summary
-  const daily = JSON.parse(localStorage.getItem('cf_daily') || '{}');
-  if (!daily[today]) daily[today] = { caloriesIn: 0, caloriesOut: 0 };
-  daily[today].caloriesIn = (daily[today].caloriesIn || 0) + entry.calories;
-  localStorage.setItem('cf_daily', JSON.stringify(daily));
-
-  // Add to recent list
-  saveToRecent(food);
-
+  await store.addFoodEntry(entry);
+  await store.saveRecentFood(food);
   return entry;
 }
 
@@ -103,7 +73,6 @@ function makeFoodRow(food) {
 // ---- Inline quantity expander ----
 
 function expandRow(row, food) {
-  // Collapse any other open expander
   document.querySelectorAll('.food-item-expand').forEach(el => el.remove());
   document.querySelectorAll('.food-item.selected').forEach(el => el.classList.remove('selected'));
 
@@ -130,12 +99,15 @@ function expandRow(row, food) {
     totalEl.textContent = `${cal.toLocaleString()} cals`;
   });
 
-  expand.querySelector('.log-it-btn').addEventListener('click', () => {
+  expand.querySelector('.log-it-btn').addEventListener('click', async () => {
     const g = parseFloat(qtyInput.value) || 100;
     if (g <= 0) return;
-    logFoodEntry(food, g);
+    const btn = expand.querySelector('.log-it-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    await logFoodEntry(food, g);
     closeModal();
-    if (typeof initHome === 'function') initHome();
+    if (typeof initHome === 'function') await initHome();
   });
 
   row.insertAdjacentElement('afterend', expand);
@@ -167,11 +139,12 @@ function renderSection(title, foods) {
   return wrap;
 }
 
-function showRecent() {
+async function showRecent() {
   const pane   = document.getElementById('ration-content');
-  const recent = getRecentFoods();
   pane.innerHTML = '';
   clearExpand();
+
+  const recent = await store.getRecentFoods();
 
   if (recent.length === 0) {
     pane.appendChild(renderEmpty('No recent rations. Search above to get started.'));
@@ -189,7 +162,7 @@ function showLoading() {
 async function showResults(query) {
   showLoading();
   const q      = query.toLowerCase();
-  const recent = getRecentFoods().filter(f => f.name.toLowerCase().includes(q));
+  const recent = (await store.getRecentFoods()).filter(f => f.name.toLowerCase().includes(q));
   const usda   = await searchUSDA(query);
   const recentIds = new Set(recent.map(f => f.fdcId));
   const fresh  = usda.filter(f => !recentIds.has(f.fdcId));
@@ -238,21 +211,16 @@ function handleSearchInput(val) {
 // ---- Init ----
 
 function initLogRation() {
-  // Wire all "Log Ration" links to open the modal instead of navigating
   document.querySelectorAll('a[href="log-ration.html"]').forEach(el => {
     el.addEventListener('click', e => { e.preventDefault(); openModal(); });
   });
 
-  const modal      = document.getElementById('ration-modal');
-  const closeBtn   = document.getElementById('ration-close');
-  const searchInput= document.getElementById('ration-search');
+  const modal       = document.getElementById('ration-modal');
+  const closeBtn    = document.getElementById('ration-close');
+  const searchInput = document.getElementById('ration-search');
 
   closeBtn?.addEventListener('click', closeModal);
-
-  // Tap backdrop to close
   modal?.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-
-  // Escape key
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && modal?.classList.contains('open')) closeModal();
   });
