@@ -552,6 +552,296 @@ a { color: inherit; }
 }
 
 /* ============================================================
+   LOG RATION MODAL
+   ============================================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 32, 22, 0.55);
+  z-index: 300;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-sheet {
+  width: 100%;
+  max-height: 88dvh;
+  background: var(--bg);
+  border-radius: 18px 18px 0 0;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.34s cubic-bezier(0.32, 0.72, 0, 1);
+  overflow: hidden;
+}
+
+.modal-overlay.open .modal-sheet {
+  transform: translateY(0);
+}
+
+.modal-handle {
+  width: 40px;
+  height: 4px;
+  background: rgba(139, 106, 58, 0.3);
+  border-radius: 2px;
+  margin: 0.625rem auto 0;
+  flex-shrink: 0;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.125rem 0.75rem;
+  border-bottom: 1px solid rgba(139, 106, 58, 0.18);
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--leather);
+  letter-spacing: 0.03em;
+}
+
+.modal-close-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 106, 58, 0.1);
+  border: none;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  color: var(--text-mid);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.modal-search-wrap {
+  position: relative;
+  padding: 0.75rem 1rem;
+  flex-shrink: 0;
+}
+
+.modal-search-icon {
+  position: absolute;
+  left: 1.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.modal-search-input {
+  width: 100%;
+  padding: 0.7rem 1rem 0.7rem 2.5rem;
+  background: var(--paper);
+  border: 1px solid rgba(139, 106, 58, 0.28);
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text);
+  outline: none;
+  -webkit-appearance: none;
+  transition: border-color 0.2s;
+}
+
+.modal-search-input:focus { border-color: var(--bronze); }
+
+.modal-search-input::placeholder {
+  color: rgba(90, 69, 53, 0.35);
+  font-family: var(--font-serif);
+  font-style: italic;
+}
+
+/* Hide the browser's built-in search clear button */
+.modal-search-input::-webkit-search-cancel-button { display: none; }
+
+.modal-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ---- Food section label ---- */
+
+.food-section-label {
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bronze);
+  background: var(--paper);
+  padding: 0.5rem 1.125rem;
+  border-bottom: 1px solid rgba(139, 106, 58, 0.12);
+  margin: 0;
+}
+
+/* ---- Food item row ---- */
+
+.food-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.125rem;
+  border-bottom: 1px solid rgba(139, 106, 58, 0.1);
+  transition: background 0.12s;
+}
+
+.food-item.selected {
+  background: rgba(139, 106, 58, 0.06);
+}
+
+.food-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.food-item-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.food-item-cals {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--bronze);
+}
+
+.food-item-macros {
+  font-family: var(--font-serif);
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--text-light);
+}
+
+.food-add-btn {
+  flex-shrink: 0;
+  padding: 0.38rem 0.875rem;
+  background: var(--leather);
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: 5px;
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.12s;
+}
+
+.food-add-btn:active { opacity: 0.7; }
+
+/* ---- Inline expand ---- */
+
+.food-item-expand {
+  background: var(--paper);
+  border-bottom: 1px solid rgba(139, 106, 58, 0.15);
+  padding: 0.75rem 1.125rem;
+}
+
+.expand-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-mid);
+  margin-bottom: 0.625rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expand-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.qty-input {
+  width: 74px;
+  padding: 0.45rem 0.5rem;
+  background: var(--bg);
+  border: 1px solid rgba(139, 106, 58, 0.3);
+  border-radius: 5px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text);
+  text-align: center;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+
+.qty-input:focus { border-color: var(--bronze); }
+
+.qty-unit {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-light);
+}
+
+.qty-total {
+  flex: 1;
+  text-align: right;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--leather);
+}
+
+.log-it-btn {
+  padding: 0.45rem 1rem;
+  background: var(--army);
+  color: var(--cream);
+  border: none;
+  border-radius: 5px;
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---- Empty / loading states ---- */
+
+.food-empty,
+.food-loading {
+  text-align: center;
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--text-light);
+  font-size: 1rem;
+  padding: 2.5rem 1.5rem;
+}
+
+/* ============================================================
    PAGE HEADING
    ============================================================ */
 

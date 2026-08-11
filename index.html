@@ -124,6 +124,23 @@
 
   </nav>
 
+  <!-- ======= Log Ration Modal ======= -->
+  <div id="ration-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Log Ration">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h2 class="modal-title">Log Ration</h2>
+        <button class="modal-close-btn" id="ration-close" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-search-wrap">
+        <i class="fa-solid fa-magnifying-glass modal-search-icon" aria-hidden="true"></i>
+        <input type="search" id="ration-search" class="modal-search-input"
+               placeholder="Search Rations…" autocomplete="off" autocorrect="off" spellcheck="false">
+      </div>
+      <div class="modal-content" id="ration-content"></div>
+    </div>
+  </div>
+
   <!-- ======= Level-Up Toast ======= -->
   <div id="levelup-overlay" class="levelup-overlay" role="dialog" aria-modal="true" aria-label="Dragon evolution">
     <div class="levelup-card">
@@ -134,5 +151,6 @@
   </div>
 
   <script src="js/app.js"></script>
+  <script src="js/log-ration.js"></script>
 </body>
 </html>
