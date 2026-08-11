@@ -211,7 +211,12 @@ function initHome() {
   if (elBar) {
     if (caloriesOut === 0) {
       elBar.style.width = '0%';
-      if (elStatus) elStatus.textContent = 'Set up your profile to see your energy balance';
+      if (elStatus) {
+        const user = store.getUser();
+        elStatus.textContent = user && user.dailyGoal
+          ? `Daily Intake Goal: ${user.dailyGoal.toLocaleString()} cals`
+          : 'Set up your profile to see your energy balance';
+      }
     } else {
       const pct = Math.min((caloriesIn / caloriesOut) * 100, 100);
       elBar.style.width = pct + '%';
