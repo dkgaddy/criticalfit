@@ -48,7 +48,7 @@ try {
 
     // Update sign count + last used
     db()->prepare('UPDATE passkeys SET sign_count = ?, last_used_at = NOW() WHERE id = ?')
-        ->execute([$webAuthn->getSignatureCounter(), $passkey['id']]);
+        ->execute([$webAuthn->getSignatureCounter() ?? 0, $passkey['id']]);
 
     unset($_SESSION['wa_challenge']);
     $_SESSION['user_id'] = (int)$passkey['user_id'];

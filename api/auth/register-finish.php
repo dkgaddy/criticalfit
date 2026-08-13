@@ -42,7 +42,7 @@ try {
         $userId,
         base64_encode($data->credentialId),
         base64_encode($data->publicKey),
-        $data->signCount,
+        $data->signatureCounter ?? 0,
         $b['deviceName'] ?? null,
     ]);
 
