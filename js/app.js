@@ -342,8 +342,8 @@ function initSplash() {
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (document.getElementById('home-page')) {
+    initSplash();        // synchronous — hides immediately if already shown today
     await checkAuth();
-    initSplash();
     await initHome();
   }
 });
