@@ -29,9 +29,10 @@ try {
 
     $webAuthn = new lbuchs\WebAuthn\WebAuthn(RP_NAME, RP_ID, ['none']);
 
-    $clientDataJSON    = base64_decode($b['response']['clientDataJSON']);
-    $authenticatorData = base64_decode($b['response']['authenticatorData']);
-    $signature         = base64_decode($b['response']['signature']);
+    // Browser sends base64url; PHP's base64_decode needs standard base64
+    $clientDataJSON    = base64_decode(strtr($b['response']['clientDataJSON']    ?? '', '-_', '+/'));
+    $authenticatorData = base64_decode(strtr($b['response']['authenticatorData'] ?? '', '-_', '+/'));
+    $signature         = base64_decode(strtr($b['response']['signature']         ?? '', '-_', '+/'));
     $publicKey         = base64_decode($passkey['public_key']);
 
     $webAuthn->processGet(

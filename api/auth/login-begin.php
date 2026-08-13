@@ -9,12 +9,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405); echo json_encode(['ok' => false, 'error' => 'Method not allowed']); exit;
 }
 
-$webAuthn  = new lbuchs\WebAuthn\WebAuthn(RP_NAME, RP_ID, ['none']);
-$getArgs   = $webAuthn->getGetArgs(
-    allowCredentials: [],   // empty = discoverable / passkey flow
-    timeout: 60,
-    userVerificationType: 'required'
-);
+$webAuthn = new lbuchs\WebAuthn\WebAuthn(RP_NAME, RP_ID, ['none']);
+try {
+    $getArgs = $webAuthn->getGetArgs(
+        credentialIds: [],   // empty = discoverable / passkey flow
+        timeout: 60,
+        requireUserVerification: true
+    );
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => $e->getMessage(), 'file' => basename($e->getFile()) . ':' . $e->getLine()]);
+    exit;
+}
 
 $_SESSION['wa_challenge'] = (string)$webAuthn->getChallenge();
 

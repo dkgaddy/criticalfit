@@ -34,7 +34,7 @@ try {
         $displayName,
         60,
         requireResidentKey: true,
-        userVerificationType: 'required',
+        requireUserVerification: true,
         crossPlatformAttachment: false
     );
 

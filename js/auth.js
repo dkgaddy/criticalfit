@@ -4,8 +4,11 @@
 
 // ---- Base64url helpers ----
 
-function b64urlToBuffer(b64url) {
-  const b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
+function b64urlToBuffer(val) {
+  // lbuchs ByteBuffer serializes as "=?BINARY?B?<base64>?=" — extract the inner base64
+  let b64 = (typeof val === 'string' && val.startsWith('=?BINARY?B?'))
+    ? val.slice(11, -2)
+    : val.replace(/-/g, '+').replace(/_/g, '/');
   const padded = b64.padEnd(b64.length + (4 - b64.length % 4) % 4, '=');
   return Uint8Array.from(atob(padded), c => c.charCodeAt(0)).buffer;
 }

@@ -21,8 +21,9 @@ $b = json_decode(file_get_contents('php://input'), true) ?? [];
 try {
     $webAuthn = new lbuchs\WebAuthn\WebAuthn(RP_NAME, RP_ID, ['none']);
 
-    $clientDataJSON    = base64_decode($b['response']['clientDataJSON']);
-    $attestationObject = base64_decode($b['response']['attestationObject']);
+    // Browser sends base64url; PHP's base64_decode needs standard base64
+    $clientDataJSON    = base64_decode(strtr($b['response']['clientDataJSON']    ?? '', '-_', '+/'));
+    $attestationObject = base64_decode(strtr($b['response']['attestationObject'] ?? '', '-_', '+/'));
 
     $data = $webAuthn->processCreate(
         $clientDataJSON,
