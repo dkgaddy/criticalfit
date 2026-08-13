@@ -22,6 +22,6 @@ try {
     exit;
 }
 
-$_SESSION['wa_challenge'] = (string)$webAuthn->getChallenge();
+$_SESSION['wa_challenge'] = $webAuthn->getChallenge();
 
 echo json_encode(['ok' => true, 'data' => $getArgs]);

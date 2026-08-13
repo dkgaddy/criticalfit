@@ -38,8 +38,8 @@ try {
         crossPlatformAttachment: false
     );
 
-    // Persist challenge + provisional user ID in session
-    $_SESSION['wa_challenge']   = (string)$webAuthn->getChallenge();
+    // Store ByteBuffer object (not string) so processCreate can compare raw bytes
+    $_SESSION['wa_challenge']   = $webAuthn->getChallenge();
     $_SESSION['wa_reg_user_id'] = $userId;
 
     echo json_encode(['ok' => true, 'data' => $createArgs]);
