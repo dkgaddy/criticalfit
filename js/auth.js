@@ -43,7 +43,8 @@ async function register(displayName) {
   const begin = await beginRes.json();
   if (!begin.ok) throw new Error(begin.error);
 
-  const opts = begin.data;
+  // lbuchs wraps options under a "publicKey" key
+  const opts = begin.data.publicKey ?? begin.data;
   opts.challenge                = b64urlToBuffer(opts.challenge);
   opts.user.id                  = b64urlToBuffer(opts.user.id);
   if (opts.excludeCredentials) {
@@ -85,7 +86,8 @@ async function authenticate() {
   const begin = await beginRes.json();
   if (!begin.ok) throw new Error(begin.error);
 
-  const opts = begin.data;
+  // lbuchs wraps options under a "publicKey" key
+  const opts = begin.data.publicKey ?? begin.data;
   opts.challenge = b64urlToBuffer(opts.challenge);
   if (opts.allowCredentials) {
     opts.allowCredentials = opts.allowCredentials.map(c => ({
