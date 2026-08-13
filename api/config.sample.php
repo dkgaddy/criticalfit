@@ -6,3 +6,6 @@ define('DB_HOST', 'localhost');
 define('DB_NAME', 'your_db_name');
 define('DB_USER', 'your_db_user');
 define('DB_PASS', 'your_db_password');
+define('RP_NAME',   'Critical Fit');
+define('RP_ID',     'criticalfitapp.com');
+define('RP_ORIGIN', 'https://criticalfitapp.com');

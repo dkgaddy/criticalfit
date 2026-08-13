@@ -1,11 +1,12 @@
 <?php
 require_once __DIR__ . '/db.php';
+$uid  = requireAuth();
 
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
     $stmt = db()->prepare('SELECT * FROM users WHERE id = ?');
-    $stmt->execute([USER_ID]);
+    $stmt->execute([$uid]);
     $row = $stmt->fetch();
     if (!$row) { json_out(null); exit; }
 

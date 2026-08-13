@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/db.php';
+$uid  = requireAuth();
 
 $days  = min((int)($_GET['days'] ?? 14), 90);
 $start = date('Y-m-d', strtotime("-{$days} days"));
@@ -8,7 +9,7 @@ $stmt = db()->prepare(
     'SELECT log_date, SUM(calories) AS total FROM food_entries
      WHERE user_id = ? AND log_date >= ? GROUP BY log_date'
 );
-$stmt->execute([USER_ID, $start]);
+$stmt->execute([$uid, $start]);
 $foodTotals = [];
 foreach ($stmt->fetchAll() as $r) {
     $foodTotals[$r['log_date']] = (float)$r['total'];
@@ -18,7 +19,7 @@ $stmt = db()->prepare(
     'SELECT log_date, SUM(calories) AS total FROM exercise_entries
      WHERE user_id = ? AND log_date >= ? GROUP BY log_date'
 );
-$stmt->execute([USER_ID, $start]);
+$stmt->execute([$uid, $start]);
 $exTotals = [];
 foreach ($stmt->fetchAll() as $r) {
     $exTotals[$r['log_date']] = (float)$r['total'];

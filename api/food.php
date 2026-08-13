@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/db.php';
+$uid  = requireAuth();
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -9,7 +10,7 @@ if ($method === 'GET') {
         'SELECT id, fdc_id as fdcId, name, grams, calories, protein, carbs, fat
          FROM food_entries WHERE user_id = ? AND log_date = ? ORDER BY created_at'
     );
-    $stmt->execute([USER_ID, $date]);
+    $stmt->execute([$uid, $date]);
     $rows = array_map(function ($r) {
         return [
             'id'       => (int)$r['id'],

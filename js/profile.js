@@ -225,6 +225,9 @@ function initProfile() {
   loadProfile();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('profile-page')) initProfile();
+document.addEventListener('DOMContentLoaded', async () => {
+  if (document.getElementById('profile-page')) {
+    await checkAuth();
+    initProfile();
+  }
 });

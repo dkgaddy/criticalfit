@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/db.php';
+$uid  = requireAuth();
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -8,7 +9,7 @@ if ($method === 'GET') {
         'SELECT fdc_id AS fdcId, name, calories, protein, carbs, fat
          FROM recent_foods WHERE user_id = ? ORDER BY used_at DESC LIMIT 20'
     );
-    $stmt->execute([USER_ID]);
+    $stmt->execute([$uid]);
     $rows = array_map(function ($r) {
         return [
             'fdcId'    => $r['fdcId'] ? (int)$r['fdcId'] : null,

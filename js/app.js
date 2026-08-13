@@ -340,7 +340,10 @@ function initSplash() {
 
 // ---- Init ----
 
-document.addEventListener('DOMContentLoaded', () => {
-  initSplash();
-  if (document.getElementById('home-page')) initHome();
+document.addEventListener('DOMContentLoaded', async () => {
+  if (document.getElementById('home-page')) {
+    await checkAuth();
+    initSplash();
+    await initHome();
+  }
 });

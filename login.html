@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#142019">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Critical Fit — Sign In</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="images/criticalfitLogo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .login-page {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      gap: 0;
+    }
+    .login-logo {
+      width: 180px;
+      height: 180px;
+      object-fit: contain;
+      border-radius: 50%;
+      border: 3px solid var(--amber);
+      box-shadow: 0 0 32px rgba(232,160,32,0.35), 0 8px 32px rgba(0,0,0,0.4);
+      margin-bottom: 1.5rem;
+    }
+    .login-wordmark {
+      height: 42px;
+      width: auto;
+      margin-bottom: 0.5rem;
+    }
+    .login-tagline {
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--text-mid);
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 360px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .login-section-label {
+      font-family: var(--font-display);
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-align: center;
+    }
+    .login-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--text-dim);
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+    }
+    .login-divider::before, .login-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .auth-error {
+      display: none;
+      background: rgba(208, 64, 48, 0.15);
+      border: 1px solid rgba(208, 64, 48, 0.4);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      color: #FF8070;
+      text-align: center;
+    }
+    .passkey-unsupported {
+      display: none;
+      text-align: center;
+      color: var(--text-mid);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      padding: 1rem;
+    }
+    .passkey-hint {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: center;
+      line-height: 1.5;
+    }
+    .passkey-hint i {
+      color: var(--amber);
+    }
+  </style>
+</head>
+<body id="login-page">
+
+  <div class="login-page">
+
+    <img class="login-logo" src="images/criticalfitLogo.png" alt="Critical Fit">
+    <img class="login-wordmark" src="images/CriticalFit-1line-logo-small.png" alt="Critical Fit">
+    <p class="login-tagline">Your Fitness Quest Awaits</p>
+
+    <div id="passkey-unsupported" class="passkey-unsupported">
+      <i class="fa-solid fa-triangle-exclamation" style="color:var(--amber);font-size:2rem;margin-bottom:0.75rem;display:block;"></i>
+      Passkeys are not supported in this browser.<br>
+      Please open Critical Fit in Safari on iOS or Chrome on Android.
+    </div>
+
+    <div id="auth-form" class="login-card">
+
+      <div id="auth-error" class="auth-error"></div>
+
+      <!-- New account -->
+      <p class="login-section-label">New here? Create your account</p>
+      <input
+        type="text"
+        id="display-name"
+        class="form-input"
+        placeholder="Your name"
+        autocomplete="username"
+        maxlength="50"
+      >
+      <button id="btn-register" class="btn btn-tertiary btn-full">
+        <i class="fa-solid fa-fingerprint"></i>
+        Create Account with Passkey
+      </button>
+
+      <div class="login-divider">or</div>
+
+      <!-- Returning user -->
+      <p class="login-section-label">Already have an account?</p>
+      <button id="btn-login" class="btn btn-primary btn-full">
+        <i class="fa-solid fa-key"></i>
+        Sign In with Passkey
+      </button>
+
+      <p class="passkey-hint">
+        <i class="fa-solid fa-shield-halved"></i>
+        Passkeys use Face ID or Touch ID — no password needed.
+      </p>
+
+    </div>
+
+  </div>
+
+  <script src="js/auth.js"></script>
+</body>
+</html>

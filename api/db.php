@@ -13,7 +13,34 @@ function db(): PDO {
     return $pdo;
 }
 
-const USER_ID = 1;
+function sessionStart(): void {
+    if (session_status() !== PHP_SESSION_NONE) return;
+    $secure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+    session_set_cookie_params([
+        'lifetime' => 86400 * 30,
+        'path'     => '/',
+        'secure'   => $secure,
+        'httponly' => true,
+        'samesite' => 'Strict',
+    ]);
+    session_start();
+}
+
+function currentUserId(): ?int {
+    sessionStart();
+    return isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
+}
+
+function requireAuth(): int {
+    $uid = currentUserId();
+    if (!$uid) {
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(401);
+        echo json_encode(['ok' => false, 'error' => 'Not authenticated']);
+        exit;
+    }
+    return $uid;
+}
 
 function json_out(mixed $data): void {
     header('Content-Type: application/json; charset=utf-8');
