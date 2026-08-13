@@ -324,6 +324,14 @@ if ('serviceWorker' in navigator) {
 function initSplash() {
   const splash = document.getElementById('splash');
   if (!splash) return;
+
+  const today = todayKey();
+  if (localStorage.getItem('cf_splash_date') === today) {
+    splash.remove();
+    return;
+  }
+
+  localStorage.setItem('cf_splash_date', today);
   setTimeout(() => {
     splash.classList.add('fade-out');
     splash.addEventListener('transitionend', () => splash.remove(), { once: true });
