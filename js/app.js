@@ -91,6 +91,12 @@ const store = {
   },
 };
 
+// ---- Module-level state ----
+
+let viewingDate    = '';
+let cachedUser     = null;
+let cachedSummaries = [];
+
 // ---- Helpers ----
 
 function todayKey() {
@@ -204,27 +210,13 @@ function showLevelUp(fromStage, toStage) {
   };
 }
 
-// ---- Home Screen ----
+// ---- Dragon ----
 
-async function initHome() {
-  const today = todayKey();
-
-  const [summary, dragon, food, exercise, summaries, user] = await Promise.all([
-    store.getDailySummary(today),
-    store.getDragonProgress(),
-    store.getFoodEntries(today),
-    store.getExerciseEntries(today),
-    store.getRecentSummaries(14),
-    store.getUser(),
-  ]);
-
+function renderDragon(dragon) {
   const stage = getDragonStage(dragon.streak);
-
-  // Dragon
   const dragonImg    = document.getElementById('dragon-img');
   const dragonTitle  = document.getElementById('dragon-title');
   const dragonStreak = document.getElementById('dragon-streak');
-
   if (dragonImg)    dragonImg.src = stage.img;
   if (dragonTitle)  dragonTitle.textContent = stage.title;
   if (dragonStreak) {
@@ -232,8 +224,55 @@ async function initHome() {
       ? 'Beginning the Quest'
       : `${dragon.streak} Consecutive Day${dragon.streak === 1 ? '' : 's'}`;
   }
+}
 
-  // Energy Balance
+// ---- Week Navigator ----
+
+function renderWeekNav() {
+  const today   = todayKey();
+  const strip   = document.getElementById('week-strip');
+  const prevBtn = document.getElementById('prev-day');
+  const nextBtn = document.getElementById('next-day');
+  if (!strip || !prevBtn || !nextBtn) return;
+
+  // Sunday of the week containing viewingDate
+  const d  = new Date(viewingDate + 'T12:00:00');
+  const ws = new Date(d);
+  ws.setDate(d.getDate() - d.getDay());
+
+  const loggedSet = new Set(
+    cachedSummaries
+      .filter(s => s.caloriesIn > 0 || s.caloriesOut > 0)
+      .map(s => s.date)
+  );
+
+  const LTRS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  strip.innerHTML = LTRS.map((ltr, i) => {
+    const day    = new Date(ws);
+    day.setDate(ws.getDate() + i);
+    const ds     = day.toISOString().slice(0, 10);
+    const active = ds === viewingDate;
+    const future = ds > today;
+    const logged = loggedSet.has(ds);
+    const cls    = ['week-day',
+      active ? 'week-day--active' : '',
+      logged ? 'week-day--logged' : '',
+      future ? 'week-day--future' : '',
+    ].filter(Boolean).join(' ');
+    return `<div class="${cls}">
+      <div class="week-day-dot"></div>
+      <span class="week-day-lbl">${ltr}</span>
+      <div class="week-day-ring">${logged ? '<i class="fa-solid fa-check"></i>' : ''}</div>
+    </div>`;
+  }).join('');
+
+  prevBtn.disabled = ![...loggedSet].some(d => d < viewingDate);
+  nextBtn.disabled = viewingDate >= today;
+}
+
+// ---- Energy Balance ----
+
+function renderEnergyBalance(summary, user) {
   const caloriesIn  = summary.caloriesIn;
   const caloriesOut = summary.caloriesOut;
   const deficit     = caloriesOut - caloriesIn;
@@ -257,6 +296,7 @@ async function initHome() {
   if (elBar) {
     if (caloriesOut === 0) {
       elBar.style.width = '0%';
+      elBar.className = 'energy-bar';
       if (elStatus) {
         elStatus.textContent = user && user.dailyGoal
           ? `Daily Intake Goal: ${user.dailyGoal.toLocaleString()} cals`
@@ -277,38 +317,98 @@ async function initHome() {
       }
     }
   }
+}
 
-  // Quest Progress chart
-  const chartEl = document.getElementById('quest-chart');
-  if (chartEl) renderChart(chartEl, summaries);
+// ---- Journal Entries ----
 
-  // Today's Journal entries
+function renderJournalEntries(food, exercise) {
+  const today     = todayKey();
+  const titleEl   = document.getElementById('journal-date-title');
   const journalEl = document.getElementById('journal-entries');
-  if (journalEl) {
-    if (food.length === 0 && exercise.length === 0) {
-      journalEl.innerHTML = `<p class="empty-state">No rations recorded yet today.<br>Begin your quest.</p>`;
+
+  if (titleEl) {
+    if (viewingDate === today) {
+      titleEl.textContent = "Today's Journal";
     } else {
-      const rows = [
-        ...food.map(e => `
-          <div class="journal-entry">
-            <div class="entry-info">
-              <span class="entry-name">${e.name}</span>
-              <span class="entry-detail">${e.grams ? e.grams + 'g' : ''}</span>
-            </div>
-            <span class="entry-cal">${fmtCal(e.calories)} kcal</span>
-          </div>`),
-        ...exercise.map(e => `
-          <div class="journal-entry">
-            <div class="entry-info">
-              <span class="entry-name">${e.name}</span>
-              <span class="entry-detail">${e.duration ? e.duration + ' min · Training' : 'Training'}</span>
-            </div>
-            <span class="entry-cal burned">−${fmtCal(e.calories)} kcal</span>
-          </div>`),
-      ];
-      journalEl.innerHTML = rows.join('');
+      const d = new Date(viewingDate + 'T12:00:00');
+      titleEl.textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
     }
   }
+
+  if (!journalEl) return;
+
+  if (food.length === 0 && exercise.length === 0) {
+    const msg = viewingDate === today
+      ? 'No rations recorded yet today.<br>Begin your quest.'
+      : 'No entries for this day.';
+    journalEl.innerHTML = `<p class="empty-state">${msg}</p>`;
+    return;
+  }
+
+  const rows = [
+    ...food.map(e => `
+      <div class="journal-entry">
+        <div class="entry-info">
+          <span class="entry-name">${e.name}</span>
+          <span class="entry-detail">${e.grams ? e.grams + 'g' : ''}</span>
+        </div>
+        <span class="entry-cal">${fmtCal(e.calories)} kcal</span>
+      </div>`),
+    ...exercise.map(e => `
+      <div class="journal-entry">
+        <div class="entry-info">
+          <span class="entry-name">${e.name}</span>
+          <span class="entry-detail">${e.duration ? e.duration + ' min · Training' : 'Training'}</span>
+        </div>
+        <span class="entry-cal burned">−${fmtCal(e.calories)} kcal</span>
+      </div>`),
+  ];
+  journalEl.innerHTML = rows.join('');
+}
+
+// ---- Day Navigation ----
+
+async function shiftDay(delta) {
+  const d = new Date(viewingDate + 'T12:00:00');
+  d.setDate(d.getDate() + delta);
+  viewingDate = d.toISOString().slice(0, 10);
+
+  const [summary, food, exercise] = await Promise.all([
+    store.getDailySummary(viewingDate),
+    store.getFoodEntries(viewingDate),
+    store.getExerciseEntries(viewingDate),
+  ]);
+
+  renderWeekNav();
+  renderEnergyBalance(summary, cachedUser);
+  renderJournalEntries(food, exercise);
+}
+
+// ---- Home Screen ----
+
+async function initHome() {
+  viewingDate = todayKey();
+
+  const [summary, dragon, food, exercise, summaries, user] = await Promise.all([
+    store.getDailySummary(viewingDate),
+    store.getDragonProgress(),
+    store.getFoodEntries(viewingDate),
+    store.getExerciseEntries(viewingDate),
+    store.getRecentSummaries(90),
+    store.getUser(),
+  ]);
+
+  cachedUser      = user;
+  cachedSummaries = summaries;
+
+  renderDragon(dragon);
+  renderWeekNav();
+  renderEnergyBalance(summary, user);
+  renderChart(document.getElementById('quest-chart'), summaries);
+  renderJournalEntries(food, exercise);
+
+  document.getElementById('prev-day').addEventListener('click', () => shiftDay(-1));
+  document.getElementById('next-day').addEventListener('click', () => shiftDay(1));
 }
 
 // ---- Service Worker ----
@@ -342,7 +442,7 @@ function initSplash() {
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (document.getElementById('home-page')) {
-    initSplash();        // synchronous — hides immediately if already shown today
+    initSplash();
     await checkAuth();
     await initHome();
   }
