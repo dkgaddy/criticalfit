@@ -40,7 +40,7 @@ if ($method === 'GET') {
               bmr=VALUES(bmr), tdee=VALUES(tdee), daily_goal=VALUES(daily_goal)';
 
     db()->prepare($sql)->execute([
-        USER_ID,
+        $uid,
         $b['name']       ?? null,
         $b['gender']     ?? 'male',
         $b['age']        ?? null,

@@ -184,10 +184,7 @@ async function saveProfile() {
 
   await store.saveUser(profile);
 
-  btn.disabled = false;
-  status.textContent = 'Profile saved.';
-  status.classList.add('visible');
-  setTimeout(() => status.classList.remove('visible'), 2500);
+  window.location.href = 'index.html';
 }
 
 // ---- Init ----
