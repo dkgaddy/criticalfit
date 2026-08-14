@@ -11,7 +11,8 @@ if ($method === 'GET') {
     if (!$row) { json_out(null); exit; }
 
     json_out([
-        'name'       => $row['name'],
+        'name'        => $row['name'],
+        'displayName' => $row['display_name'],
         'gender'     => $row['gender'],
         'age'        => $row['age'] !== null ? (int)$row['age'] : null,
         'unit'       => $row['unit'],

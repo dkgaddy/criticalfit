@@ -212,17 +212,21 @@ function showLevelUp(fromStage, toStage) {
 
 // ---- Dragon ----
 
-function renderDragon(dragon) {
+function renderDragon(dragon, user) {
   const stage = getDragonStage(dragon.streak);
   const dragonImg    = document.getElementById('dragon-img');
   const dragonTitle  = document.getElementById('dragon-title');
   const dragonStreak = document.getElementById('dragon-streak');
+  const dragonName   = document.getElementById('dragon-user-name');
   if (dragonImg)    dragonImg.src = stage.img;
   if (dragonTitle)  dragonTitle.textContent = stage.title;
   if (dragonStreak) {
     dragonStreak.textContent = dragon.streak === 0
       ? 'Beginning the Quest'
       : `${dragon.streak} Consecutive Day${dragon.streak === 1 ? '' : 's'}`;
+  }
+  if (dragonName) {
+    dragonName.textContent = (user && (user.name || user.displayName)) || '';
   }
 }
 
@@ -401,7 +405,7 @@ async function initHome() {
   cachedUser      = user;
   cachedSummaries = summaries;
 
-  renderDragon(dragon);
+  renderDragon(dragon, user);
   renderWeekNav();
   renderEnergyBalance(summary, user);
   renderChart(document.getElementById('quest-chart'), summaries);
