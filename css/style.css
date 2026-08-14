@@ -661,14 +661,15 @@ a { color: inherit; text-decoration: none; }
 .levelup-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: linear-gradient(160deg, #0C1510 0%, #1A2D22 100%);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 200;
+  z-index: 300;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.45s ease;
 }
 
 .levelup-overlay.show {
@@ -676,52 +677,56 @@ a { color: inherit; text-decoration: none; }
   pointer-events: auto;
 }
 
-.levelup-card {
-  background: linear-gradient(160deg, #1E3028, #142019);
-  border: 1px solid var(--amber);
-  border-radius: var(--radius-lg);
-  padding: 2.25rem 2rem;
+.levelup-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 2rem 1.75rem;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 2rem);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 2rem);
+  width: 100%;
+  max-width: 440px;
   text-align: center;
-  max-width: 320px;
-  width: 90%;
-  box-shadow: 0 0 40px rgba(232,160,32,0.25), 0 20px 60px rgba(0,0,0,0.5);
-  transform: scale(0.92);
-  transition: transform 0.4s ease;
 }
 
-.levelup-overlay.show .levelup-card {
-  transform: scale(1);
-}
-
-.levelup-label {
+.levelup-congrats {
   font-family: var(--font-display);
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 1rem;
+  color: var(--amber);
+  text-shadow: 0 0 30px rgba(232,160,32,0.6);
 }
 
-.levelup-message {
+.levelup-dragon-img {
+  width: min(72vw, 300px);
+  height: min(72vw, 300px);
+  object-fit: contain;
+  filter: drop-shadow(0 0 48px rgba(232,160,32,0.35));
+}
+
+.levelup-headline {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.levelup-next {
   font-family: var(--font-serif);
-  font-size: 1.1rem;
-  line-height: 1.7;
+  font-size: 0.9rem;
   color: var(--text-mid);
+  line-height: 1.55;
+  max-width: 300px;
 }
 
 .levelup-dismiss {
-  margin-top: 1.5rem;
-  font-family: var(--font-display);
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 0.5rem 1rem;
+  width: 100%;
+  max-width: 320px;
+  margin-top: 0.5rem;
 }
 
 /* ============================================================

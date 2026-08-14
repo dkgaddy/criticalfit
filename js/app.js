@@ -120,12 +120,8 @@ function fmtCal(n) {
   return Math.round(Math.abs(n)).toLocaleString();
 }
 
-function getDragonStage(streak) {
-  let stage = DRAGON_STAGES[0];
-  for (const s of DRAGON_STAGES) {
-    if (streak >= s.days) stage = s;
-  }
-  return stage;
+function getDragonStage(level) {
+  return DRAGON_STAGES.find(s => s.level === level) || DRAGON_STAGES[0];
 }
 
 // ---- Quest Progress Chart ----
@@ -206,27 +202,41 @@ function renderChart(container, summaries) {
   container.appendChild(svg);
 }
 
-// ---- Level-up Toast ----
+// ---- Level-up Modal ----
 
-function showLevelUp(fromStage, toStage) {
-  const overlay = document.getElementById('levelup-overlay');
-  const msg = document.getElementById('levelup-message');
-  if (!overlay || !msg) return;
+function showLevelUp(dragon) {
+  const overlay  = document.getElementById('levelup-overlay');
+  const imgEl    = document.getElementById('levelup-dragon-img');
+  const headEl   = document.getElementById('levelup-headline');
+  const nextEl   = document.getElementById('levelup-next');
+  const dismissEl = document.getElementById('levelup-dismiss');
+  if (!overlay) return;
 
-  msg.innerHTML = `Your companion has grown.<br><br>
-    Your <em>${fromStage.title}</em> has become a <em>${toStage.title}</em>.`;
+  const stage = getDragonStage(dragon.currentLevel);
+
+  if (imgEl) imgEl.src = stage.img;
+  if (headEl) headEl.textContent = `Your dragon has been promoted to ${stage.title}!`;
+  if (nextEl) {
+    if (dragon.daysToNext !== null && dragon.daysToNext > 0) {
+      nextEl.textContent = `Next promotion after logging in your journal ${dragon.daysToNext} more day${dragon.daysToNext === 1 ? '' : 's'}!`;
+    } else if (dragon.daysToNext === 0) {
+      nextEl.textContent = 'You are ready for the next promotion!';
+    } else {
+      nextEl.textContent = 'Your dragon has reached the highest level. Legendary!';
+    }
+  }
 
   overlay.classList.add('show');
 
-  overlay.querySelector('.levelup-dismiss').onclick = () => {
-    overlay.classList.remove('show');
-  };
+  if (dismissEl) {
+    dismissEl.onclick = () => overlay.classList.remove('show');
+  }
 }
 
 // ---- Dragon ----
 
 function renderDragon(dragon, user) {
-  const stage = getDragonStage(dragon.streak);
+  const stage = getDragonStage(dragon.currentLevel ?? 0);
   const dragonImg    = document.getElementById('dragon-img');
   const dragonTitle  = document.getElementById('dragon-title');
   const dragonStreak = document.getElementById('dragon-streak');
@@ -234,9 +244,10 @@ function renderDragon(dragon, user) {
   if (dragonImg)    dragonImg.src = stage.img;
   if (dragonTitle)  dragonTitle.textContent = stage.title;
   if (dragonStreak) {
-    dragonStreak.textContent = dragon.streak === 0
+    const days = dragon.totalLoggedDays ?? 0;
+    dragonStreak.textContent = days === 0
       ? 'Beginning the Quest'
-      : `${dragon.streak} Consecutive Day${dragon.streak === 1 ? '' : 's'}`;
+      : `${days} Day${days === 1 ? '' : 's'} Logged`;
   }
   if (dragonName) {
     dragonName.textContent = (user && (user.name || user.displayName)) || '';
@@ -509,26 +520,32 @@ async function initHome() {
   renderEnergyUsed();
   renderChart(document.getElementById('quest-chart'), summaries);
   renderJournalEntries(food, exercise);
+
+  if (dragon.promoted) showLevelUp(dragon);
 }
 
 // ---- Refresh today's data after logging ----
 
 async function refreshHomeForToday() {
   viewingDate = todayKey();
-  const [summary, food, exercise, summaries] = await Promise.all([
+  const [summary, food, exercise, summaries, dragon] = await Promise.all([
     store.getDailySummary(viewingDate),
     store.getFoodEntries(viewingDate),
     store.getExerciseEntries(viewingDate),
     store.getRecentSummaries(90),
+    store.getDragonProgress(),
   ]);
   cachedSummaries = summaries;
   cachedExercise  = exercise;
   cachedSummary   = summary;
 
+  renderDragon(dragon, cachedUser);
   renderWeekNav();
   renderEnergyBalance(summary, cachedUser);
   renderEnergyUsed();
   renderJournalEntries(food, exercise);
+
+  if (dragon.promoted) showLevelUp(dragon);
 }
 
 // ---- Service Worker ----

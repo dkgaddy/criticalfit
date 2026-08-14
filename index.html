@@ -246,12 +246,14 @@
   <!-- ======= Energy Stored Toast ======= -->
   <div id="energy-toast" class="energy-toast">Energy Stored!</div>
 
-  <!-- ======= Level-Up Toast ======= -->
-  <div id="levelup-overlay" class="levelup-overlay" role="dialog" aria-modal="true" aria-label="Dragon evolution">
-    <div class="levelup-card">
-      <p class="levelup-label">Your Companion Has Grown</p>
-      <p class="levelup-message" id="levelup-message"></p>
-      <button class="levelup-dismiss">Continue the Quest</button>
+  <!-- ======= Dragon Promotion Modal ======= -->
+  <div id="levelup-overlay" class="levelup-overlay" role="dialog" aria-modal="true" aria-label="Dragon promotion">
+    <div class="levelup-content">
+      <p class="levelup-congrats">Congratulations!</p>
+      <img id="levelup-dragon-img" class="levelup-dragon-img" src="" alt="Your dragon">
+      <p class="levelup-headline" id="levelup-headline"></p>
+      <p class="levelup-next" id="levelup-next"></p>
+      <button class="btn btn-primary levelup-dismiss" id="levelup-dismiss">Continue the Quest</button>
     </div>
   </div>
 
