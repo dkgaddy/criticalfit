@@ -146,8 +146,37 @@
                placeholder="Search Rations…" autocomplete="off" autocorrect="off" spellcheck="false">
       </div>
       <div class="modal-content" id="ration-content"></div>
+
+      <!-- Food Detail Panel (slides over search results) -->
+      <div id="food-detail-panel" class="food-detail-panel">
+        <div class="food-detail-header">
+          <button class="food-detail-back" id="food-detail-back" aria-label="Back to search">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <span class="food-detail-title">Add Ration</span>
+        </div>
+        <div class="food-detail-scroll">
+          <p class="food-detail-name" id="food-detail-name"></p>
+          <p class="food-detail-per">Per serving · 100g</p>
+          <div class="food-detail-macros" id="food-detail-macros"></div>
+          <div class="food-qty-row">
+            <button class="qty-stepper" id="qty-minus" aria-label="Decrease servings">−</button>
+            <div class="qty-center">
+              <span class="qty-num" id="qty-display">1</span>
+              <span class="qty-unit-lbl">servings</span>
+            </div>
+            <button class="qty-stepper" id="qty-plus" aria-label="Increase servings">+</button>
+          </div>
+          <div id="food-detail-totals"></div>
+          <button class="log-it-btn food-log-btn-full" id="food-log-btn">Log It</button>
+        </div>
+      </div>
+
     </div>
   </div>
+
+  <!-- ======= Energy Stored Toast ======= -->
+  <div id="energy-toast" class="energy-toast">Energy Stored!</div>
 
   <!-- ======= Level-Up Toast ======= -->
   <div id="levelup-overlay" class="levelup-overlay" role="dialog" aria-modal="true" aria-label="Dragon evolution">

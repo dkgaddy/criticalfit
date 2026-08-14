@@ -770,6 +770,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 .modal-sheet {
+  position: relative;
   width: 100%;
   max-height: 88dvh;
   background: #1A2D22;
@@ -935,7 +936,7 @@ a { color: inherit; text-decoration: none; }
 .food-add-btn {
   flex-shrink: 0;
   padding: 0.42rem 0.875rem;
-  background: linear-gradient(to bottom, var(--rust-top), var(--rust));
+  background: linear-gradient(to bottom, var(--amber-top), var(--amber));
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -945,81 +946,218 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 3px 0 var(--rust-edge);
+  box-shadow: 0 3px 0 var(--amber-edge);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.35);
   -webkit-tap-highlight-color: transparent;
   transition: transform 0.08s, box-shadow 0.08s;
 }
 
 .food-add-btn:active {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--rust-edge);
+  box-shadow: 0 1px 0 var(--amber-edge);
 }
 
-/* ---- Inline expand ---- */
+/* ---- Food Detail Panel ---- */
 
-.food-item-expand {
-  background: rgba(0,0,0,0.2);
-  border-bottom: 1px solid var(--border);
-  padding: 0.75rem 1.125rem;
+.food-detail-panel {
+  position: absolute;
+  inset: 0;
+  background: #1A2D22;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-.expand-name {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--text-mid);
-  margin-bottom: 0.625rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.food-detail-panel.active {
+  transform: translateX(0);
 }
 
-.expand-row {
+.food-detail-header {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.125rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.food-detail-back {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  border-radius: 50%;
+  color: var(--text-mid);
+  cursor: pointer;
+  font-size: 0.85rem;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.food-detail-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.food-detail-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1.25rem;
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.food-detail-name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.food-detail-per {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: -0.5rem;
+}
+
+.food-detail-macros {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.5rem;
 }
 
-.qty-input {
-  width: 74px;
-  padding: 0.45rem 0.5rem;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid var(--border-hi);
-  border-radius: 6px;
-  font-family: var(--font-body);
-  font-size: 1rem;
-  color: var(--text);
-  text-align: center;
-  outline: none;
-  -webkit-appearance: none;
-  -moz-appearance: textfield;
+.macro-box {
+  background: var(--bg-surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
 }
 
-.qty-input:focus { border-color: var(--amber); }
-
-.qty-unit {
+.macro-val {
   font-family: var(--font-display);
-  font-size: 0.68rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+
+.macro-lbl {
+  font-size: 0.52rem;
   font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--text-dim);
 }
 
-.qty-total {
-  flex: 1;
-  text-align: right;
-  font-family: var(--font-display);
-  font-size: 0.9rem;
-  font-weight: 700;
+.macro-box--cal .macro-val {
   color: var(--amber);
 }
 
+.food-qty-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.75rem;
+}
+
+.qty-stepper {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--border-hi);
+  background: var(--bg-surface2);
+  color: var(--text);
+  font-size: 1.6rem;
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.qty-stepper:active {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: #1A0E00;
+}
+
+.qty-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  min-width: 64px;
+}
+
+.qty-num {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+
+.qty-unit-lbl {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.food-detail-total-box {
+  background: rgba(232,160,32,0.08);
+  border: 1px solid rgba(232,160,32,0.2);
+  border-radius: var(--radius);
+  padding: 0.875rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.detail-total-cal {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--amber);
+  line-height: 1;
+}
+
+.detail-total-macros {
+  font-size: 0.78rem;
+  color: var(--text-mid);
+  font-weight: 600;
+}
+
 .log-it-btn {
-  padding: 0.48rem 1rem;
+  padding: 0.75rem 1rem;
   background: linear-gradient(to bottom, var(--amber-top), var(--amber));
   color: #3A1E00;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius);
   font-family: var(--font-display);
-  font-size: 0.62rem;
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1032,6 +1170,39 @@ a { color: inherit; text-decoration: none; }
 .log-it-btn:active {
   transform: translateY(2px);
   box-shadow: 0 1px 0 var(--amber-edge);
+}
+
+.food-log-btn-full {
+  width: 100%;
+}
+
+/* ---- Energy Stored Toast ---- */
+
+.energy-toast {
+  position: fixed;
+  bottom: calc(var(--nav-h) + 1rem + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%) translateY(1rem);
+  background: linear-gradient(to bottom, var(--amber-top), var(--amber));
+  color: #3A1E00;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.65rem 1.5rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(232,160,32,0.4), 0 2px 8px rgba(0,0,0,0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 500;
+  white-space: nowrap;
+}
+
+.energy-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* ---- Empty / loading states ---- */

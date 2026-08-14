@@ -5,21 +5,24 @@
 const DEBOUNCE_MS     = 420;
 const SEARCH_ENDPOINT = 'api/food-search.php';
 
-// ---- Log a food entry ----
+// ---- Detail panel state ----
 
-async function logFoodEntry(food, grams) {
-  const ratio = grams / 100;
+let currentFood     = null;
+let currentServings = 1;
+
+// ---- Log a food entry (servings-based, 1 serving = 100g) ----
+
+async function logFoodEntry(food, servings) {
   const entry = {
     fdcId:    food.fdcId,
     name:     food.name,
-    grams,
-    calories: Math.round(food.calories * ratio),
-    protein:  Math.round(food.protein  * ratio * 10) / 10,
-    carbs:    Math.round(food.carbs    * ratio * 10) / 10,
-    fat:      Math.round(food.fat      * ratio * 10) / 10,
+    grams:    Math.round(servings * 100),
+    calories: Math.round(food.calories * servings),
+    protein:  Math.round(food.protein  * servings * 10) / 10,
+    carbs:    Math.round(food.carbs    * servings * 10) / 10,
+    fat:      Math.round(food.fat      * servings * 10) / 10,
     date:     new Date().toISOString().slice(0, 10),
   };
-
   await store.addFoodEntry(entry);
   await store.saveRecentFood(food);
   return entry;
@@ -51,6 +54,76 @@ function esc(s) {
   );
 }
 
+// ---- Food Detail Panel ----
+
+function showFoodDetail(food) {
+  currentFood     = food;
+  currentServings = 1;
+
+  document.getElementById('food-detail-name').textContent = food.name;
+
+  const macroEl = document.getElementById('food-detail-macros');
+  macroEl.innerHTML = `
+    <div class="macro-box macro-box--cal">
+      <span class="macro-val">${Math.round(food.calories).toLocaleString()}</span>
+      <span class="macro-lbl">cal</span>
+    </div>
+    <div class="macro-box">
+      <span class="macro-val">${food.protein}g</span>
+      <span class="macro-lbl">protein</span>
+    </div>
+    <div class="macro-box">
+      <span class="macro-val">${food.carbs}g</span>
+      <span class="macro-lbl">carbs</span>
+    </div>
+    <div class="macro-box">
+      <span class="macro-val">${food.fat}g</span>
+      <span class="macro-lbl">fat</span>
+    </div>
+  `;
+
+  updateDetailTotals();
+  document.getElementById('food-detail-panel').classList.add('active');
+}
+
+function hideFoodDetail() {
+  document.getElementById('food-detail-panel').classList.remove('active');
+}
+
+function updateDetailTotals() {
+  const qtyEl = document.getElementById('qty-display');
+  if (qtyEl) {
+    qtyEl.textContent = Number.isInteger(currentServings)
+      ? String(currentServings)
+      : currentServings.toFixed(1);
+  }
+
+  if (!currentFood) return;
+  const cal = Math.round(currentFood.calories * currentServings);
+  const pro = Math.round(currentFood.protein  * currentServings * 10) / 10;
+  const car = Math.round(currentFood.carbs    * currentServings * 10) / 10;
+  const fat = Math.round(currentFood.fat      * currentServings * 10) / 10;
+
+  const totalsEl = document.getElementById('food-detail-totals');
+  if (totalsEl) {
+    totalsEl.innerHTML = `
+      <div class="food-detail-total-box">
+        <span class="detail-total-cal">${cal.toLocaleString()} cal</span>
+        <span class="detail-total-macros">P: ${pro}g · C: ${car}g · F: ${fat}g</span>
+      </div>
+    `;
+  }
+}
+
+// ---- Energy Stored Toast ----
+
+function showEnergyToast() {
+  const toast = document.getElementById('energy-toast');
+  if (!toast) return;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
 // ---- Render a single food row ----
 
 function makeFoodRow(food) {
@@ -60,67 +133,17 @@ function makeFoodRow(food) {
   const brand = food.brand ? ` · ${esc(food.brand)}` : '';
   row.innerHTML = `
     <div class="food-item-info">
-      <span class="food-item-name">${esc(food.name)} <span class="food-item-cals">(${food.calories.toLocaleString()} cals)</span></span>
+      <span class="food-item-name">${esc(food.name)} <span class="food-item-cals">(${Math.round(food.calories).toLocaleString()} cal)</span></span>
       <span class="food-item-macros">P: ${food.protein}g &middot; C: ${food.carbs}g &middot; F: ${food.fat}g${brand} &middot; per 100g</span>
     </div>
     <button class="food-add-btn" aria-label="Add ${esc(food.name)}">Add</button>
   `;
 
-  row.querySelector('.food-add-btn').addEventListener('click', () => expandRow(row, food));
+  row.querySelector('.food-add-btn').addEventListener('click', () => showFoodDetail(food));
   return row;
 }
 
-// ---- Inline quantity expander ----
-
-function expandRow(row, food) {
-  document.querySelectorAll('.food-item-expand').forEach(el => el.remove());
-  document.querySelectorAll('.food-item.selected').forEach(el => el.classList.remove('selected'));
-
-  row.classList.add('selected');
-
-  const expand = document.createElement('div');
-  expand.className = 'food-item-expand';
-  expand.innerHTML = `
-    <p class="expand-name">${esc(food.name)}</p>
-    <div class="expand-row">
-      <input type="number" class="qty-input" value="100" min="1" max="9999" inputmode="numeric" aria-label="Amount in grams">
-      <span class="qty-unit">g</span>
-      <span class="qty-total">${food.calories.toLocaleString()} cals</span>
-      <button class="log-it-btn">Log It</button>
-    </div>
-  `;
-
-  const qtyInput = expand.querySelector('.qty-input');
-  const totalEl  = expand.querySelector('.qty-total');
-
-  qtyInput.addEventListener('input', () => {
-    const g   = parseFloat(qtyInput.value) || 0;
-    const cal = Math.round(food.calories * g / 100);
-    totalEl.textContent = `${cal.toLocaleString()} cals`;
-  });
-
-  expand.querySelector('.log-it-btn').addEventListener('click', async () => {
-    const g = parseFloat(qtyInput.value) || 100;
-    if (g <= 0) return;
-    const btn = expand.querySelector('.log-it-btn');
-    btn.disabled = true;
-    btn.textContent = 'Saving…';
-    await logFoodEntry(food, g);
-    closeModal();
-    if (typeof initHome === 'function') await initHome();
-  });
-
-  row.insertAdjacentElement('afterend', expand);
-  qtyInput.focus();
-  qtyInput.select();
-}
-
 // ---- Render content pane ----
-
-function clearExpand() {
-  document.querySelectorAll('.food-item-expand').forEach(el => el.remove());
-  document.querySelectorAll('.food-item.selected').forEach(el => el.classList.remove('selected'));
-}
 
 function renderEmpty(msg) {
   return Object.assign(document.createElement('p'), {
@@ -140,12 +163,10 @@ function renderSection(title, foods) {
 }
 
 async function showRecent() {
-  const pane   = document.getElementById('ration-content');
+  const pane = document.getElementById('ration-content');
   pane.innerHTML = '';
-  clearExpand();
 
   const recent = await store.getRecentFoods();
-
   if (recent.length === 0) {
     pane.appendChild(renderEmpty('No recent rations. Search above to get started.'));
   } else {
@@ -161,15 +182,14 @@ function showLoading() {
 
 async function showResults(query) {
   showLoading();
-  const q      = query.toLowerCase();
-  const recent = (await store.getRecentFoods()).filter(f => f.name.toLowerCase().includes(q));
-  const usda   = await searchUSDA(query);
+  const q         = query.toLowerCase();
+  const recent    = (await store.getRecentFoods()).filter(f => f.name.toLowerCase().includes(q));
+  const usda      = await searchUSDA(query);
   const recentIds = new Set(recent.map(f => f.fdcId));
-  const fresh  = usda.filter(f => !recentIds.has(f.fdcId));
+  const fresh     = usda.filter(f => !recentIds.has(f.fdcId));
 
   const pane = document.getElementById('ration-content');
   pane.innerHTML = '';
-  clearExpand();
 
   if (recent.length === 0 && fresh.length === 0) {
     pane.appendChild(renderEmpty(`No results found for "${esc(query)}".`));
@@ -186,6 +206,7 @@ function openModal() {
   const modal = document.getElementById('ration-modal');
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
+  hideFoodDetail();
   const input = document.getElementById('ration-search');
   input.value = '';
   showRecent();
@@ -195,6 +216,7 @@ function openModal() {
 function closeModal() {
   document.getElementById('ration-modal').classList.remove('open');
   document.body.style.overflow = '';
+  hideFoodDetail();
 }
 
 // ---- Debounced search ----
@@ -226,6 +248,33 @@ function initLogRation() {
   });
 
   searchInput?.addEventListener('input', e => handleSearchInput(e.target.value));
+
+  document.getElementById('food-detail-back')?.addEventListener('click', hideFoodDetail);
+
+  document.getElementById('qty-minus')?.addEventListener('click', () => {
+    if (currentServings > 0.5) {
+      currentServings = Math.round((currentServings - 0.5) * 10) / 10;
+      updateDetailTotals();
+    }
+  });
+
+  document.getElementById('qty-plus')?.addEventListener('click', () => {
+    currentServings = Math.round((currentServings + 0.5) * 10) / 10;
+    updateDetailTotals();
+  });
+
+  document.getElementById('food-log-btn')?.addEventListener('click', async () => {
+    if (!currentFood) return;
+    const btn = document.getElementById('food-log-btn');
+    btn.disabled    = true;
+    btn.textContent = 'Saving…';
+    await logFoodEntry(currentFood, currentServings);
+    btn.disabled    = false;
+    btn.textContent = 'Log It';
+    closeModal();
+    showEnergyToast();
+    if (typeof refreshHomeForToday === 'function') await refreshHomeForToday();
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {

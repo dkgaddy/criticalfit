@@ -420,9 +420,22 @@ async function initHome() {
   renderEnergyBalance(summary, user);
   renderChart(document.getElementById('quest-chart'), summaries);
   renderJournalEntries(food, exercise);
+}
 
-  document.getElementById('prev-day').addEventListener('click', () => shiftDay(-1));
-  document.getElementById('next-day').addEventListener('click', () => shiftDay(1));
+// ---- Refresh today's data after logging ----
+
+async function refreshHomeForToday() {
+  viewingDate = todayKey();
+  const [summary, food, exercise, summaries] = await Promise.all([
+    store.getDailySummary(viewingDate),
+    store.getFoodEntries(viewingDate),
+    store.getExerciseEntries(viewingDate),
+    store.getRecentSummaries(90),
+  ]);
+  cachedSummaries = summaries;
+  renderWeekNav();
+  renderEnergyBalance(summary, cachedUser);
+  renderJournalEntries(food, exercise);
 }
 
 // ---- Service Worker ----
@@ -459,5 +472,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initSplash();
     await checkAuth();
     await initHome();
+    document.getElementById('prev-day')?.addEventListener('click', () => shiftDay(-1));
+    document.getElementById('next-day')?.addEventListener('click', () => shiftDay(1));
   }
 });

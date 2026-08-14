@@ -34,7 +34,7 @@ if ($method === 'GET') {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
     );
     $stmt->execute([
-        USER_ID,
+        $uid,
         $date,
         $b['fdcId']    ?? null,
         $b['name']     ?? '',
