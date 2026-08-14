@@ -30,7 +30,7 @@ if ($method === 'GET') {
          VALUES (?, ?, ?, ?, ?)'
     );
     $stmt->execute([
-        USER_ID,
+        $uid,
         $date,
         $b['name']     ?? '',
         $b['duration'] ?? null,

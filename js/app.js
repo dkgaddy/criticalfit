@@ -93,9 +93,12 @@ const store = {
 
 // ---- Module-level state ----
 
-let viewingDate    = '';
-let cachedUser     = null;
+let viewingDate     = '';
+let cachedUser      = null;
 let cachedSummaries = [];
+let cachedExercise  = [];
+let cachedSummary   = { caloriesIn: 0, caloriesOut: 0 };
+let energyTickTimer = null;
 
 // ---- Helpers ----
 
@@ -333,6 +336,73 @@ function renderEnergyBalance(summary, user) {
   }
 }
 
+// ---- Energy Used ----
+
+function renderEnergyUsed() {
+  const titleEl    = document.getElementById('energy-used-card-title');
+  const numEl      = document.getElementById('energy-used-num');
+  const projEl     = document.getElementById('energy-used-of-projected');
+  const deltaNumEl = document.getElementById('energy-used-delta-num');
+  const deltaLblEl = document.getElementById('energy-used-delta-lbl');
+  const barEl      = document.getElementById('energy-used-bar');
+  if (!numEl) return;
+
+  // No profile → placeholder
+  if (!cachedUser || !cachedUser.bmr) {
+    numEl.textContent = '—';
+    if (projEl)     projEl.textContent     = '';
+    if (deltaNumEl) deltaNumEl.textContent = '';
+    if (deltaLblEl) deltaLblEl.textContent = 'Set up your profile to track energy';
+    return;
+  }
+
+  const state = calculateDailyEnergyState(
+    cachedUser, new Date(), cachedExercise, cachedSummary.caloriesIn, viewingDate
+  );
+
+  // Card title
+  const today = todayKey();
+  if (titleEl) {
+    if (viewingDate === today) {
+      titleEl.textContent = "Today's Energy Used";
+    } else {
+      const d   = new Date(viewingDate + 'T12:00:00');
+      const day = d.toLocaleDateString('en-US', { weekday: 'long' });
+      titleEl.textContent = `${day}'s Energy Used`;
+    }
+  }
+
+  numEl.textContent = state.energyUsedSoFar.toLocaleString();
+
+  if (projEl) {
+    projEl.textContent = `/ ${state.projectedDailyBurn.toLocaleString()}`;
+  }
+
+  if (state.isToday) {
+    const remaining = state.projectedDailyBurn - state.energyUsedSoFar;
+    if (deltaNumEl) deltaNumEl.textContent = remaining.toLocaleString();
+    if (deltaLblEl) deltaLblEl.textContent = 'left';
+  } else {
+    if (deltaNumEl) deltaNumEl.textContent = '';
+    if (deltaLblEl) deltaLblEl.textContent = '';
+  }
+
+  if (barEl) {
+    const pct = state.projectedDailyBurn > 0
+      ? Math.min((state.energyUsedSoFar / state.projectedDailyBurn) * 100, 100)
+      : 0;
+    barEl.style.width = pct + '%';
+  }
+}
+
+// Real-time tick — updates Energy Used every 60 s while viewing today
+function startEnergyTick() {
+  if (energyTickTimer) clearInterval(energyTickTimer);
+  energyTickTimer = setInterval(() => {
+    if (viewingDate === todayKey() && cachedUser) renderEnergyUsed();
+  }, 60_000);
+}
+
 // ---- Journal Entries ----
 
 function renderJournalEntries(food, exercise) {
@@ -393,8 +463,12 @@ async function shiftDay(delta) {
     store.getExerciseEntries(viewingDate),
   ]);
 
+  cachedExercise = exercise;
+  cachedSummary  = summary;
+
   renderWeekNav();
   renderEnergyBalance(summary, cachedUser);
+  renderEnergyUsed();
   renderJournalEntries(food, exercise);
 }
 
@@ -414,10 +488,13 @@ async function initHome() {
 
   cachedUser      = user;
   cachedSummaries = summaries;
+  cachedExercise  = exercise;
+  cachedSummary   = summary;
 
   renderDragon(dragon, user);
   renderWeekNav();
   renderEnergyBalance(summary, user);
+  renderEnergyUsed();
   renderChart(document.getElementById('quest-chart'), summaries);
   renderJournalEntries(food, exercise);
 }
@@ -433,8 +510,12 @@ async function refreshHomeForToday() {
     store.getRecentSummaries(90),
   ]);
   cachedSummaries = summaries;
+  cachedExercise  = exercise;
+  cachedSummary   = summary;
+
   renderWeekNav();
   renderEnergyBalance(summary, cachedUser);
+  renderEnergyUsed();
   renderJournalEntries(food, exercise);
 }
 
@@ -474,5 +555,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await initHome();
     document.getElementById('prev-day')?.addEventListener('click', () => shiftDay(-1));
     document.getElementById('next-day')?.addEventListener('click', () => shiftDay(1));
+    startEnergyTick();
   }
 });
