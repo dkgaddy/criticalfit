@@ -58,25 +58,19 @@
 
     <!-- Energy Balance -->
     <section class="card">
-      <h3 class="card-title">Energy Balance</h3>
-      <div class="energy-grid">
-        <div class="energy-stat">
-          <span class="stat-label">Energy Acquired</span>
-          <span class="stat-value" id="cal-in">0</span>
+      <h3 class="card-title" id="energy-card-title">Today's Energy Stored</h3>
+      <div class="energy-row">
+        <div class="energy-consumed">
+          <span class="energy-big" id="cal-in">0</span><span class="energy-unit"> cal</span>
+          <span class="energy-of-goal" id="energy-of-goal"></span>
         </div>
-        <div class="energy-stat">
-          <span class="stat-label">Energy Used</span>
-          <span class="stat-value" id="cal-out">0</span>
-        </div>
-        <div class="energy-stat">
-          <span class="stat-label">Deficit</span>
-          <span class="stat-value" id="cal-deficit">0</span>
+        <div class="energy-delta">
+          <span class="energy-big" id="energy-delta-num"></span><span class="energy-unit" id="energy-delta-lbl"></span>
         </div>
       </div>
       <div class="energy-bar-wrap">
         <div class="energy-bar" id="energy-bar" style="width: 0%"></div>
       </div>
-      <p class="energy-status" id="energy-status">Log your first ration to begin</p>
     </section>
 
     <div class="journal-divider">✦</div>

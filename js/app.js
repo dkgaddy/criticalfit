@@ -277,48 +277,60 @@ function renderWeekNav() {
 // ---- Energy Balance ----
 
 function renderEnergyBalance(summary, user) {
-  const caloriesIn  = summary.caloriesIn;
-  const caloriesOut = summary.caloriesOut;
-  const deficit     = caloriesOut - caloriesIn;
+  const caloriesIn = Math.round(summary.caloriesIn);
+  const dailyGoal  = user && user.dailyGoal ? user.dailyGoal : null;
+  const today      = todayKey();
 
-  const elIn     = document.getElementById('cal-in');
-  const elOut    = document.getElementById('cal-out');
-  const elDef    = document.getElementById('cal-deficit');
-  const elBar    = document.getElementById('energy-bar');
-  const elStatus = document.getElementById('energy-status');
-
-  if (elIn)  elIn.textContent  = fmtCal(caloriesIn);
-  if (elOut) elOut.textContent = fmtCal(caloriesOut);
-
-  if (elDef) {
-    elDef.textContent = deficit === 0 ? '0'
-      : (deficit > 0 ? '+' : '−') + fmtCal(deficit);
-    elDef.className = 'stat-value' +
-      (deficit > 50 ? ' deficit' : deficit < -50 ? ' surplus' : '');
+  // Card title — changes when viewing a past day
+  const titleEl = document.getElementById('energy-card-title');
+  if (titleEl) {
+    if (viewingDate === today) {
+      titleEl.textContent = "Today's Energy Stored";
+    } else {
+      const d = new Date(viewingDate + 'T12:00:00');
+      const day = d.toLocaleDateString('en-US', { weekday: 'long' });
+      titleEl.textContent = `${day}'s Energy Stored`;
+    }
   }
 
-  if (elBar) {
-    if (caloriesOut === 0) {
-      elBar.style.width = '0%';
-      elBar.className = 'energy-bar';
-      if (elStatus) {
-        elStatus.textContent = user && user.dailyGoal
-          ? `Daily Intake Goal: ${user.dailyGoal.toLocaleString()} cals`
-          : 'Set up your profile to see your energy balance';
-      }
+  // Calories consumed (big number)
+  const calInEl = document.getElementById('cal-in');
+  if (calInEl) calInEl.textContent = caloriesIn.toLocaleString();
+
+  // "/ goal 🔥" label
+  const goalEl = document.getElementById('energy-of-goal');
+  if (goalEl) {
+    goalEl.innerHTML = dailyGoal
+      ? `/ ${dailyGoal.toLocaleString()} <i class="fa-solid fa-fire"></i>`
+      : '';
+  }
+
+  // Remaining / over
+  const deltaNumEl = document.getElementById('energy-delta-num');
+  const deltaLblEl = document.getElementById('energy-delta-lbl');
+  if (deltaNumEl && deltaLblEl) {
+    if (dailyGoal) {
+      const remaining = dailyGoal - caloriesIn;
+      const isOver    = remaining < 0;
+      deltaNumEl.textContent = Math.abs(remaining).toLocaleString();
+      deltaNumEl.className   = 'energy-big' + (isOver ? ' energy-over' : '');
+      deltaLblEl.textContent = isOver ? ' over' : ' left';
     } else {
-      const pct = Math.min((caloriesIn / caloriesOut) * 100, 100);
-      elBar.style.width = pct + '%';
-      if (deficit < -50) {
-        elBar.className = 'energy-bar surplus';
-        if (elStatus) elStatus.textContent = 'Caloric surplus today';
-      } else if (deficit < 100) {
-        elBar.className = 'energy-bar warning';
-        if (elStatus) elStatus.textContent = 'Near maintenance — keep going';
-      } else {
-        elBar.className = 'energy-bar';
-        if (elStatus) elStatus.textContent = `${fmtCal(deficit)} calorie deficit`;
-      }
+      deltaNumEl.textContent = '';
+      deltaLblEl.textContent = '';
+    }
+  }
+
+  // Progress bar
+  const barEl = document.getElementById('energy-bar');
+  if (barEl) {
+    if (dailyGoal && dailyGoal > 0) {
+      const pct = Math.min((caloriesIn / dailyGoal) * 100, 100);
+      barEl.style.width  = pct + '%';
+      barEl.className    = 'energy-bar' + (caloriesIn > dailyGoal ? ' energy-bar--over' : '');
+    } else {
+      barEl.style.width = '0%';
+      barEl.className   = 'energy-bar';
     }
   }
 }
