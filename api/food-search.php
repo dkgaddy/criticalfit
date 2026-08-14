@@ -5,7 +5,7 @@ header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 
 $query    = trim($_GET['query'] ?? '');
-$pageSize = min((int)($_GET['pageSize'] ?? 25), 50);
+$pageSize = min((int)($_GET['pageSize'] ?? 50), 50);
 
 if (strlen($query) < 2) {
     echo json_encode(['foods' => []]);
@@ -16,7 +16,7 @@ $url = 'https://api.nal.usda.gov/fdc/v1/foods/search?' . http_build_query([
     'query'    => $query,
     'api_key'  => USDA_API_KEY,
     'pageSize' => $pageSize,
-    'dataType' => 'Foundation,SR Legacy,Survey (FNDDS)',
+    'dataType' => 'Foundation,SR Legacy,Survey (FNDDS),Branded',
 ]);
 
 $ctx      = stream_context_create(['http' => ['timeout' => 8, 'ignore_errors' => true]]);

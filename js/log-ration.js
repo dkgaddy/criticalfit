@@ -33,13 +33,14 @@ async function logFoodEntry(food, servings) {
 const searchCache = {};
 
 async function searchUSDA(query) {
-  if (searchCache[query]) return searchCache[query];
+  if (query in searchCache) return searchCache[query];
   try {
-    const res = await fetch(`${SEARCH_ENDPOINT}?query=${encodeURIComponent(query)}&pageSize=25`);
+    const res = await fetch(`${SEARCH_ENDPOINT}?query=${encodeURIComponent(query)}&pageSize=50`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    searchCache[query] = data.foods || [];
-    return searchCache[query];
+    const foods = data.foods || [];
+    if (foods.length > 0) searchCache[query] = foods; // only cache successful results
+    return foods;
   } catch (err) {
     console.warn('Food search error:', err.message);
     return [];
