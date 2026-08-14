@@ -394,14 +394,14 @@ a { color: inherit; text-decoration: none; }
 .energy-consumed {
   display: flex;
   align-items: baseline;
-  gap: 0;
+  gap: 0.3rem;
   flex-wrap: wrap;
 }
 
 .energy-delta {
   display: flex;
   align-items: baseline;
-  gap: 0;
+  gap: 0.3rem;
   flex-shrink: 0;
 }
 

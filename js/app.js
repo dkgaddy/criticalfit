@@ -300,9 +300,7 @@ function renderEnergyBalance(summary, user) {
   // "/ goal 🔥" label
   const goalEl = document.getElementById('energy-of-goal');
   if (goalEl) {
-    goalEl.innerHTML = dailyGoal
-      ? `/ ${dailyGoal.toLocaleString()} <i class="fa-solid fa-fire"></i>`
-      : '';
+    goalEl.textContent = dailyGoal ? `/ ${dailyGoal.toLocaleString()}` : '';
   }
 
   // Remaining / over
@@ -314,7 +312,7 @@ function renderEnergyBalance(summary, user) {
       const isOver    = remaining < 0;
       deltaNumEl.textContent = Math.abs(remaining).toLocaleString();
       deltaNumEl.className   = 'energy-big' + (isOver ? ' energy-over' : '');
-      deltaLblEl.textContent = isOver ? ' over' : ' left';
+      deltaLblEl.textContent = isOver ? 'over' : 'left';
     } else {
       deltaNumEl.textContent = '';
       deltaLblEl.textContent = '';
