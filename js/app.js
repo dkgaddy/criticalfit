@@ -342,7 +342,7 @@ function renderJournalEntries(food, exercise) {
 
   if (titleEl) {
     if (viewingDate === today) {
-      titleEl.textContent = "Today's Journal";
+      titleEl.textContent = "Today's Quest Journal";
     } else {
       const d = new Date(viewingDate + 'T12:00:00');
       titleEl.textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
