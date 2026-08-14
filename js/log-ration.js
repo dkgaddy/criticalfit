@@ -143,6 +143,29 @@ function makeFoodRow(food) {
   return row;
 }
 
+// ---- Helpers ----
+
+function yesterdayKey() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+// Convert a logged entry (with actual grams/calories) back to per-100g food object
+function entryToFood(entry) {
+  if (!entry.grams || entry.grams === 0) return null;
+  const f = 100 / entry.grams;
+  return {
+    fdcId:    entry.fdcId,
+    name:     entry.name,
+    calories: Math.round(entry.calories * f * 10) / 10,
+    protein:  entry.protein != null ? Math.round(entry.protein * f * 100) / 100 : 0,
+    carbs:    entry.carbs   != null ? Math.round(entry.carbs   * f * 100) / 100 : 0,
+    fat:      entry.fat     != null ? Math.round(entry.fat     * f * 100) / 100 : 0,
+    brand:    null,
+  };
+}
+
 // ---- Render content pane ----
 
 function renderEmpty(msg) {
@@ -162,15 +185,31 @@ function renderSection(title, foods) {
   return wrap;
 }
 
-async function showRecent() {
+async function showDefault() {
   const pane = document.getElementById('ration-content');
   pane.innerHTML = '';
 
-  const recent = await store.getRecentFoods();
-  if (recent.length === 0) {
+  const [yesterdayEntries, recent] = await Promise.all([
+    store.getFoodEntries(yesterdayKey()),
+    store.getRecentFoods(),
+  ]);
+
+  const yesterdayFoods = yesterdayEntries.map(entryToFood).filter(Boolean);
+
+  if (yesterdayFoods.length === 0 && recent.length === 0) {
     pane.appendChild(renderEmpty('No recent rations. Search above to get started.'));
-  } else {
-    pane.appendChild(renderSection('Recent Rations', recent));
+    return;
+  }
+
+  if (yesterdayFoods.length > 0) {
+    pane.appendChild(renderSection("Yesterday's Rations", yesterdayFoods));
+  }
+
+  // Show recent foods not already in yesterday's list
+  const yesterdayNames = new Set(yesterdayFoods.map(f => f.name));
+  const extras = recent.filter(f => !yesterdayNames.has(f.name));
+  if (extras.length > 0) {
+    pane.appendChild(renderSection('Recent Rations', extras));
   }
 }
 
@@ -209,7 +248,7 @@ function openModal() {
   hideFoodDetail();
   const input = document.getElementById('ration-search');
   input.value = '';
-  showRecent();
+  showDefault();
   setTimeout(() => input.focus(), 350);
 }
 
@@ -225,7 +264,7 @@ let searchTimer = null;
 
 function handleSearchInput(val) {
   clearTimeout(searchTimer);
-  if (!val.trim()) { showRecent(); return; }
+  if (!val.trim()) { showDefault(); return; }
   if (val.trim().length < 2) return;
   searchTimer = setTimeout(() => showResults(val.trim()), DEBOUNCE_MS);
 }
