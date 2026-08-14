@@ -95,7 +95,7 @@
     <!-- Quick Actions -->
     <div class="quick-actions">
       <a href="log-ration.html" class="btn btn-primary">Log Ration</a>
-      <a href="log-training.html" class="btn btn-secondary">Log Training</a>
+      <a href="log-activity.html" class="btn btn-secondary">Log Activity</a>
       <a href="log-weight.html" class="btn btn-tertiary">Log Weight</a>
     </div>
 
@@ -132,9 +132,9 @@
       Rations
     </a>
 
-    <a href="log-training.html" class="nav-item">
+    <a href="log-activity.html" class="nav-item">
       <i class="fa-solid fa-person-running nav-icon" aria-hidden="true"></i>
-      Training
+      Activity
     </a>
 
     <a href="progress.html" class="nav-item">
@@ -192,6 +192,57 @@
     </div>
   </div>
 
+  <!-- ======= Log Activity Modal ======= -->
+  <div id="activity-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Log Activity">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h2 class="modal-title">Log Activity</h2>
+        <button class="modal-close-btn" id="activity-close" aria-label="Close">✕</button>
+      </div>
+      <div class="activity-form-wrap">
+
+        <div class="form-group">
+          <label class="form-label" for="activity-select">Activity</label>
+          <div class="form-select-wrap">
+            <select class="form-select" id="activity-select">
+              <option value="">Choose an activity…</option>
+            </select>
+            <i class="fa-solid fa-chevron-down form-select-icon" aria-hidden="true"></i>
+          </div>
+        </div>
+
+        <div class="form-group" id="intensity-group" hidden>
+          <label class="form-label" for="intensity-select">Intensity</label>
+          <div class="form-select-wrap">
+            <select class="form-select" id="intensity-select"></select>
+            <i class="fa-solid fa-chevron-down form-select-icon" aria-hidden="true"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Duration</label>
+          <div class="food-qty-row">
+            <button class="qty-stepper" id="dur-minus" aria-label="Decrease 5 minutes">−</button>
+            <div class="qty-center">
+              <span class="qty-num" id="dur-display">30</span>
+              <span class="qty-unit-lbl">minutes</span>
+            </div>
+            <button class="qty-stepper" id="dur-plus" aria-label="Increase 5 minutes">+</button>
+          </div>
+        </div>
+
+        <div id="activity-estimate"></div>
+
+        <button class="log-it-btn food-log-btn-full" id="activity-log-btn" disabled>Log It</button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= Activity Toast ======= -->
+  <div id="activity-toast" class="activity-toast"></div>
+
   <!-- ======= Energy Stored Toast ======= -->
   <div id="energy-toast" class="energy-toast">Energy Stored!</div>
 
@@ -208,5 +259,6 @@
   <script src="js/energy.js"></script>
   <script src="js/app.js"></script>
   <script src="js/log-ration.js"></script>
+  <script src="js/log-activity.js"></script>
 </body>
 </html>

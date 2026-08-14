@@ -1210,6 +1210,119 @@ a { color: inherit; text-decoration: none; }
   transform: translateX(-50%) translateY(0);
 }
 
+/* ---- Activity Modal ---- */
+
+.activity-form-wrap {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1.25rem;
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+.form-select-wrap {
+  position: relative;
+}
+
+.form-select {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 0.875rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.form-select:focus {
+  border-color: var(--amber);
+}
+
+.form-select option {
+  background: #1A2D22;
+  color: var(--text);
+}
+
+.form-select-icon {
+  position: absolute;
+  right: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  pointer-events: none;
+}
+
+.activity-estimate-box {
+  background: rgba(86,168,106,0.08);
+  border: 1px solid rgba(86,168,106,0.25);
+  border-radius: var(--radius);
+  padding: 0.875rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.activity-estimate-lbl {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.activity-estimate-cal {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--green-pop);
+  line-height: 1;
+}
+
+.activity-estimate-meta {
+  font-size: 0.75rem;
+  color: var(--text-mid);
+  font-weight: 600;
+  margin-top: 0.1rem;
+}
+
+/* ---- Activity Toast ---- */
+
+.activity-toast {
+  position: fixed;
+  bottom: calc(var(--nav-h) + 4rem + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%) translateY(1rem);
+  background: linear-gradient(to bottom, #56A86A, #3E7A50);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.65rem 1.5rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(86,168,106,0.4), 0 2px 8px rgba(0,0,0,0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 500;
+  white-space: nowrap;
+}
+
+.activity-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* ---- Empty / loading states ---- */
 
 .food-empty,

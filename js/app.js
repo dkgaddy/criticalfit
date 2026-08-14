@@ -76,6 +76,16 @@ const store = {
     return j.ok ? j.data : [];
   },
 
+  addExerciseEntry: async (entry) => {
+    const r = await fetch('api/exercise.php', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(entry),
+    });
+    const j = await r.json();
+    return j.ok ? j.data : null;
+  },
+
   getRecentFoods: async () => {
     const r = await fetch('api/recent-foods.php');
     const j = await r.json();
@@ -444,7 +454,7 @@ function renderJournalEntries(food, exercise) {
       <div class="journal-entry">
         <div class="entry-info">
           <span class="entry-name">${e.name}</span>
-          <span class="entry-detail">${e.duration ? e.duration + ' min · Training' : 'Training'}</span>
+          <span class="entry-detail">${e.duration ? e.duration + ' min · Activity' : 'Activity'}</span>
         </div>
         <span class="entry-cal burned">−${fmtCal(e.calories)} kcal</span>
       </div>`),
