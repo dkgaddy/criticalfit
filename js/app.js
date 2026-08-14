@@ -372,24 +372,26 @@ function renderEnergyUsed() {
     }
   }
 
+  const adjustedBurn = cachedUser.tdee || state.baselineDailyBurn;
+
   numEl.textContent = state.energyUsedSoFar.toLocaleString();
 
   if (projEl) {
-    projEl.textContent = `/ ${state.projectedDailyBurn.toLocaleString()}`;
+    projEl.textContent = `/ ${adjustedBurn.toLocaleString()}`;
   }
 
   if (state.isToday) {
-    const remaining = state.projectedDailyBurn - state.energyUsedSoFar;
-    if (deltaNumEl) deltaNumEl.textContent = remaining.toLocaleString();
-    if (deltaLblEl) deltaLblEl.textContent = 'left';
+    const needed = Math.max(0, adjustedBurn - state.energyUsedSoFar);
+    if (deltaNumEl) deltaNumEl.textContent = needed.toLocaleString();
+    if (deltaLblEl) deltaLblEl.textContent = 'needed';
   } else {
     if (deltaNumEl) deltaNumEl.textContent = '';
     if (deltaLblEl) deltaLblEl.textContent = '';
   }
 
   if (barEl) {
-    const pct = state.projectedDailyBurn > 0
-      ? Math.min((state.energyUsedSoFar / state.projectedDailyBurn) * 100, 100)
+    const pct = adjustedBurn > 0
+      ? Math.min((state.energyUsedSoFar / adjustedBurn) * 100, 100)
       : 0;
     barEl.style.width = pct + '%';
   }
