@@ -41,7 +41,7 @@ try {
     $stmt->execute([
         $userId,
         base64_encode($data->credentialId),
-        base64_encode($data->publicKey),
+        base64_encode($data->credentialPublicKey),
         $data->signatureCounter ?? 0,
         $b['deviceName'] ?? null,
     ]);
