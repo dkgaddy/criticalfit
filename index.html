@@ -251,6 +251,34 @@
   <!-- ======= Energy Stored Toast ======= -->
   <div id="energy-toast" class="energy-toast">Energy Stored!</div>
 
+  <!-- ======= Log Weight Modal ======= -->
+  <div id="weight-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Log Weight">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h2 class="modal-title">Log Weight</h2>
+        <button class="modal-close-btn" id="weight-close" aria-label="Close">✕</button>
+      </div>
+      <div class="activity-form-wrap">
+        <div class="form-group">
+          <label class="form-label">Current Weight</label>
+          <div class="food-qty-row">
+            <button class="qty-stepper" id="weight-minus" aria-label="Decrease weight">−</button>
+            <div class="qty-center">
+              <span class="qty-num" id="weight-display">—</span>
+              <span class="qty-unit-lbl" id="weight-unit-lbl">lbs</span>
+            </div>
+            <button class="qty-stepper" id="weight-plus" aria-label="Increase weight">+</button>
+          </div>
+        </div>
+        <button class="log-it-btn food-log-btn-full" id="weight-log-btn">Log Weight</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= Weight Toast ======= -->
+  <div id="weight-toast" class="activity-toast"></div>
+
   <!-- ======= Dragon Promotion Modal ======= -->
   <div id="levelup-overlay" class="levelup-overlay" role="dialog" aria-modal="true" aria-label="Dragon promotion">
     <div class="levelup-content">
@@ -267,5 +295,6 @@
   <script src="js/app.js"></script>
   <script src="js/log-ration.js"></script>
   <script src="js/log-activity.js"></script>
+  <script src="js/log-weight.js"></script>
 </body>
 </html>
