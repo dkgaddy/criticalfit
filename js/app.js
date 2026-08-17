@@ -374,6 +374,8 @@ function renderEnergyUsed() {
     if (projEl)     projEl.textContent     = '';
     if (deltaNumEl) deltaNumEl.textContent = '';
     if (deltaLblEl) deltaLblEl.textContent = 'Set up your profile to track energy';
+    const lpVal = document.getElementById('lp-value');
+    if (lpVal) lpVal.textContent = '—';
     return;
   }
 
@@ -415,6 +417,17 @@ function renderEnergyUsed() {
       ? Math.min((state.energyUsedSoFar / adjustedBurn) * 100, 100)
       : 0;
     barEl.style.width = pct + '%';
+  }
+
+  // Life Points = deficit (energy used − calories consumed)
+  const lpVal  = document.getElementById('lp-value');
+  const lpIcon = document.getElementById('lp-icon');
+  if (lpVal && lpIcon) {
+    const lp       = Math.round(state.energyUsedSoFar - state.caloriesConsumed);
+    const positive = lp >= 0;
+    lpVal.textContent = Math.abs(lp).toLocaleString();
+    lpVal.className   = 'lp-value' + (positive ? '' : ' lp-negative');
+    lpIcon.src        = positive ? 'images/FireOn.png' : 'images/FireOff.png';
   }
 }
 
