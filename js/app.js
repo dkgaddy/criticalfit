@@ -423,11 +423,11 @@ function renderEnergyUsed() {
   const lpVal  = document.getElementById('lp-value');
   const lpIcon = document.getElementById('lp-icon');
   if (lpVal && lpIcon) {
-    const lp       = Math.round(state.energyUsedSoFar - state.caloriesConsumed);
-    const positive = lp >= 0;
+    const lp    = Math.round(state.energyUsedSoFar - state.caloriesConsumed);
+    const hot   = lp >= 500;
     lpVal.textContent = Math.abs(lp).toLocaleString();
-    lpVal.className   = 'lp-value' + (positive ? '' : ' lp-negative');
-    lpIcon.src        = positive ? 'images/FireOn.png' : 'images/FireOff.png';
+    lpVal.className   = 'lp-value' + (lp < 0 ? ' lp-negative' : '');
+    lpIcon.src        = hot ? 'images/FireOn.png' : 'images/FireOff.png';
   }
 }
 
