@@ -15,11 +15,11 @@ try { $pdo->exec('ALTER TABLE dragon_progress ADD COLUMN last_check_date DATE NU
 // Stage definitions — must mirror DRAGON_STAGES in js/app.js
 $STAGES = [
     ['level' => 0, 'title' => 'Hatchling',     'days' => 0],
-    ['level' => 1, 'title' => 'Wyrmling',       'days' => 7],
-    ['level' => 2, 'title' => 'Drake',          'days' => 21],
-    ['level' => 3, 'title' => 'Guardian',       'days' => 45],
-    ['level' => 4, 'title' => 'Elder Dragon',   'days' => 90],
-    ['level' => 5, 'title' => 'Ancient Dragon', 'days' => 180],
+    ['level' => 1, 'title' => 'Wyrmling',       'days' => 1],
+    ['level' => 2, 'title' => 'Drake',          'days' => 15],
+    ['level' => 3, 'title' => 'Guardian',       'days' => 30],
+    ['level' => 4, 'title' => 'Elder Dragon',   'days' => 45],
+    ['level' => 5, 'title' => 'Ancient Dragon', 'days' => 60],
 ];
 
 // 1. Total distinct days where user logged anything

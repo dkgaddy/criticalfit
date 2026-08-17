@@ -3,12 +3,12 @@
 // ============================================================
 
 const DRAGON_STAGES = [
-  { level: 0, title: 'Hatchling',      days: 0,   img: 'images/Dragon_Lvl0.png' },
-  { level: 1, title: 'Wyrmling',       days: 7,   img: 'images/Dragon_Lvl1.png' },
-  { level: 2, title: 'Drake',          days: 21,  img: 'images/Dragon_Lvl2.png' },
-  { level: 3, title: 'Guardian',       days: 45,  img: 'images/Dragon_Lvl3.png' },
-  { level: 4, title: 'Elder Dragon',   days: 90,  img: 'images/Dragon_Lvl4.png' },
-  { level: 5, title: 'Ancient Dragon', days: 180, img: 'images/Dragon_Lvl5.png' },
+  { level: 0, title: 'Hatchling',      days: 0,  img: 'images/Dragon_Lvl0.png' },
+  { level: 1, title: 'Wyrmling',       days: 1,  img: 'images/Dragon_Lvl1.png' },
+  { level: 2, title: 'Drake',          days: 15, img: 'images/Dragon_Lvl2.png' },
+  { level: 3, title: 'Guardian',       days: 30, img: 'images/Dragon_Lvl3.png' },
+  { level: 4, title: 'Elder Dragon',   days: 45, img: 'images/Dragon_Lvl4.png' },
+  { level: 5, title: 'Ancient Dragon', days: 60, img: 'images/Dragon_Lvl5.png' },
 ];
 
 // ---- API storage layer ----
