@@ -5,8 +5,8 @@
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#F4E9D8",
-  "theme_color": "#4B3A2F",
+  "background_color": "#142019",
+  "theme_color": "#142019",
   "icons": [
     {
       "src": "images/criticalfitLogo.png",
