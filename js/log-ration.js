@@ -294,12 +294,18 @@ function initLogRation() {
   document.getElementById('qty-minus')?.addEventListener('click', () => {
     if (currentServings > 0.5) {
       currentServings = Math.round((currentServings - 0.5) * 10) / 10;
-      updateDetailTotals();
+    } else if (currentServings > 0.1) {
+      currentServings = Math.round((currentServings - 0.1) * 10) / 10;
     }
+    updateDetailTotals();
   });
 
   document.getElementById('qty-plus')?.addEventListener('click', () => {
-    currentServings = Math.round((currentServings + 0.5) * 10) / 10;
+    if (currentServings < 0.5) {
+      currentServings = Math.round((currentServings + 0.1) * 10) / 10;
+    } else {
+      currentServings = Math.round((currentServings + 0.5) * 10) / 10;
+    }
     updateDetailTotals();
   });
 
