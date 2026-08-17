@@ -80,23 +80,31 @@ function initLogWeight() {
     btn.disabled    = true;
     btn.textContent = 'Saving…';
 
-    const res = await fetch('api/weight.php', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({
-        weight: currentWeight,
-        unit:   cachedUser?.unit ?? 'imperial',
-        date:   new Date().toISOString().slice(0, 10),
-      }),
-    });
-    const j = await res.json();
+    try {
+      const res = await fetch('api/weight.php', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          weight: currentWeight,
+          unit:   cachedUser?.unit ?? 'imperial',
+          date:   new Date().toISOString().slice(0, 10),
+        }),
+      });
+      const j = await res.json();
 
-    if (j.ok) {
-      if (cachedUser) cachedUser.weight = currentWeight;
-      closeWeightModal();
-      showWeightToast(currentWeight, unit);
-      if (typeof renderEnergyUsed === 'function') renderEnergyUsed();
-    } else {
+      if (j.ok) {
+        if (cachedUser) cachedUser.weight = currentWeight;
+        btn.textContent = `Saved — ${currentWeight.toFixed(1)} ${unit}`;
+        setTimeout(() => {
+          closeWeightModal();
+          showWeightToast(currentWeight, unit);
+          if (typeof renderEnergyUsed === 'function') renderEnergyUsed();
+        }, 900);
+      } else {
+        btn.disabled    = false;
+        btn.textContent = 'Log Weight';
+      }
+    } catch {
       btn.disabled    = false;
       btn.textContent = 'Log Weight';
     }

@@ -21,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     );
     $stmt->execute([$uid, $days]);
     json_out($stmt->fetchAll());
+    exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -29,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $unit   = ($b['unit'] ?? 'imperial') === 'metric' ? 'metric' : 'imperial';
     $date   = $b['date'] ?? date('Y-m-d');
 
-    if ($weight <= 0) json_err('Invalid weight');
+    if ($weight <= 0) { json_err('Invalid weight'); exit; }
 
     $pdo->prepare(
         'INSERT INTO weight_entries (user_id, weight, unit, log_date) VALUES (?, ?, ?, ?)
@@ -40,6 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ->execute([$weight, $uid]);
 
     json_out(['logged' => true, 'weight' => $weight, 'unit' => $unit]);
+    exit;
 }
 
 json_err('Method not allowed', 405);
+exit;
