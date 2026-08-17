@@ -230,14 +230,14 @@ a { color: inherit; text-decoration: none; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.2rem;
-  width: 84px;
-  height: 84px;
+  gap: 0.15rem;
+  width: 100px;
+  height: 100px;
   flex-shrink: 0;
   background: rgba(10, 20, 14, 0.55);
   border: 1px solid rgba(232, 160, 32, 0.45);
   border-radius: var(--radius);
-  padding: 0.4rem 0.3rem;
+  padding: 0.3rem 0.2rem;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 12px rgba(0,0,0,0.35);
 }
 
@@ -266,8 +266,8 @@ a { color: inherit; text-decoration: none; }
 }
 
 .lp-icon {
-  width: 28px;
-  height: 28px;
+  width: 42px;
+  height: 42px;
   object-fit: contain;
 }
 
