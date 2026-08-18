@@ -128,82 +128,42 @@ function getDragonStage(level) {
   return DRAGON_STAGES.find(s => s.level === level) || DRAGON_STAGES[0];
 }
 
-// ---- Quest Progress Chart ----
+// ---- Dragon Evolution Progress Bar ----
 
-function renderChart(container, summaries) {
-  const W = 300, H = 90, padX = 6, padY = 10;
-  const n = summaries.length;
-  const deficits = summaries.map(s => s.caloriesOut - s.caloriesIn);
-  const maxAbs = Math.max(300, ...deficits.map(Math.abs));
-  const midY = H / 2;
+const EVO_MILESTONES = [
+  { days: 1,  tid: 'evo-t1',  lid: 'evo-l1'  },
+  { days: 15, tid: 'evo-t15', lid: 'evo-l15' },
+  { days: 30, tid: 'evo-t30', lid: 'evo-l30' },
+  { days: 45, tid: 'evo-t45', lid: 'evo-l45' },
+  { days: 60, tid: 'evo-t60', lid: 'evo-l60' },
+];
+const EVO_MAX = 60;
 
-  const toX = i => padX + (n < 2 ? (W - padX * 2) / 2 : (i / (n - 1)) * (W - padX * 2));
-  const toY = v => midY - (v / maxAbs) * (midY - padY);
-  const pts = deficits.map((v, i) => [toX(i), toY(v)]);
+function renderEvoBar(dragon) {
+  const totalDays = dragon?.totalLoggedDays || 0;
+  const fillPct   = Math.min((totalDays / EVO_MAX) * 100, 100);
 
-  const NS = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svg.setAttribute('preserveAspectRatio', 'none');
-  svg.setAttribute('aria-hidden', 'true');
+  const fillEl = document.getElementById('evo-fill');
+  if (fillEl) fillEl.style.width = fillPct + '%';
 
-  const defs = document.createElementNS(NS, 'defs');
-
-  const mkClip = (id, y, h) => {
-    const cp = document.createElementNS(NS, 'clipPath');
-    cp.id = id;
-    const r = document.createElementNS(NS, 'rect');
-    r.setAttribute('x', 0); r.setAttribute('y', y);
-    r.setAttribute('width', W); r.setAttribute('height', h);
-    cp.appendChild(r);
-    return cp;
-  };
-  defs.appendChild(mkClip('cf-clip-above', 0, midY));
-  defs.appendChild(mkClip('cf-clip-below', midY, H));
-  svg.appendChild(defs);
-
-  const lineD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
-  const areaD = `${lineD} L${pts[n - 1][0].toFixed(1)},${midY} L${pts[0][0].toFixed(1)},${midY} Z`;
-
-  const mkPath = (fill, clip) => {
-    const el = document.createElementNS(NS, 'path');
-    el.setAttribute('d', areaD);
-    el.setAttribute('fill', fill);
-    if (clip) el.setAttribute('clip-path', `url(#${clip})`);
-    return el;
-  };
-
-  svg.appendChild(mkPath('rgba(86,98,70,0.2)', 'cf-clip-above'));
-  svg.appendChild(mkPath('rgba(122,48,32,0.18)', 'cf-clip-below'));
-
-  const base = document.createElementNS(NS, 'line');
-  base.setAttribute('x1', padX); base.setAttribute('y1', midY);
-  base.setAttribute('x2', W - padX); base.setAttribute('y2', midY);
-  base.setAttribute('stroke', 'rgba(139,106,58,0.3)');
-  base.setAttribute('stroke-width', '0.75');
-  base.setAttribute('stroke-dasharray', '4,3');
-  svg.appendChild(base);
-
-  const line = document.createElementNS(NS, 'polyline');
-  line.setAttribute('points', pts.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' '));
-  line.setAttribute('fill', 'none');
-  line.setAttribute('stroke', 'rgba(86,98,70,0.8)');
-  line.setAttribute('stroke-width', '1.5');
-  line.setAttribute('stroke-linejoin', 'round');
-  line.setAttribute('stroke-linecap', 'round');
-  svg.appendChild(line);
-
-  pts.forEach(([x, y], i) => {
-    const dot = document.createElementNS(NS, 'circle');
-    dot.setAttribute('cx', x.toFixed(1));
-    dot.setAttribute('cy', y.toFixed(1));
-    dot.setAttribute('r', '2.5');
-    dot.setAttribute('fill', deficits[i] >= 0 ? '#566246' : '#7A3020');
-    svg.appendChild(dot);
+  EVO_MILESTONES.forEach(({ days, tid, lid }) => {
+    const reached = totalDays >= days;
+    document.getElementById(tid)?.classList.toggle('evo-tick--done', reached);
+    document.getElementById(lid)?.classList.toggle('evo-lbl--done', reached);
   });
 
-  container.innerHTML = '';
-  container.appendChild(svg);
+  const captionEl = document.getElementById('evo-caption');
+  if (!captionEl) return;
+
+  if (totalDays >= EVO_MAX) {
+    captionEl.textContent = 'Ancient Dragon — Journey Complete!';
+  } else {
+    const next = DRAGON_STAGES.find(s => s.days > totalDays);
+    if (next) {
+      const rem = next.days - totalDays;
+      captionEl.textContent = `${rem} day${rem === 1 ? '' : 's'} remaining until ${next.title}`;
+    }
+  }
 }
 
 // ---- Level-up Modal ----
@@ -557,7 +517,7 @@ async function initHome() {
   renderWeekNav();
   renderEnergyBalance(summary, user);
   renderEnergyUsed();
-  renderChart(document.getElementById('quest-chart'), summaries);
+  renderEvoBar(dragon);
   renderJournalEntries(food, exercise);
 
   if (dragon.promoted) showLevelUp(dragon);
@@ -583,6 +543,7 @@ async function refreshHomeForToday() {
   renderWeekNav();
   renderEnergyBalance(summary, cachedUser);
   renderEnergyUsed();
+  renderEvoBar(dragon);
   renderJournalEntries(food, exercise);
 
   if (dragon.promoted) showLevelUp(dragon);

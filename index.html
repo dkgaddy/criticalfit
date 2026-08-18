@@ -132,10 +132,27 @@
 
     <div class="journal-divider">✦</div>
 
-    <!-- Quest Progress -->
+    <!-- Dragon Evolution Progress -->
     <section class="card">
-      <h3 class="card-title">Quest Progress — 14 Days</h3>
-      <div class="quest-chart-wrap" id="quest-chart"></div>
+      <h3 class="card-title">Dragon Evolution</h3>
+      <div class="evo-wrap">
+        <div class="evo-track">
+          <div class="evo-fill" id="evo-fill"></div>
+          <div class="evo-tick" id="evo-t1"  style="left:1.667%"></div>
+          <div class="evo-tick" id="evo-t15" style="left:25%"></div>
+          <div class="evo-tick" id="evo-t30" style="left:50%"></div>
+          <div class="evo-tick" id="evo-t45" style="left:75%"></div>
+          <div class="evo-tick" id="evo-t60" style="left:100%"></div>
+        </div>
+        <div class="evo-lbl-row">
+          <span class="evo-lbl"        id="evo-l1"  style="left:0">Wyrmling</span>
+          <span class="evo-lbl evo-lbl--c" id="evo-l15" style="left:25%">Drake</span>
+          <span class="evo-lbl evo-lbl--c" id="evo-l30" style="left:50%">Guardian</span>
+          <span class="evo-lbl evo-lbl--c" id="evo-l45" style="left:75%">Elder</span>
+          <span class="evo-lbl evo-lbl--r" id="evo-l60" style="left:100%">Ancient</span>
+        </div>
+      </div>
+      <p class="evo-caption" id="evo-caption"></p>
     </section>
 
   </main>
