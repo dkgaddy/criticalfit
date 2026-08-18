@@ -87,7 +87,7 @@ function initLogWeight() {
         body:    JSON.stringify({
           weight: currentWeight,
           unit:   cachedUser?.unit ?? 'imperial',
-          date:   new Date().toISOString().slice(0, 10),
+          date:   todayKey(),
         }),
       });
       const j = await res.json();

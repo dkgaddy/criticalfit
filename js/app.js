@@ -35,7 +35,7 @@ const store = {
   },
 
   getDragonProgress: async () => {
-    const r = await fetch('api/dragon.php');
+    const r = await fetch(`api/dragon.php?today=${todayKey()}`);
     const j = await r.json();
     return j.ok ? j.data : { streak: 0, maxLevel: 0 };
   },
@@ -112,8 +112,11 @@ let energyTickTimer = null;
 
 // ---- Helpers ----
 
-function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+function todayKey(d = new Date()) {
+  const y  = d.getFullYear();
+  const m  = String(d.getMonth() + 1).padStart(2, '0');
+  const dy = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dy}`;
 }
 
 function fmtCal(n) {

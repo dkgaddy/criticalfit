@@ -46,8 +46,13 @@ $stmt = $pdo->prepare("
 $stmt->execute([$uid, $uid]);
 $lastActivityDate = $stmt->fetchColumn() ?: null;
 
+// Use client-supplied local date to avoid server timezone mismatch
+$clientToday = preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['today'] ?? '')
+    ? $_GET['today']
+    : date('Y-m-d');
+
 $daysSinceLast = $lastActivityDate
-    ? (int) date_diff(date_create($lastActivityDate), date_create('today'))->days
+    ? (int) date_diff(date_create($lastActivityDate), date_create($clientToday))->days
     : 9999;
 
 // 3. Earned level — purely from total logged days

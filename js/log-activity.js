@@ -416,7 +416,7 @@ function initLogActivity() {
       name:     `${activity.name} — ${intensity.label}`,
       duration: activityDuration,
       calories: cal,
-      date:     new Date().toISOString().slice(0, 10),
+      date:     todayKey(),
     });
 
     btn.disabled    = false;
