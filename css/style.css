@@ -828,6 +828,14 @@ a { color: inherit; text-decoration: none; }
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Reset <button> so it looks identical to nav <a> */
+button.nav-item {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
 .nav-item.active {
   color: var(--amber);
 }
@@ -1808,6 +1816,195 @@ input[type=number] { -moz-appearance: textfield; }
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: rgba(210,195,165,0.75);
+}
+
+/* ============================================================
+   INFO PAGE
+   ============================================================ */
+
+.info-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 0 1rem;
+  gap: 0.4rem;
+}
+
+.info-logo {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+}
+
+.info-app-name {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.info-tagline {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  color: var(--amber);
+  margin: 0;
+}
+
+.info-intro {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  color: var(--text-mid);
+  line-height: 1.6;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.info-feature {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.info-feature:last-child { margin-bottom: 0; }
+
+.info-feature-icon {
+  font-size: 1.1rem;
+  color: var(--amber);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  width: 1.2rem;
+  text-align: center;
+}
+
+.info-feature-name {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin: 0 0 0.2rem;
+}
+
+.info-feature-desc {
+  font-family: var(--font-serif);
+  font-size: 0.82rem;
+  color: var(--text-mid);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.info-install-text {
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  color: var(--text-mid);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ============================================================
+   INSTALL MODAL & TOAST
+   ============================================================ */
+
+.install-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 400;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.install-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.install-sheet {
+  width: 100%;
+  background: #1A2D22;
+  border-top: 1px solid var(--border);
+  border-radius: 16px 16px 0 0;
+  padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.install-overlay.open .install-sheet {
+  transform: translateY(0);
+}
+
+.install-sheet-title {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin: 0 0 1rem;
+  text-align: center;
+}
+
+.install-steps {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  color: var(--text-mid);
+  line-height: 1.7;
+  padding-left: 1.2rem;
+  margin: 0 0 0.75rem;
+}
+
+.install-steps li { margin-bottom: 0.4rem; }
+
+.install-share-glyph {
+  font-size: 1rem;
+  vertical-align: middle;
+}
+
+.install-steps-note {
+  font-family: var(--font-serif);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin: 0 0 1.25rem;
+}
+
+.install-sheet-close {
+  width: 100%;
+}
+
+.install-toast {
+  position: fixed;
+  bottom: calc(var(--nav-h) + 1rem + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%) translateY(0.5rem);
+  background: #1A2D22;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 500;
+  white-space: nowrap;
+}
+
+.install-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* ============================================================

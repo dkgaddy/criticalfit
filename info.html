@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#142019">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Critical Fit">
+  <title>Critical Fit — About</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="images/criticalfitLogo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body id="info-page">
+
+  <header class="app-header">
+    <img src="images/CriticalFit-1line-logo-small.png" alt="Critical Fit" class="header-logo">
+  </header>
+
+  <main class="journal-page">
+
+    <!-- Logo + identity -->
+    <div class="info-hero">
+      <img src="images/criticalfitLogo.png" alt="Critical Fit Dragon" class="info-logo">
+      <h1 class="info-app-name">Critical Fit</h1>
+      <p class="info-tagline">Your Fitness Quest Journal</p>
+    </div>
+
+    <p class="info-intro">
+      Critical Fit turns your fitness journey into a fantasy adventure.
+      Log food and activity every day to earn experience, evolve your dragon,
+      and master your health quest — no app store required.
+    </p>
+
+    <div class="journal-divider">✦</div>
+
+    <!-- How it works -->
+    <section class="card">
+      <h3 class="card-title">How Your Quest Works</h3>
+
+      <div class="info-feature">
+        <i class="fa-solid fa-scroll info-feature-icon" aria-hidden="true"></i>
+        <div>
+          <p class="info-feature-name">Journal</p>
+          <p class="info-feature-desc">Log your daily rations (food) and activities from the Journal tab. Each logged day counts toward your dragon's evolution.</p>
+        </div>
+      </div>
+
+      <div class="info-feature">
+        <i class="fa-solid fa-dragon info-feature-icon" aria-hidden="true"></i>
+        <div>
+          <p class="info-feature-name">Dragon Evolution</p>
+          <p class="info-feature-desc">Your dragon evolves through five stages over 60 logged days — Wyrmling, Drake, Guardian, Elder Dragon, and Ancient Dragon. Miss 15 days and it drops a level.</p>
+        </div>
+      </div>
+
+      <div class="info-feature">
+        <i class="fa-solid fa-fire info-feature-icon" aria-hidden="true"></i>
+        <div>
+          <p class="info-feature-name">Life Points</p>
+          <p class="info-feature-desc">Your daily caloric deficit score: Energy Used minus Calories Consumed. The fire ignites when you hit 500+ Life Points.</p>
+        </div>
+      </div>
+
+      <div class="info-feature">
+        <i class="fa-solid fa-circle-user info-feature-icon" aria-hidden="true"></i>
+        <div>
+          <p class="info-feature-name">Character Sheet</p>
+          <p class="info-feature-desc">Set your height, weight, age, and activity level to calculate your personalized calorie targets based on your BMR and TDEE.</p>
+        </div>
+      </div>
+
+      <div class="info-feature">
+        <i class="fa-solid fa-chart-line info-feature-icon" aria-hidden="true"></i>
+        <div>
+          <p class="info-feature-name">Progress Charts</p>
+          <p class="info-feature-desc">Visualize your nutrition, macros, calories burned, and weight trends across the last 7 days to a full year.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <div class="journal-divider">✦</div>
+
+    <section class="card">
+      <h3 class="card-title">Install the App</h3>
+      <p class="info-install-text">
+        Critical Fit is a Progressive Web App. Tap the
+        <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+        <strong>Install</strong> button in the navigation bar below to add it
+        to your home screen for a full native experience — no app store required.
+      </p>
+    </section>
+
+  </main>
+
+  <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
+    <a href="index.html" class="nav-item">
+      <i class="fa-solid fa-scroll nav-icon" aria-hidden="true"></i>
+      Journal
+    </a>
+    <a href="info.html" class="nav-item active" aria-current="page">
+      <i class="fa-solid fa-circle-info nav-icon" aria-hidden="true"></i>
+      Info
+    </a>
+    <button class="nav-item" id="nav-install">
+      <i class="fa-solid fa-wand-magic-sparkles nav-icon" aria-hidden="true"></i>
+      Install
+    </button>
+    <a href="progress.html" class="nav-item">
+      <i class="fa-solid fa-chart-line nav-icon" aria-hidden="true"></i>
+      Progress
+    </a>
+    <a href="profile.html" class="nav-item">
+      <i class="fa-solid fa-circle-user nav-icon" aria-hidden="true"></i>
+      Profile
+    </a>
+  </nav>
+
+  <script src="js/auth.js"></script>
+  <script src="js/install.js"></script>
+</body>
+</html>
