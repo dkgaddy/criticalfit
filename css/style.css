@@ -1631,6 +1631,42 @@ input[type=number] { -moz-appearance: textfield; }
 .save-status.visible { opacity: 1; }
 
 /* ============================================================
+   PROGRESS PAGE
+   ============================================================ */
+
+.progress-range-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+}
+
+.progress-chart {
+  width: 100%;
+  min-height: 80px;
+  margin-top: 0.5rem;
+}
+
+.progress-legend {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.pleg {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.45rem;
+  border-radius: 3px;
+}
+
+.pleg--carbs   { color: #7BC67E; border: 1px solid #7BC67E; }
+.pleg--fat     { color: #E8A020; border: 1px solid #E8A020; }
+.pleg--protein { color: #6BA8D1; border: 1px solid #6BA8D1; }
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 
