@@ -808,11 +808,13 @@ a { color: inherit; text-decoration: none; }
   -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--border);
   display: flex;
+  justify-content: center;
   z-index: 100;
 }
 
 .nav-item {
   flex: 1;
+  max-width: 112px; /* 5 items × 112px = 560px = content max-width */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2013,7 +2015,7 @@ input[type=number] { -moz-appearance: textfield; }
 
 @media (min-width: 480px) {
   .journal-page { padding: 2rem 1.5rem; }
-  .dragon-img { width: 260px; }
+  .dragon-img { height: 110px; width: auto; }
   .dragon-title { font-size: 2rem; }
   .stat-value { font-size: 1.55rem; }
 }
