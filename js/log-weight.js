@@ -93,19 +93,10 @@ function initLogWeight() {
       const j = await res.json();
 
       if (j.ok) {
-        if (cachedUser) {
-          cachedUser.weight = currentWeight;
-
-          // Recalculate BMR/TDEE with new weight — pass a copy without stored
-          // bmr/tdee so calcBMRFromProfile re-runs Mifflin-St Jeor from scratch
-          const newBmr = calcBMRFromProfile({ ...cachedUser, bmr: null, tdee: null });
-          if (newBmr > 0) {
-            const multiplier   = CF_LIFESTYLE[cachedUser.activity] || CF_LIFESTYLE.sedentary;
-            cachedUser.bmr  = newBmr;
-            cachedUser.tdee = Math.round(newBmr * multiplier);
-            store.saveUser(cachedUser);
-          }
-        }
+        // Re-fetch full profile so cachedUser reflects current dailyGoal/bmr/tdee
+        // set by the Profile page — never overwrite the server with stale cached values
+        const fresh = await store.getUser();
+        if (fresh) cachedUser = fresh;
 
         btn.textContent = `Saved — ${currentWeight.toFixed(1)} ${unit}`;
         setTimeout(() => {
