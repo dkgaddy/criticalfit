@@ -93,12 +93,26 @@ function initLogWeight() {
       const j = await res.json();
 
       if (j.ok) {
-        if (cachedUser) cachedUser.weight = currentWeight;
+        if (cachedUser) {
+          cachedUser.weight = currentWeight;
+
+          // Recalculate BMR/TDEE with new weight — pass a copy without stored
+          // bmr/tdee so calcBMRFromProfile re-runs Mifflin-St Jeor from scratch
+          const newBmr = calcBMRFromProfile({ ...cachedUser, bmr: null, tdee: null });
+          if (newBmr > 0) {
+            const multiplier   = CF_LIFESTYLE[cachedUser.activity] || CF_LIFESTYLE.sedentary;
+            cachedUser.bmr  = newBmr;
+            cachedUser.tdee = Math.round(newBmr * multiplier);
+            store.saveUser(cachedUser);
+          }
+        }
+
         btn.textContent = `Saved — ${currentWeight.toFixed(1)} ${unit}`;
         setTimeout(() => {
           closeWeightModal();
           showWeightToast(currentWeight, unit);
-          if (typeof renderEnergyUsed === 'function') renderEnergyUsed();
+          if (typeof renderEnergyBalance === 'function') renderEnergyBalance(cachedSummary, cachedUser);
+          if (typeof renderEnergyUsed    === 'function') renderEnergyUsed();
         }, 900);
       } else {
         btn.disabled    = false;
