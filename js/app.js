@@ -128,6 +128,63 @@ function getDragonStage(level) {
   return DRAGON_STAGES.find(s => s.level === level) || DRAGON_STAGES[0];
 }
 
+// ---- Past-Day Confirmation ----
+
+let _pendingLogFn = null;
+
+function checkPastDay(openFn) {
+  if (viewingDate === todayKey()) {
+    openFn();
+    return;
+  }
+  _pendingLogFn = openFn;
+  const bodyEl = document.getElementById('past-day-body');
+  if (bodyEl) {
+    const d   = new Date(viewingDate + 'T12:00:00');
+    const lbl = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    bodyEl.textContent = `You are currently viewing ${lbl}'s log. Do you wish to modify it or log on today?`;
+  }
+  document.getElementById('past-day-modal')?.classList.add('open');
+}
+
+function closePastDayModal() {
+  document.getElementById('past-day-modal')?.classList.remove('open');
+  _pendingLogFn = null;
+}
+
+async function _pastDayGoToday(fn) {
+  viewingDate = todayKey();
+  const [summary, food, exercise] = await Promise.all([
+    store.getDailySummary(viewingDate),
+    store.getFoodEntries(viewingDate),
+    store.getExerciseEntries(viewingDate),
+  ]);
+  cachedExercise = exercise;
+  cachedFood     = food;
+  cachedSummary  = summary;
+  renderWeekNav();
+  renderEnergyBalance(summary, cachedUser);
+  renderEnergyUsed();
+  renderJournalEntries(food, exercise);
+  fn();
+}
+
+function initPastDayModal() {
+  document.getElementById('past-day-modify')?.addEventListener('click', () => {
+    const fn = _pendingLogFn;
+    closePastDayModal();
+    fn?.();
+  });
+  document.getElementById('past-day-today')?.addEventListener('click', async () => {
+    const fn = _pendingLogFn;
+    closePastDayModal();
+    if (fn) await _pastDayGoToday(fn);
+  });
+  document.getElementById('past-day-modal')?.addEventListener('click', e => {
+    if (e.target === document.getElementById('past-day-modal')) closePastDayModal();
+  });
+}
+
 // ---- Dragon Evolution Progress Bar ----
 
 const EVO_MILESTONES = [
@@ -519,6 +576,7 @@ async function initHome() {
   renderEnergyUsed();
   renderEvoBar(dragon);
   renderJournalEntries(food, exercise);
+  initPastDayModal();
 
   if (dragon.promoted) showLevelUp(dragon);
 }

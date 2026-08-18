@@ -366,7 +366,7 @@ function showActivityToast(cal) {
 function initLogActivity() {
   // Intercept nav/button clicks
   document.querySelectorAll('a[href="log-activity.html"]').forEach(el => {
-    el.addEventListener('click', e => { e.preventDefault(); openActivityModal(); });
+    el.addEventListener('click', e => { e.preventDefault(); checkPastDay(openActivityModal); });
   });
 
   const modal   = document.getElementById('activity-modal');
@@ -416,7 +416,7 @@ function initLogActivity() {
       name:     `${activity.name} — ${intensity.label}`,
       duration: activityDuration,
       calories: cal,
-      date:     todayKey(),
+      date:     viewingDate,
     });
 
     btn.disabled    = false;

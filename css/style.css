@@ -1821,6 +1821,70 @@ input[type=number] { -moz-appearance: textfield; }
 }
 
 /* ============================================================
+   PAST-DAY CONFIRMATION SHEET
+   ============================================================ */
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 400;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.confirm-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.confirm-sheet {
+  width: 100%;
+  background: #1A2D22;
+  border-top: 1px solid var(--border);
+  border-radius: 16px 16px 0 0;
+  padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  transform: translateY(100%);
+  transition: transform 0.28s ease;
+}
+
+.confirm-overlay.open .confirm-sheet {
+  transform: translateY(0);
+}
+
+.confirm-title {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin: 0 0 0.6rem;
+  text-align: center;
+}
+
+.confirm-body {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  color: var(--text-mid);
+  line-height: 1.55;
+  margin: 0 0 1.25rem;
+  text-align: center;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.confirm-actions .btn {
+  flex: 1;
+}
+
+/* ============================================================
    INFO PAGE
    ============================================================ */
 

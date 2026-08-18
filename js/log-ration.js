@@ -21,7 +21,7 @@ async function logFoodEntry(food, servings) {
     protein:  Math.round(food.protein  * servings * 10) / 10,
     carbs:    Math.round(food.carbs    * servings * 10) / 10,
     fat:      Math.round(food.fat      * servings * 10) / 10,
-    date:     todayKey(),
+    date:     viewingDate,
   };
   await store.addFoodEntry(entry);
   await store.saveRecentFood(food);
@@ -274,7 +274,7 @@ function handleSearchInput(val) {
 
 function initLogRation() {
   document.querySelectorAll('a[href="log-ration.html"]').forEach(el => {
-    el.addEventListener('click', e => { e.preventDefault(); openModal(); });
+    el.addEventListener('click', e => { e.preventDefault(); checkPastDay(openModal); });
   });
 
   const modal       = document.getElementById('ration-modal');

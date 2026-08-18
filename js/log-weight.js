@@ -50,7 +50,7 @@ function showWeightToast(weight, unit) {
 
 function initLogWeight() {
   document.querySelectorAll('a[href="log-weight.html"]').forEach(el => {
-    el.addEventListener('click', e => { e.preventDefault(); openWeightModal(); });
+    el.addEventListener('click', e => { e.preventDefault(); checkPastDay(openWeightModal); });
   });
 
   const modal    = document.getElementById('weight-modal');
@@ -87,7 +87,7 @@ function initLogWeight() {
         body:    JSON.stringify({
           weight: currentWeight,
           unit:   cachedUser?.unit ?? 'imperial',
-          date:   todayKey(),
+          date:   viewingDate,
         }),
       });
       const j = await res.json();
