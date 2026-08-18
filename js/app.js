@@ -107,6 +107,7 @@ let viewingDate     = '';
 let cachedUser      = null;
 let cachedSummaries = [];
 let cachedExercise  = [];
+let cachedFood      = [];
 let cachedSummary   = { caloriesIn: 0, caloriesOut: 0 };
 let energyTickTimer = null;
 
@@ -346,16 +347,36 @@ function renderEnergyBalance(summary, user) {
     }
   }
 
-  // Progress bar
-  const barEl = document.getElementById('energy-bar');
-  if (barEl) {
-    if (dailyGoal && dailyGoal > 0) {
-      const pct = Math.min((caloriesIn / dailyGoal) * 100, 100);
-      barEl.style.width  = pct + '%';
-      barEl.className    = 'energy-bar' + (caloriesIn > dailyGoal ? ' energy-bar--over' : '');
-    } else {
-      barEl.style.width = '0%';
-      barEl.className   = 'energy-bar';
+  // Stacked macro bar
+  const stackedEl = document.getElementById('energy-bar-stacked');
+  if (stackedEl) {
+    const pct = (dailyGoal && dailyGoal > 0)
+      ? Math.min((caloriesIn / dailyGoal) * 100, 100)
+      : 0;
+    stackedEl.style.width = pct + '%';
+
+    const carbG    = cachedFood.reduce((s, e) => s + (e.carbs   || 0), 0);
+    const fatG     = cachedFood.reduce((s, e) => s + (e.fat     || 0), 0);
+    const proteinG = cachedFood.reduce((s, e) => s + (e.protein || 0), 0);
+    const carbCals    = carbG    * 4;
+    const fatCals     = fatG     * 9;
+    const proteinCals = proteinG * 4;
+    const totalMacroCals = carbCals + fatCals + proteinCals;
+
+    const carbSeg    = document.getElementById('bar-carbs');
+    const fatSeg     = document.getElementById('bar-fat');
+    const proteinSeg = document.getElementById('bar-protein');
+
+    if (carbSeg && fatSeg && proteinSeg) {
+      if (totalMacroCals > 0) {
+        carbSeg.style.flexGrow    = carbCals;
+        fatSeg.style.flexGrow     = fatCals;
+        proteinSeg.style.flexGrow = proteinCals;
+      } else {
+        carbSeg.style.flexGrow    = 1;
+        fatSeg.style.flexGrow     = 1;
+        proteinSeg.style.flexGrow = 1;
+      }
     }
   }
 }
@@ -503,6 +524,7 @@ async function shiftDay(delta) {
   ]);
 
   cachedExercise = exercise;
+  cachedFood     = food;
   cachedSummary  = summary;
 
   renderWeekNav();
@@ -528,6 +550,7 @@ async function initHome() {
   cachedUser      = user;
   cachedSummaries = summaries;
   cachedExercise  = exercise;
+  cachedFood      = food;
   cachedSummary   = summary;
 
   renderDragon(dragon, user);
@@ -553,6 +576,7 @@ async function refreshHomeForToday() {
   ]);
   cachedSummaries = summaries;
   cachedExercise  = exercise;
+  cachedFood      = food;
   cachedSummary   = summary;
 
   renderDragon(dragon, cachedUser);
