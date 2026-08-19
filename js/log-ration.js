@@ -2,7 +2,6 @@
 // Critical Fit — Log Ration Modal
 // ============================================================
 
-const DEBOUNCE_MS     = 420;
 const SEARCH_ENDPOINT = 'api/food-search.php';
 
 // ---- Detail panel state ----
@@ -32,19 +31,26 @@ async function logFoodEntry(food, servings) {
 
 const searchCache = {};
 
+// Throws on network/API failure so callers can distinguish "the database is
+// unavailable" from "no matches" — the two used to look identical (empty list),
+// which made transient rate-limit errors masquerade as empty results.
 async function searchUSDA(query) {
   if (query in searchCache) return searchCache[query];
-  try {
-    const res = await fetch(`${SEARCH_ENDPOINT}?query=${encodeURIComponent(query)}&pageSize=50`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const foods = data.foods || [];
-    if (foods.length > 0) searchCache[query] = foods; // only cache successful results
-    return foods;
-  } catch (err) {
-    console.warn('Food search error:', err.message);
-    return [];
-  }
+  const res = await fetch(`${SEARCH_ENDPOINT}?query=${encodeURIComponent(query)}&pageSize=50`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data  = await res.json();
+  const foods = data.foods || [];
+  if (foods.length > 0) searchCache[query] = foods; // only cache successful results
+  return foods;
+}
+
+// Recent/logged foods, cached when the modal opens so typing filters them
+// instantly with no network round-trip.
+let recentFoods = [];
+
+async function loadRecentFoods() {
+  recentFoods = await store.getRecentFoods();
+  return recentFoods;
 }
 
 // ---- Escape HTML ----
@@ -190,10 +196,8 @@ async function showDefault() {
   const pane = document.getElementById('ration-content');
   pane.innerHTML = '';
 
-  const [yesterdayEntries, recent] = await Promise.all([
-    store.getFoodEntries(yesterdayKey()),
-    store.getRecentFoods(),
-  ]);
+  const yesterdayEntries = await store.getFoodEntries(yesterdayKey());
+  const recent           = recentFoods;
 
   const yesterdayFoods = yesterdayEntries.map(entryToFood).filter(Boolean);
 
@@ -214,41 +218,103 @@ async function showDefault() {
   }
 }
 
-function showLoading() {
-  const pane = document.getElementById('ration-content');
-  pane.innerHTML = '';
-  pane.appendChild(renderEmpty('Searching…'));
+// Filter the cached recent/logged foods locally as the user types. No network
+// call — the USDA database search only runs on Enter / the Go button.
+function localMatches(query) {
+  const q = query.toLowerCase();
+  return recentFoods.filter(f => f.name.toLowerCase().includes(q));
 }
 
-async function showResults(query) {
-  showLoading();
-  const q         = query.toLowerCase();
-  const recent    = (await store.getRecentFoods()).filter(f => f.name.toLowerCase().includes(q));
-  const usda      = await searchUSDA(query);
-  const recentIds = new Set(recent.map(f => f.fdcId));
-  const fresh     = usda.filter(f => !recentIds.has(f.fdcId));
+function renderSearchPrompt(query) {
+  const wrap = document.createElement('div');
+  wrap.className = 'food-search-prompt';
+  const btn = document.createElement('button');
+  btn.type      = 'button';
+  btn.className = 'food-search-prompt-btn';
+  btn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i>Search the food database for “${esc(query)}”`;
+  btn.addEventListener('click', () => runUsdaSearch(query));
+  wrap.appendChild(btn);
+  return wrap;
+}
 
-  const pane = document.getElementById('ration-content');
+function renderSearchError(query) {
+  const wrap = document.createElement('div');
+  wrap.className = 'food-search-prompt';
+  const msg = document.createElement('p');
+  msg.className   = 'food-empty';
+  msg.style.padding = '0 0 0.75rem';
+  msg.textContent = 'The food database is unavailable right now.';
+  const btn = document.createElement('button');
+  btn.type      = 'button';
+  btn.className = 'food-search-prompt-btn';
+  btn.textContent = 'Tap to retry';
+  btn.addEventListener('click', () => runUsdaSearch(query));
+  wrap.appendChild(msg);
+  wrap.appendChild(btn);
+  return wrap;
+}
+
+function showLocalMatches(query) {
+  const pane   = document.getElementById('ration-content');
+  const recent = localMatches(query);
+
   pane.innerHTML = '';
+  if (recent.length) pane.appendChild(renderSection('Recent Rations', recent));
+  pane.appendChild(renderSearchPrompt(query));
+}
 
-  if (recent.length === 0 && fresh.length === 0) {
-    pane.appendChild(renderEmpty(`No results found for "${esc(query)}".`));
+// Guards against out-of-order responses: only the most recent search renders.
+let searchSeq = 0;
+
+async function runUsdaSearch(rawQuery) {
+  const query = (rawQuery || '').trim();
+  if (query.length < 2) return;
+
+  const seq    = ++searchSeq;
+  const pane   = document.getElementById('ration-content');
+  const recent = localMatches(query);
+
+  const render = (dbNode) => {
+    if (seq !== searchSeq) return; // a newer search superseded this one
+    pane.innerHTML = '';
+    if (recent.length) pane.appendChild(renderSection('Recent Rations', recent));
+    pane.appendChild(dbNode);
+  };
+
+  render(renderEmpty('Searching the food database…'));
+
+  let usda;
+  try {
+    usda = await searchUSDA(query);
+  } catch (err) {
+    console.warn('Food search error:', err.message);
+    render(renderSearchError(query));
     return;
   }
 
-  if (recent.length) pane.appendChild(renderSection('Recent Rations', recent));
-  if (fresh.length)  pane.appendChild(renderSection('USDA Food Database', fresh));
+  const recentIds = new Set(recent.map(f => f.fdcId));
+  const fresh     = usda.filter(f => !recentIds.has(f.fdcId));
+
+  if (fresh.length === 0) {
+    render(renderEmpty(recent.length
+      ? `No additional matches in the food database for “${esc(query)}”.`
+      : `No results found for “${esc(query)}”.`));
+    return;
+  }
+
+  render(renderSection('USDA Food Database', fresh));
 }
 
 // ---- Modal open / close ----
 
-function openModal() {
+async function openModal() {
   const modal = document.getElementById('ration-modal');
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
   hideFoodDetail();
   const input = document.getElementById('ration-search');
   input.value = '';
+  await loadRecentFoods();
   showDefault();
   setTimeout(() => input.focus(), 350);
 }
@@ -256,18 +322,22 @@ function openModal() {
 function closeModal() {
   document.getElementById('ration-modal').classList.remove('open');
   document.body.style.overflow = '';
+  searchSeq++; // invalidate any in-flight database search
   hideFoodDetail();
 }
 
-// ---- Debounced search ----
+// ---- Live local filtering (USDA search deferred to Enter / Go) ----
 
 let searchTimer = null;
 
 function handleSearchInput(val) {
   clearTimeout(searchTimer);
-  if (!val.trim()) { showDefault(); return; }
-  if (val.trim().length < 2) return;
-  searchTimer = setTimeout(() => showResults(val.trim()), DEBOUNCE_MS);
+  const q = val.trim();
+  if (!q) { showDefault(); return; }
+  if (q.length < 2) return;
+  // Tiny debounce just to coalesce rapid keystrokes; this only touches the
+  // in-memory recent-foods list, so it never hits the network.
+  searchTimer = setTimeout(() => showLocalMatches(q), 120);
 }
 
 // ---- Init ----
@@ -288,6 +358,12 @@ function initLogRation() {
   });
 
   searchInput?.addEventListener('input', e => handleSearchInput(e.target.value));
+  searchInput?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); runUsdaSearch(searchInput.value); }
+  });
+  document.getElementById('ration-search-go')?.addEventListener('click', () => {
+    runUsdaSearch(searchInput.value);
+  });
 
   document.getElementById('food-detail-back')?.addEventListener('click', hideFoodDetail);
 

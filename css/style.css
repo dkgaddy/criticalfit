@@ -1034,19 +1034,72 @@ button.nav-item {
 
 .modal-search-wrap {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.75rem 1rem;
   flex-shrink: 0;
 }
 
+.modal-search-field {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
 .modal-search-icon {
   position: absolute;
-  left: 1.75rem;
+  left: 0.85rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-dim);
   font-size: 0.85rem;
   pointer-events: none;
 }
+
+.modal-search-go {
+  flex-shrink: 0;
+  padding: 0.7rem 1.1rem;
+  background: linear-gradient(to bottom, var(--amber-top), var(--amber));
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--amber-edge);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.35);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+
+.modal-search-go:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--amber-edge);
+}
+
+/* Inline "search the food database" prompt / retry */
+.food-search-prompt {
+  padding: 1rem 1.125rem 1.25rem;
+}
+
+.food-search-prompt-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(232, 160, 32, 0.10);
+  border: 1px dashed var(--border-hi);
+  border-radius: 10px;
+  color: var(--amber);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.food-search-prompt-btn i { margin-right: 0.4rem; }
 
 .modal-search-input {
   width: 100%;

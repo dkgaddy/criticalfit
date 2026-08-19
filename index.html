@@ -208,9 +208,12 @@
         <button class="modal-close-btn" id="ration-close" aria-label="Close">✕</button>
       </div>
       <div class="modal-search-wrap">
-        <i class="fa-solid fa-magnifying-glass modal-search-icon" aria-hidden="true"></i>
-        <input type="search" id="ration-search" class="modal-search-input"
-               placeholder="Search Rations…" autocomplete="off" autocorrect="off" spellcheck="false">
+        <div class="modal-search-field">
+          <i class="fa-solid fa-magnifying-glass modal-search-icon" aria-hidden="true"></i>
+          <input type="search" id="ration-search" class="modal-search-input" enterkeyhint="search"
+                 placeholder="Search Rations…" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+        <button type="button" class="modal-search-go" id="ration-search-go">Go</button>
       </div>
       <div class="modal-content" id="ration-content"></div>
 
