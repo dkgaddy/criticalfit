@@ -634,11 +634,31 @@ function initSplash() {
   }, 5000);
 }
 
+// ---- On-screen keyboard handling ----
+// iOS doesn't shrink the layout viewport when the keyboard appears, so a
+// bottom-anchored modal ends up hidden behind it. Track the visual viewport
+// and expose the keyboard height as --kb so the modal can size above it.
+function initKeyboardViewport() {
+  const vv = window.visualViewport;
+  if (!vv) return;
+
+  const update = () => {
+    const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    document.documentElement.style.setProperty('--kb', kb + 'px');
+    document.body.classList.toggle('keyboard-open', kb > 120);
+  };
+
+  vv.addEventListener('resize', update);
+  vv.addEventListener('scroll', update);
+  update();
+}
+
 // ---- Init ----
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (document.getElementById('home-page')) {
     initSplash();
+    initKeyboardViewport();
     await checkAuth();
     await initHome();
     document.getElementById('prev-day')?.addEventListener('click', () => shiftDay(-1));

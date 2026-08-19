@@ -44,13 +44,20 @@ async function searchUSDA(query) {
   return foods;
 }
 
-// Recent/logged foods, cached when the modal opens so typing filters them
-// instantly with no network round-trip.
-let recentFoods = [];
+// Local searchable foods, cached when the modal opens so typing filters them
+// instantly with no network round-trip. Combines yesterday's logged rations
+// with the recent-foods list — both are shown in the default view, so both
+// must be searchable.
+let recentFoods    = [];
+let yesterdayFoods = [];
 
-async function loadRecentFoods() {
-  recentFoods = await store.getRecentFoods();
-  return recentFoods;
+async function loadLocalFoods() {
+  const [recent, yEntries] = await Promise.all([
+    store.getRecentFoods(),
+    store.getFoodEntries(yesterdayKey()),
+  ]);
+  recentFoods    = recent;
+  yesterdayFoods = yEntries.map(entryToFood).filter(Boolean);
 }
 
 // ---- Escape HTML ----
@@ -196,12 +203,7 @@ async function showDefault() {
   const pane = document.getElementById('ration-content');
   pane.innerHTML = '';
 
-  const yesterdayEntries = await store.getFoodEntries(yesterdayKey());
-  const recent           = recentFoods;
-
-  const yesterdayFoods = yesterdayEntries.map(entryToFood).filter(Boolean);
-
-  if (yesterdayFoods.length === 0 && recent.length === 0) {
+  if (yesterdayFoods.length === 0 && recentFoods.length === 0) {
     pane.appendChild(renderEmpty('No recent rations. Search above to get started.'));
     return;
   }
@@ -212,17 +214,26 @@ async function showDefault() {
 
   // Show recent foods not already in yesterday's list
   const yesterdayNames = new Set(yesterdayFoods.map(f => f.name));
-  const extras = recent.filter(f => !yesterdayNames.has(f.name));
+  const extras = recentFoods.filter(f => !yesterdayNames.has(f.name));
   if (extras.length > 0) {
     pane.appendChild(renderSection('Recent Rations', extras));
   }
 }
 
-// Filter the cached recent/logged foods locally as the user types. No network
-// call — the USDA database search only runs on Enter / the Go button.
+// Filter the cached local foods (yesterday's rations + recent) as the user
+// types. No network call — the USDA search only runs on Enter / the Go button.
 function localMatches(query) {
-  const q = query.toLowerCase();
-  return recentFoods.filter(f => f.name.toLowerCase().includes(q));
+  const q    = query.toLowerCase();
+  const seen = new Set();
+  const out  = [];
+  for (const f of [...yesterdayFoods, ...recentFoods]) {
+    if (!f.name.toLowerCase().includes(q)) continue;
+    const key = f.name.toLowerCase();
+    if (seen.has(key)) continue; // de-dupe foods that appear in both lists
+    seen.add(key);
+    out.push(f);
+  }
+  return out;
 }
 
 function renderSearchPrompt(query) {
@@ -314,7 +325,7 @@ async function openModal() {
   hideFoodDetail();
   const input = document.getElementById('ration-search');
   input.value = '';
-  await loadRecentFoods();
+  await loadLocalFoods();
   showDefault();
   setTimeout(() => input.focus(), 350);
 }
