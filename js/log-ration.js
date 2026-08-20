@@ -8,7 +8,7 @@ const SEARCH_ENDPOINT = 'api/food-search.php';
 
 let currentFood     = null;
 let currentServings = 1;
-let searchMode      = 'ai'; // 'ai' | 'usda' — default AI for premium, forced usda for free
+let searchMode      = 'ai'; // 'ai' | 'usda' — default wizard for guild members, forced usda for free
 
 // ---- Log a food entry ----
 
@@ -43,7 +43,7 @@ async function searchUSDA(query) {
   return foods;
 }
 
-// ---- Claude AI search ----
+// ---- Wizard Search (Claude) ----
 
 const aiSearchCache = {};
 
@@ -275,7 +275,7 @@ function renderAiSearchPrompt(query) {
   const btn = document.createElement('button');
   btn.type      = 'button';
   btn.className = 'food-search-prompt-btn food-search-prompt-btn--ai';
-  btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Ask AI for "${esc(query)}"`;
+  btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Ask the Wizard for "${esc(query)}"`;
   btn.addEventListener('click', () => runAiSearch(query));
   wrap.appendChild(btn);
   return wrap;
@@ -304,7 +304,7 @@ function renderAiError(query) {
   const msg = document.createElement('p');
   msg.className     = 'food-empty';
   msg.style.padding = '0 0 0.75rem';
-  msg.textContent   = 'AI search is unavailable right now.';
+  msg.textContent   = 'Wizard Search is unavailable right now.';
   const btn = document.createElement('button');
   btn.type      = 'button';
   btn.className = 'food-search-prompt-btn food-search-prompt-btn--ai';
@@ -372,7 +372,7 @@ async function runUsdaSearch(rawQuery) {
   render(renderSection('USDA Food Database', fresh));
 }
 
-// ---- AI search ----
+// ---- Wizard Search ----
 
 async function runAiSearch(rawQuery) {
   const query = (rawQuery || '').trim();
@@ -387,7 +387,7 @@ async function runAiSearch(rawQuery) {
     pane.appendChild(node);
   };
 
-  render(renderEmpty('Asking the AI chef…'));
+  render(renderEmpty('Consulting the Wizard…'));
 
   let foods;
   try {
@@ -399,11 +399,11 @@ async function runAiSearch(rawQuery) {
   }
 
   if (!foods.length) {
-    render(renderEmpty(`No AI results found for "${esc(query)}".`));
+    render(renderEmpty(`No Wizard results found for "${esc(query)}".`));
     return;
   }
 
-  render(renderSection('AI Suggestions', foods));
+  render(renderSection('Wizard Suggestions', foods));
 }
 
 // ---- Mode toggle sync ----
@@ -421,11 +421,11 @@ async function openModal() {
   document.body.style.overflow = 'hidden';
   hideFoodDetail();
 
-  // Show mode toggle only for premium users
-  const isPremium = typeof cachedUser !== 'undefined' && cachedUser?.isPremium;
-  const modeRow   = document.getElementById('search-mode-row');
-  if (modeRow) modeRow.hidden = !isPremium;
-  if (!isPremium) searchMode = 'usda';
+  // Show mode toggle only for guild members
+  const isGuildMember = typeof cachedUser !== 'undefined' && cachedUser?.isPremium;
+  const modeRow       = document.getElementById('search-mode-row');
+  if (modeRow) modeRow.hidden = !isGuildMember;
+  if (!isGuildMember) searchMode = 'usda';
   syncModePills();
 
   const input = document.getElementById('ration-search');

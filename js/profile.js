@@ -123,24 +123,24 @@ function setToggleGroup(groupEl, value) {
 
 // ---- Load / Save ----
 
-function renderPremiumCard(isPremium) {
-  const el = document.getElementById('premium-content');
+function renderGuildCard(isPremium) {
+  const el = document.getElementById('guild-content');
   if (!el) return;
   if (isPremium) {
     el.innerHTML = `
-      <div class="premium-active">
-        <i class="fa-solid fa-crown premium-crown"></i>
+      <div class="guild-active">
+        <i class="fa-solid fa-crown guild-crown"></i>
         <div>
-          <p class="premium-active-title">Premium Member</p>
-          <p class="premium-active-desc">AI-powered food search with restaurant items and real serving sizes is active.</p>
+          <p class="guild-active-title">Guild Member</p>
+          <p class="guild-active-desc">Wizard Search with restaurant items and real serving sizes is active.</p>
         </div>
       </div>
     `;
   } else {
     el.innerHTML = `
-      <p class="premium-desc">Unlock AI-powered food search with restaurant &amp; branded items, and realistic serving sizes.</p>
+      <p class="guild-desc">Join the Guild to unlock Wizard Search — restaurant &amp; branded items with realistic serving sizes.</p>
       <button class="btn btn-primary btn-full" disabled style="opacity:0.45;cursor:not-allowed">
-        Upgrade to Premium — Coming Soon
+        Join the Guild — Coming Soon
       </button>
     `;
   }
@@ -150,7 +150,7 @@ async function loadProfile() {
   const p = await store.getUser();
   if (!p) return;
 
-  renderPremiumCard(p.isPremium ?? false);
+  renderGuildCard(p.isPremium ?? false);
 
   currentUnit     = p.unit     || 'imperial';
   currentGender   = p.gender   || 'male';

@@ -6,7 +6,7 @@ $stmt = db()->prepare('SELECT is_premium FROM users WHERE id = ?');
 $stmt->execute([$uid]);
 $row = $stmt->fetch();
 if (!$row || !$row['is_premium']) {
-    json_err('Premium required', 403);
+    json_err('Guild membership required', 403);
     exit;
 }
 
