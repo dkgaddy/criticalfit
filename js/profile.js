@@ -135,8 +135,13 @@ function renderGuildCard(isPremium) {
     `;
   } else {
     el.innerHTML = `
-      <h3 class="card-title">Guild</h3>
-      <p class="guild-desc">Join the Guild to unlock Wizard Search — restaurant &amp; branded items with realistic serving sizes.</p>
+      <p class="guild-join-heading">Join the Guild today to unlock these features:</p>
+      <ul class="guild-features">
+        <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Wizard Ration Search</strong> — restaurant &amp; branded food items with suggested servings</div></li>
+        <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Advanced Charting</strong> — track up to a year's worth of progress</div></li>
+        <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Build Meals</strong> — log regular food rations in custom made meals</div></li>
+        <li><i class="fa-solid fa-ring guild-bullet"></i><div>Get exclusive fitness suggestions</div></li>
+      </ul>
       <button class="btn btn-primary btn-full" disabled style="opacity:0.45;cursor:not-allowed">
         Join the Guild — Coming Soon
       </button>

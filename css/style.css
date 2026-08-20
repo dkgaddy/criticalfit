@@ -2211,6 +2211,37 @@ input[type=number] { -moz-appearance: textfield; }
   margin-bottom: 0.85rem;
 }
 
+.guild-join-heading {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+}
+
+.guild-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.guild-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.85rem;
+  color: var(--text-mid);
+  line-height: 1.45;
+}
+
+.guild-bullet {
+  font-size: 0.65rem;
+  color: var(--gold);
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */
