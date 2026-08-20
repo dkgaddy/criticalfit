@@ -2186,23 +2186,22 @@ input[type=number] { -moz-appearance: textfield; }
 
 .guild-active {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0;
+  justify-content: center;
+  gap: 0.6rem;
 }
 
 .guild-crown {
-  font-size: 2rem;
+  font-size: 1.1rem;
   color: var(--gold);
 }
 
 .guild-active-title {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   color: var(--text);
-  text-align: center;
 }
 
 .guild-desc {
