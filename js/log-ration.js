@@ -8,14 +8,16 @@ const SEARCH_ENDPOINT = 'api/food-search.php';
 
 let currentFood     = null;
 let currentServings = 1;
+let searchMode      = 'ai'; // 'ai' | 'usda' — default AI for premium, forced usda for free
 
-// ---- Log a food entry (servings-based, 1 serving = 100g) ----
+// ---- Log a food entry ----
 
 async function logFoodEntry(food, servings) {
+  const baseGrams = food.grams ?? 100; // AI foods carry actual serving grams; USDA defaults to 100
   const entry = {
     fdcId:    food.fdcId,
     name:     food.name,
-    grams:    Math.round(servings * 100),
+    grams:    Math.round(servings * baseGrams),
     calories: Math.round(food.calories * servings),
     protein:  Math.round(food.protein  * servings * 10) / 10,
     carbs:    Math.round(food.carbs    * servings * 10) / 10,
@@ -31,23 +33,32 @@ async function logFoodEntry(food, servings) {
 
 const searchCache = {};
 
-// Throws on network/API failure so callers can distinguish "the database is
-// unavailable" from "no matches" — the two used to look identical (empty list),
-// which made transient rate-limit errors masquerade as empty results.
 async function searchUSDA(query) {
   if (query in searchCache) return searchCache[query];
   const res = await fetch(`${SEARCH_ENDPOINT}?query=${encodeURIComponent(query)}&pageSize=50`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data  = await res.json();
   const foods = data.foods || [];
-  if (foods.length > 0) searchCache[query] = foods; // only cache successful results
+  if (foods.length > 0) searchCache[query] = foods;
   return foods;
 }
 
-// Local searchable foods, cached when the modal opens so typing filters them
-// instantly with no network round-trip. Combines yesterday's logged rations
-// with the recent-foods list — both are shown in the default view, so both
-// must be searchable.
+// ---- Claude AI search ----
+
+const aiSearchCache = {};
+
+async function searchAI(query) {
+  if (query in aiSearchCache) return aiSearchCache[query];
+  const res = await fetch(`api/claude-food-search.php?query=${encodeURIComponent(query)}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const j = await res.json();
+  if (!j.ok) throw new Error(j.error || 'AI error');
+  if (j.data.length > 0) aiSearchCache[query] = j.data;
+  return j.data;
+}
+
+// ---- Local (recent/yesterday) foods, cached when modal opens ----
+
 let recentFoods    = [];
 let yesterdayFoods = [];
 
@@ -75,6 +86,13 @@ function showFoodDetail(food) {
   currentServings = 1;
 
   document.getElementById('food-detail-name').textContent = food.name;
+
+  const perEl = document.getElementById('food-detail-per');
+  if (perEl) {
+    perEl.textContent = food.serving_desc
+      ? `Per serving · ${food.serving_desc}`
+      : 'Per serving · 100g';
+  }
 
   const macroEl = document.getElementById('food-detail-macros');
   macroEl.innerHTML = `
@@ -144,11 +162,14 @@ function makeFoodRow(food) {
   const row = document.createElement('div');
   row.className = 'food-item';
 
-  const brand = food.brand ? ` · ${esc(food.brand)}` : '';
+  const servingInfo = food.serving_desc
+    ? esc(food.serving_desc) + ' · per serving'
+    : (food.brand ? esc(food.brand) + ' · ' : '') + 'per 100g';
+
   row.innerHTML = `
     <div class="food-item-info">
       <span class="food-item-name">${esc(food.name)} <span class="food-item-cals">(${Math.round(food.calories).toLocaleString()} cal)</span></span>
-      <span class="food-item-macros">P: ${food.protein}g &middot; C: ${food.carbs}g &middot; F: ${food.fat}g${brand} &middot; per 100g</span>
+      <span class="food-item-macros">P: ${food.protein}g &middot; C: ${food.carbs}g &middot; F: ${food.fat}g &middot; ${servingInfo}</span>
     </div>
     <button class="food-add-btn" aria-label="Add ${esc(food.name)}">Add</button>
   `;
@@ -165,7 +186,6 @@ function yesterdayKey() {
   return d.toISOString().slice(0, 10);
 }
 
-// Convert a logged entry (with actual grams/calories) back to per-100g food object
 function entryToFood(entry) {
   if (!entry.grams || entry.grams === 0) return null;
   const f = 100 / entry.grams;
@@ -212,7 +232,6 @@ async function showDefault() {
     pane.appendChild(renderSection("Yesterday's Rations", yesterdayFoods));
   }
 
-  // Show recent foods not already in yesterday's list
   const yesterdayNames = new Set(yesterdayFoods.map(f => f.name));
   const extras = recentFoods.filter(f => !yesterdayNames.has(f.name));
   if (extras.length > 0) {
@@ -220,8 +239,8 @@ async function showDefault() {
   }
 }
 
-// Filter the cached local foods (yesterday's rations + recent) as the user
-// types. No network call — the USDA search only runs on Enter / the Go button.
+// ---- Local filtering ----
+
 function localMatches(query) {
   const q    = query.toLowerCase();
   const seen = new Set();
@@ -229,12 +248,14 @@ function localMatches(query) {
   for (const f of [...yesterdayFoods, ...recentFoods]) {
     if (!f.name.toLowerCase().includes(q)) continue;
     const key = f.name.toLowerCase();
-    if (seen.has(key)) continue; // de-dupe foods that appear in both lists
+    if (seen.has(key)) continue;
     seen.add(key);
     out.push(f);
   }
   return out;
 }
+
+// ---- Search prompt nodes ----
 
 function renderSearchPrompt(query) {
   const wrap = document.createElement('div');
@@ -242,8 +263,20 @@ function renderSearchPrompt(query) {
   const btn = document.createElement('button');
   btn.type      = 'button';
   btn.className = 'food-search-prompt-btn';
-  btn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i>Search the food database for “${esc(query)}”`;
+  btn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Search the food database for "${esc(query)}"`;
   btn.addEventListener('click', () => runUsdaSearch(query));
+  wrap.appendChild(btn);
+  return wrap;
+}
+
+function renderAiSearchPrompt(query) {
+  const wrap = document.createElement('div');
+  wrap.className = 'food-search-prompt';
+  const btn = document.createElement('button');
+  btn.type      = 'button';
+  btn.className = 'food-search-prompt-btn food-search-prompt-btn--ai';
+  btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Ask AI for "${esc(query)}"`;
+  btn.addEventListener('click', () => runAiSearch(query));
   wrap.appendChild(btn);
   return wrap;
 }
@@ -252,14 +285,31 @@ function renderSearchError(query) {
   const wrap = document.createElement('div');
   wrap.className = 'food-search-prompt';
   const msg = document.createElement('p');
-  msg.className   = 'food-empty';
+  msg.className     = 'food-empty';
   msg.style.padding = '0 0 0.75rem';
-  msg.textContent = 'The food database is unavailable right now.';
+  msg.textContent   = 'The food database is unavailable right now.';
   const btn = document.createElement('button');
   btn.type      = 'button';
   btn.className = 'food-search-prompt-btn';
   btn.textContent = 'Tap to retry';
   btn.addEventListener('click', () => runUsdaSearch(query));
+  wrap.appendChild(msg);
+  wrap.appendChild(btn);
+  return wrap;
+}
+
+function renderAiError(query) {
+  const wrap = document.createElement('div');
+  wrap.className = 'food-search-prompt';
+  const msg = document.createElement('p');
+  msg.className     = 'food-empty';
+  msg.style.padding = '0 0 0.75rem';
+  msg.textContent   = 'AI search is unavailable right now.';
+  const btn = document.createElement('button');
+  btn.type      = 'button';
+  btn.className = 'food-search-prompt-btn food-search-prompt-btn--ai';
+  btn.textContent = 'Tap to retry';
+  btn.addEventListener('click', () => runAiSearch(query));
   wrap.appendChild(msg);
   wrap.appendChild(btn);
   return wrap;
@@ -271,10 +321,16 @@ function showLocalMatches(query) {
 
   pane.innerHTML = '';
   if (recent.length) pane.appendChild(renderSection('Recent Rations', recent));
-  pane.appendChild(renderSearchPrompt(query));
+
+  if (searchMode === 'ai') {
+    pane.appendChild(renderAiSearchPrompt(query));
+  } else {
+    pane.appendChild(renderSearchPrompt(query));
+  }
 }
 
-// Guards against out-of-order responses: only the most recent search renders.
+// ---- USDA database search ----
+
 let searchSeq = 0;
 
 async function runUsdaSearch(rawQuery) {
@@ -286,7 +342,7 @@ async function runUsdaSearch(rawQuery) {
   const recent = localMatches(query);
 
   const render = (dbNode) => {
-    if (seq !== searchSeq) return; // a newer search superseded this one
+    if (seq !== searchSeq) return;
     pane.innerHTML = '';
     if (recent.length) pane.appendChild(renderSection('Recent Rations', recent));
     pane.appendChild(dbNode);
@@ -308,12 +364,53 @@ async function runUsdaSearch(rawQuery) {
 
   if (fresh.length === 0) {
     render(renderEmpty(recent.length
-      ? `No additional matches in the food database for “${esc(query)}”.`
-      : `No results found for “${esc(query)}”.`));
+      ? `No additional matches in the food database for "${esc(query)}".`
+      : `No results found for "${esc(query)}".`));
     return;
   }
 
   render(renderSection('USDA Food Database', fresh));
+}
+
+// ---- AI search ----
+
+async function runAiSearch(rawQuery) {
+  const query = (rawQuery || '').trim();
+  if (query.length < 2) return;
+
+  const seq  = ++searchSeq;
+  const pane = document.getElementById('ration-content');
+
+  const render = (node) => {
+    if (seq !== searchSeq) return;
+    pane.innerHTML = '';
+    pane.appendChild(node);
+  };
+
+  render(renderEmpty('Asking the AI chef…'));
+
+  let foods;
+  try {
+    foods = await searchAI(query);
+  } catch (err) {
+    console.warn('AI food search error:', err.message);
+    render(renderAiError(query));
+    return;
+  }
+
+  if (!foods.length) {
+    render(renderEmpty(`No AI results found for "${esc(query)}".`));
+    return;
+  }
+
+  render(renderSection('AI Suggestions', foods));
+}
+
+// ---- Mode toggle sync ----
+
+function syncModePills() {
+  document.getElementById('mode-ai')?.classList.toggle('mode-pill--active',   searchMode === 'ai');
+  document.getElementById('mode-usda')?.classList.toggle('mode-pill--active', searchMode === 'usda');
 }
 
 // ---- Modal open / close ----
@@ -323,6 +420,14 @@ async function openModal() {
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
   hideFoodDetail();
+
+  // Show mode toggle only for premium users
+  const isPremium = typeof cachedUser !== 'undefined' && cachedUser?.isPremium;
+  const modeRow   = document.getElementById('search-mode-row');
+  if (modeRow) modeRow.hidden = !isPremium;
+  if (!isPremium) searchMode = 'usda';
+  syncModePills();
+
   const input = document.getElementById('ration-search');
   input.value = '';
   await loadLocalFoods();
@@ -333,11 +438,11 @@ async function openModal() {
 function closeModal() {
   document.getElementById('ration-modal').classList.remove('open');
   document.body.style.overflow = '';
-  searchSeq++; // invalidate any in-flight database search
+  searchSeq++;
   hideFoodDetail();
 }
 
-// ---- Live local filtering (USDA search deferred to Enter / Go) ----
+// ---- Live local filtering ----
 
 let searchTimer = null;
 
@@ -346,8 +451,6 @@ function handleSearchInput(val) {
   const q = val.trim();
   if (!q) { showDefault(); return; }
   if (q.length < 2) return;
-  // Tiny debounce just to coalesce rapid keystrokes; this only touches the
-  // in-memory recent-foods list, so it never hits the network.
   searchTimer = setTimeout(() => showLocalMatches(q), 120);
 }
 
@@ -368,12 +471,33 @@ function initLogRation() {
     if (e.key === 'Escape' && modal?.classList.contains('open')) closeModal();
   });
 
+  // Mode toggle
+  document.getElementById('mode-ai')?.addEventListener('click', () => {
+    searchMode = 'ai';
+    syncModePills();
+    const q = searchInput?.value.trim();
+    if (q && q.length >= 2) showLocalMatches(q);
+    else showDefault();
+  });
+  document.getElementById('mode-usda')?.addEventListener('click', () => {
+    searchMode = 'usda';
+    syncModePills();
+    const q = searchInput?.value.trim();
+    if (q && q.length >= 2) showLocalMatches(q);
+    else showDefault();
+  });
+
   searchInput?.addEventListener('input', e => handleSearchInput(e.target.value));
   searchInput?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); runUsdaSearch(searchInput.value); }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (searchMode === 'ai') runAiSearch(searchInput.value);
+      else runUsdaSearch(searchInput.value);
+    }
   });
   document.getElementById('ration-search-go')?.addEventListener('click', () => {
-    runUsdaSearch(searchInput.value);
+    if (searchMode === 'ai') runAiSearch(searchInput.value);
+    else runUsdaSearch(searchInput.value);
   });
 
   document.getElementById('food-detail-back')?.addEventListener('click', hideFoodDetail);
