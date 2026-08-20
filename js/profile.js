@@ -135,6 +135,7 @@ function renderGuildCard(isPremium) {
     `;
   } else {
     el.innerHTML = `
+      <h3 class="card-title">Guild</h3>
       <p class="guild-desc">Join the Guild to unlock Wizard Search — restaurant &amp; branded items with realistic serving sizes.</p>
       <button class="btn btn-primary btn-full" disabled style="opacity:0.45;cursor:not-allowed">
         Join the Guild — Coming Soon
