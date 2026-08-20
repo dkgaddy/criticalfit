@@ -129,7 +129,7 @@ function renderGuildCard(isPremium) {
   if (isPremium) {
     el.innerHTML = `
       <div class="guild-active">
-        <i class="fa-solid fa-crown guild-crown"></i>
+        <i class="fa-solid fa-ring guild-crown"></i>
         <div>
           <p class="guild-active-title">Guild Member</p>
           <p class="guild-active-desc">Wizard Search with restaurant items and real serving sizes is active.</p>
