@@ -133,6 +133,10 @@ function getDragonStage(level) {
 let _pendingLogFn = null;
 
 function checkPastDay(openFn) {
+  if (!cachedUser?.dailyGoal) {
+    document.getElementById('profile-alert-modal')?.classList.add('open');
+    return;
+  }
   if (viewingDate === todayKey()) {
     openFn();
     return;
@@ -167,6 +171,16 @@ async function _pastDayGoToday(fn) {
   renderEnergyUsed();
   renderJournalEntries(food, exercise);
   fn();
+}
+
+function initProfileAlert() {
+  const overlay = document.getElementById('profile-alert-modal');
+  document.getElementById('profile-alert-dismiss')?.addEventListener('click', () => {
+    overlay?.classList.remove('open');
+  });
+  overlay?.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
 }
 
 function initPastDayModal() {
@@ -577,6 +591,7 @@ async function initHome() {
   renderEvoBar(dragon);
   renderJournalEntries(food, exercise);
   initPastDayModal();
+  initProfileAlert();
 
   if (dragon.promoted) showLevelUp(dragon);
 }
