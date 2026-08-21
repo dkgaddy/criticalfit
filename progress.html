@@ -20,8 +20,24 @@
 <body id="progress-page">
 
   <header class="app-header">
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu" aria-expanded="false">
+      <i class="fa-solid fa-bars"></i>
+    </button>
     <img src="images/CriticalFit-1line-logo-small.png" alt="Critical Fit" class="header-logo">
   </header>
+
+  <!-- ======= Hamburger Menu ======= -->
+  <div class="ham-menu" id="ham-menu" hidden>
+    <a href="info.html" class="ham-item">
+      <i class="fa-solid fa-circle-info"></i> Info
+    </a>
+    <button class="ham-item" id="nav-install">
+      <i class="fa-solid fa-wand-magic-sparkles"></i> Install
+    </button>
+    <button class="ham-item" id="ham-settings">
+      <i class="fa-solid fa-gear"></i> Settings
+    </button>
+  </div>
 
   <main class="journal-page">
 
@@ -82,14 +98,10 @@
       <i class="fa-solid fa-scroll nav-icon" aria-hidden="true"></i>
       Journal
     </a>
-    <a href="info.html" class="nav-item">
-      <i class="fa-solid fa-circle-info nav-icon" aria-hidden="true"></i>
-      Info
+    <a href="meals.html" class="nav-item" id="nav-meals">
+      <i class="fa-solid fa-bowl-rice nav-icon" aria-hidden="true"></i>
+      Meals
     </a>
-    <button class="nav-item" id="nav-install">
-      <i class="fa-solid fa-wand-magic-sparkles nav-icon" aria-hidden="true"></i>
-      Install
-    </button>
     <a href="progress.html" class="nav-item active" aria-current="page">
       <i class="fa-solid fa-chart-line nav-icon" aria-hidden="true"></i>
       Progress
@@ -100,9 +112,19 @@
     </a>
   </nav>
 
+  <!-- ======= Guild Gate Popup ======= -->
+  <div class="guild-gate-overlay" id="guild-gate-modal" role="dialog" aria-modal="true">
+    <div class="guild-gate-sheet">
+      <i class="fa-solid fa-ring guild-gate-icon"></i>
+      <p class="guild-gate-msg">Join the Guild for more exciting features like this!</p>
+      <button class="btn btn-primary" id="guild-gate-dismiss">OK</button>
+    </div>
+  </div>
+
   <script src="js/auth.js"></script>
   <script src="js/energy.js"></script>
   <script src="js/progress.js"></script>
   <script src="js/install.js"></script>
+  <script src="js/nav.js"></script>
 </body>
 </html>
