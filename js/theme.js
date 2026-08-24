@@ -32,30 +32,25 @@ function startMusic(track, elapsedMs) {
   _bgAudio.volume = 0.5;
   _bgAudio.loop   = true;
 
-  function doPlay() {
-    var p = _bgAudio && _bgAudio.play();
-    if (p !== undefined) {
-      p.catch(function () {
-        function resume() {
-          _bgAudio && _bgAudio.play();
-          document.removeEventListener('click',      resume);
-          document.removeEventListener('touchstart', resume);
-        }
-        document.addEventListener('click',      resume, { once: true });
-        document.addEventListener('touchstart', resume, { once: true });
-      });
-    }
-  }
-
+  // Seek to the right position once metadata is available (async, doesn't block play)
   if (elapsedMs > 0) {
-    // Seek to the right position before playing so it sounds continuous
     _bgAudio.addEventListener('loadedmetadata', function () {
       if (_bgAudio) _bgAudio.currentTime = (elapsedMs / 1000) % _bgAudio.duration;
-      doPlay();
     }, { once: true });
-    _bgAudio.load();
-  } else {
-    doPlay();
+  }
+
+  // Always start play immediately — same as original, so first-load autoplay works
+  var p = _bgAudio.play();
+  if (p !== undefined) {
+    p.catch(function () {
+      function resume() {
+        _bgAudio && _bgAudio.play();
+        document.removeEventListener('click',      resume);
+        document.removeEventListener('touchstart', resume);
+      }
+      document.addEventListener('click',      resume, { once: true });
+      document.addEventListener('touchstart', resume, { once: true });
+    });
   }
 }
 
