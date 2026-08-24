@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Critical Fit">
-  <title>Critical Fit — Progress</title>
+  <title>Critical Fit — Settings</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="images/criticalfitLogo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,8 +18,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="js/theme.js"></script>
 </head>
-<body id="progress-page">
+<body id="settings-page">
 
+  <!-- ======= Header ======= -->
   <header class="app-header">
     <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu" aria-expanded="false">
       <i class="fa-solid fa-bars"></i>
@@ -40,60 +41,66 @@
     </button>
   </div>
 
+  <!-- ======= Settings Page ======= -->
   <main class="journal-page">
 
-    <!-- Range selector -->
-    <div class="progress-range-row">
-      <div class="form-select-wrap" style="max-width:220px;">
-        <select class="form-select" id="progress-range">
-          <option value="7" selected>Last Week</option>
-          <option value="30">Last 30 Days</option>
-          <option value="60">Last 60 Days</option>
-          <option value="180">Last 180 Days</option>
-          <option value="365">Last Year</option>
-        </select>
-        <i class="fa-solid fa-chevron-down form-select-icon" aria-hidden="true"></i>
-      </div>
+    <div class="page-heading">
+      <h2 class="page-title">Settings</h2>
+      <p class="page-sub">Customize your quest experience.</p>
     </div>
 
-    <!-- 1. Life Points -->
+    <!-- App Theme -->
     <section class="card">
-      <h3 class="card-title">Life Points</h3>
-      <div class="progress-chart" id="chart-lifepoints"></div>
+      <h3 class="card-title">App Theme</h3>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label" for="setting-theme">Theme</label>
+        <div class="form-select-wrap">
+          <select class="form-select" id="setting-theme">
+            <option value="forest">Forest</option>
+            <option value="dragons-fire">Dragon's Fire</option>
+            <option value="royal-sash">Royal Sash</option>
+          </select>
+          <i class="fa-solid fa-chevron-down form-select-icon" aria-hidden="true"></i>
+        </div>
+      </div>
     </section>
 
-    <!-- 2. Energy Stored -->
+    <!-- Background Music -->
     <section class="card">
-      <h3 class="card-title">Energy Stored Each Day</h3>
-      <div class="progress-chart" id="chart-energy-stored"></div>
+      <h3 class="card-title">Background Music</h3>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label" for="setting-music">Track</label>
+        <div class="form-select-wrap">
+          <select class="form-select" id="setting-music">
+            <option value="">None</option>
+            <option value="HammeringHearts.mp3">Hammering Hearts</option>
+            <option value="MistyTaverns.mp3">Misty Taverns</option>
+            <option value="PipeSmoke.mp3">Pipe Smoke</option>
+            <option value="RowingTheLoch.mp3">Rowing the Loch</option>
+            <option value="SpinningElves.mp3">Spinning Elves</option>
+          </select>
+          <i class="fa-solid fa-chevron-down form-select-icon" aria-hidden="true"></i>
+        </div>
+      </div>
+      <p class="setting-note">Plays at 50% volume across all screens each session.</p>
     </section>
 
-    <!-- 3. Energy Breakdown -->
+    <!-- Notifications -->
     <section class="card">
-      <h3 class="card-title">Energy Breakdown</h3>
-      <div class="progress-chart" id="chart-breakdown"></div>
-    </section>
-
-    <!-- 4. Total Energy Used -->
-    <section class="card">
-      <h3 class="card-title">Total Energy Used Each Day</h3>
-      <div class="progress-chart" id="chart-energy-used"></div>
-    </section>
-
-    <!-- 5. Activity Energy -->
-    <section class="card">
-      <h3 class="card-title">Activity Energy Burned</h3>
-      <div class="progress-chart" id="chart-activity"></div>
-    </section>
-
-    <!-- 6. Weight -->
-    <section class="card">
-      <h3 class="card-title">Weight</h3>
-      <div class="progress-chart" id="chart-weight"></div>
+      <h3 class="card-title">Notifications</h3>
+      <div class="setting-row">
+        <span class="setting-row-label">Enable Notifications</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="setting-notifications" disabled>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <p class="setting-note">Notification features coming soon.</p>
     </section>
 
   </main>
 
+  <!-- ======= Bottom Navigation ======= -->
   <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
     <a href="index.html" class="nav-item">
       <i class="fa-solid fa-scroll nav-icon" aria-hidden="true"></i>
@@ -103,7 +110,7 @@
       <i class="fa-solid fa-bowl-rice nav-icon" aria-hidden="true"></i>
       Meals
     </a>
-    <a href="progress.html" class="nav-item active" aria-current="page">
+    <a href="progress.html" class="nav-item">
       <i class="fa-solid fa-chart-line nav-icon" aria-hidden="true"></i>
       Progress
     </a>
@@ -123,8 +130,7 @@
   </div>
 
   <script src="js/auth.js"></script>
-  <script src="js/energy.js"></script>
-  <script src="js/progress.js"></script>
+  <script src="js/settings.js"></script>
   <script src="js/install.js"></script>
   <script src="js/nav.js"></script>
 </body>

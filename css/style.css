@@ -46,6 +46,19 @@
 
   --header-h:  56px;
   --nav-h:     60px;
+
+  /* Theme gradient — overridden per theme */
+  --theme-gradient: linear-gradient(135deg, #3A6647 0%, #1C3426 40%, #0C1510 100%);
+}
+
+/* ---- Dragon's Fire theme ---- */
+[data-theme="dragons-fire"] {
+  --theme-gradient: linear-gradient(135deg, #6B1A0E 0%, #3A0A05 40%, #150302 100%);
+}
+
+/* ---- Royal Sash theme ---- */
+[data-theme="royal-sash"] {
+  --theme-gradient: linear-gradient(135deg, #1A2A8F 0%, #0A1550 40%, #030820 100%);
 }
 
 /* ============================================================
@@ -62,7 +75,7 @@ html {
 
 body {
   font-family: var(--font-body);
-  background: linear-gradient(135deg, #3A6647 0%, #1C3426 40%, #0C1510 100%);
+  background: var(--theme-gradient);
   background-attachment: fixed;
   color: var(--text);
   min-height: 100dvh;
@@ -86,7 +99,7 @@ a { color: inherit; text-decoration: none; }
 .splash {
   position: fixed;
   inset: 0;
-  background: linear-gradient(135deg, #3A6647 0%, #1C3426 40%, #0C1510 100%);
+  background: var(--theme-gradient);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2347,6 +2360,80 @@ input[type=number] { -moz-appearance: textfield; }
   color: var(--gold);
   margin-top: 0.2rem;
   flex-shrink: 0;
+}
+
+/* ============================================================
+   SETTINGS PAGE
+   ============================================================ */
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.25rem 0;
+}
+
+.setting-row-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.setting-note {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 0.6rem;
+  line-height: 1.4;
+}
+
+/* Toggle switch (notifications) */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--slate);
+  border-radius: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toggle-track::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle-switch input:checked + .toggle-track {
+  background: var(--amber);
+}
+
+.toggle-switch input:checked + .toggle-track::before {
+  transform: translateX(18px);
+}
+
+.toggle-switch input:disabled + .toggle-track {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* ============================================================
