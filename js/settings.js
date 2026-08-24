@@ -43,7 +43,6 @@ async function initSettings() {
       const track = musicEl.value || null;
       if (track) {
         startMusic(track);
-        sessionStorage.setItem('cfMusic', track);
       } else {
         stopMusic();
       }

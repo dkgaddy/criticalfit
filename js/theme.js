@@ -19,66 +19,80 @@ function applyTheme(theme) {
 // ---- Music ----
 
 var _bgAudio = null;
+var _bgTrack  = null;
 
-function startMusic(track, elapsedMs) {
+function _buildAudio(track, elapsedMs) {
   if (_bgAudio) { _bgAudio.pause(); _bgAudio = null; }
-  if (!track) return;
-
-  // Store effective start time so subsequent page loads can seek to the right position
-  var effectiveStart = Date.now() - (elapsedMs || 0);
-  sessionStorage.setItem('cfMusicSession', JSON.stringify({ track: track, startedAt: effectiveStart }));
-
-  _bgAudio        = new Audio('music/' + track);
+  _bgTrack  = track;
+  _bgAudio  = new Audio('music/' + track);
   _bgAudio.volume = 0.5;
   _bgAudio.loop   = true;
-
-  // Seek to the right position once metadata is available (async, doesn't block play)
   if (elapsedMs > 0) {
     _bgAudio.addEventListener('loadedmetadata', function () {
       if (_bgAudio) _bgAudio.currentTime = (elapsedMs / 1000) % _bgAudio.duration;
     }, { once: true });
   }
+  return _bgAudio.play();
+}
 
-  // Always start play immediately — same as original, so first-load autoplay works
-  var p = _bgAudio.play();
+function _elapsedFor(track) {
+  try {
+    var s = JSON.parse(sessionStorage.getItem('cfMusicSession') || 'null');
+    if (s && s.track === track && s.startedAt) return Date.now() - s.startedAt;
+  } catch (e) {}
+  return 0;
+}
+
+function startMusic(track, elapsedMs) {
+  if (!track) return;
+  localStorage.setItem('cfMusic', track);
+
+  var effectiveStart = Date.now() - (elapsedMs || 0);
+  sessionStorage.setItem('cfMusicSession', JSON.stringify({ track: track, startedAt: effectiveStart }));
+
+  var p = _buildAudio(track, elapsedMs || 0);
   if (p !== undefined) {
     p.catch(function () {
+      // Capture phase fires before any child stopPropagation.
+      // Re-build the Audio object INSIDE the gesture so iOS accepts the play() call.
+      var t = track;
       function resume() {
-        _bgAudio && _bgAudio.play();
-        document.removeEventListener('click',      resume);
-        document.removeEventListener('touchstart', resume);
+        if (_bgTrack !== t) return; // track changed while waiting
+        _buildAudio(t, _elapsedFor(t));
       }
-      document.addEventListener('click',      resume, { once: true });
-      document.addEventListener('touchstart', resume, { once: true });
+      document.addEventListener('click',      resume, { capture: true, once: true });
+      document.addEventListener('touchstart', resume, { capture: true, once: true });
     });
   }
 }
 
 function stopMusic() {
   if (_bgAudio) { _bgAudio.pause(); _bgAudio = null; }
+  _bgTrack = null;
   sessionStorage.removeItem('cfMusicSession');
-  sessionStorage.setItem('cfMusic', '');
+  localStorage.setItem('cfMusic', '');
 }
 
 // ---- Load settings from API and apply ----
 
 document.addEventListener('DOMContentLoaded', function () {
+  // Start from localStorage immediately — avoids waiting for the API round-trip
+  // on pages where the user already has activation state (any page after the first).
+  var cached = localStorage.getItem('cfMusic') || '';
+  if (cached) startMusic(cached, _elapsedFor(cached));
+
   fetch('api/settings.php')
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (j) {
       if (!j || !j.ok) return;
       applyTheme(j.data.theme);
       var track = j.data.music || null;
-      sessionStorage.setItem('cfMusic', track || '');
-      if (track) {
-        var elapsedMs = 0;
-        try {
-          var session = JSON.parse(sessionStorage.getItem('cfMusicSession') || 'null');
-          if (session && session.track === track && session.startedAt) {
-            elapsedMs = Date.now() - session.startedAt;
-          }
-        } catch (e) {}
-        startMusic(track, elapsedMs);
+      localStorage.setItem('cfMusic', track || '');
+      // Only act if the API track differs from what's already started
+      if (track && track !== _bgTrack) {
+        startMusic(track, 0);
+      } else if (!track && _bgAudio) {
+        stopMusic();
       }
     })
     .catch(function () { /* not authenticated yet — use cached theme */ });
