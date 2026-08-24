@@ -49,16 +49,33 @@
 
   /* Theme gradient — overridden per theme */
   --theme-gradient: linear-gradient(135deg, #3A6647 0%, #1C3426 40%, #0C1510 100%);
+
+  /* Themed surface colors — overridden per theme */
+  --modal-bg:   #1A2D22;
+  --header-bg:  rgba(14, 22, 17, 0.88);
+  --nav-bg:     rgba(12, 20, 15, 0.92);
+  --card-tint:  rgba(10, 20, 14, 0.55);
+  --levelup-bg: linear-gradient(160deg, #0C1510 0%, #1A2D22 100%);
 }
 
 /* ---- Dragon's Fire theme ---- */
 [data-theme="dragons-fire"] {
   --theme-gradient: linear-gradient(135deg, #6B1A0E 0%, #3A0A05 40%, #150302 100%);
+  --modal-bg:   #2A0806;
+  --header-bg:  rgba(21, 3, 2, 0.88);
+  --nav-bg:     rgba(20, 4, 2, 0.92);
+  --card-tint:  rgba(20, 4, 2, 0.55);
+  --levelup-bg: linear-gradient(160deg, #150302 0%, #2A0806 100%);
 }
 
 /* ---- Royal Sash theme ---- */
 [data-theme="royal-sash"] {
   --theme-gradient: linear-gradient(135deg, #1A2A8F 0%, #0A1550 40%, #030820 100%);
+  --modal-bg:   #071035;
+  --header-bg:  rgba(3, 8, 32, 0.88);
+  --nav-bg:     rgba(4, 6, 28, 0.92);
+  --card-tint:  rgba(3, 6, 26, 0.55);
+  --levelup-bg: linear-gradient(160deg, #030820 0%, #071035 100%);
 }
 
 /* ============================================================
@@ -146,7 +163,7 @@ a { color: inherit; text-decoration: none; }
   top: 0; left: 0; right: 0;
   height: calc(var(--header-h) + env(safe-area-inset-top, 0px));
   padding-top: env(safe-area-inset-top, 0px);
-  background: rgba(14, 22, 17, 0.88);
+  background: var(--header-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
@@ -248,7 +265,7 @@ a { color: inherit; text-decoration: none; }
   height: 100px;
   flex-shrink: 0;
   position: relative;
-  background: rgba(10, 20, 14, 0.55);
+  background: var(--card-tint);
   border: 1px solid rgba(232, 160, 32, 0.45);
   border-radius: var(--radius);
   padding: 0.3rem 0.2rem 0;
@@ -816,7 +833,7 @@ a { color: inherit; text-decoration: none; }
   bottom: 0; left: 0; right: 0;
   height: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: rgba(12, 20, 15, 0.92);
+  background: var(--nav-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--border);
@@ -867,7 +884,7 @@ button.nav-item {
 .levelup-overlay {
   position: fixed;
   inset: 0;
-  background: linear-gradient(160deg, #0C1510 0%, #1A2D22 100%);
+  background: var(--levelup-bg);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1001,7 +1018,7 @@ body.keyboard-open .modal-overlay .modal-sheet {
   position: relative;
   width: 100%;
   max-height: 88dvh;
-  background: #1A2D22;
+  background: var(--modal-bg);
   border-radius: 20px 20px 0 0;
   border-top: 1px solid var(--border-hi);
   display: flex;
@@ -1243,7 +1260,7 @@ body.keyboard-open .modal-overlay .modal-sheet {
 .food-detail-panel {
   position: absolute;
   inset: 0;
-  background: #1A2D22;
+  background: var(--modal-bg);
   z-index: 10;
   display: flex;
   flex-direction: column;
@@ -1523,7 +1540,7 @@ body.keyboard-open .modal-overlay .modal-sheet {
 }
 
 .form-select option {
-  background: #1A2D22;
+  background: var(--modal-bg);
   color: var(--text);
 }
 
@@ -1921,7 +1938,7 @@ input[type=number] { -moz-appearance: textfield; }
 
 .confirm-sheet {
   width: 100%;
-  background: #1A2D22;
+  background: var(--modal-bg);
   border-top: 1px solid var(--border);
   border-radius: 16px 16px 0 0;
   padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
@@ -2073,7 +2090,7 @@ input[type=number] { -moz-appearance: textfield; }
 
 .install-sheet {
   width: 100%;
-  background: #1A2D22;
+  background: var(--modal-bg);
   border-top: 1px solid var(--border);
   border-radius: 16px 16px 0 0;
   padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
@@ -2128,7 +2145,7 @@ input[type=number] { -moz-appearance: textfield; }
   bottom: calc(var(--nav-h) + 1rem + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%) translateY(0.5rem);
-  background: #1A2D22;
+  background: var(--modal-bg);
   border: 1px solid var(--border);
   color: var(--text);
   font-family: var(--font-display);
@@ -2235,7 +2252,7 @@ input[type=number] { -moz-appearance: textfield; }
 }
 
 .guild-gate-sheet {
-  background: #1A2D22;
+  background: var(--modal-bg);
   border: 1px solid var(--border-hi);
   border-radius: var(--radius-lg);
   padding: 2rem 1.5rem 1.5rem;
