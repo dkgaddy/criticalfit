@@ -20,29 +20,48 @@ function applyTheme(theme) {
 
 var _bgAudio = null;
 
-function startMusic(track) {
+function startMusic(track, elapsedMs) {
   if (_bgAudio) { _bgAudio.pause(); _bgAudio = null; }
   if (!track) return;
+
+  // Store effective start time so subsequent page loads can seek to the right position
+  var effectiveStart = Date.now() - (elapsedMs || 0);
+  sessionStorage.setItem('cfMusicSession', JSON.stringify({ track: track, startedAt: effectiveStart }));
+
   _bgAudio        = new Audio('music/' + track);
   _bgAudio.volume = 0.5;
   _bgAudio.loop   = true;
-  var p = _bgAudio.play();
-  if (p !== undefined) {
-    p.catch(function () {
-      // Autoplay blocked — resume on first user gesture
-      function resume() {
-        _bgAudio && _bgAudio.play();
-        document.removeEventListener('click',      resume);
-        document.removeEventListener('touchstart', resume);
-      }
-      document.addEventListener('click',      resume, { once: true });
-      document.addEventListener('touchstart', resume, { once: true });
-    });
+
+  function doPlay() {
+    var p = _bgAudio && _bgAudio.play();
+    if (p !== undefined) {
+      p.catch(function () {
+        function resume() {
+          _bgAudio && _bgAudio.play();
+          document.removeEventListener('click',      resume);
+          document.removeEventListener('touchstart', resume);
+        }
+        document.addEventListener('click',      resume, { once: true });
+        document.addEventListener('touchstart', resume, { once: true });
+      });
+    }
+  }
+
+  if (elapsedMs > 0) {
+    // Seek to the right position before playing so it sounds continuous
+    _bgAudio.addEventListener('loadedmetadata', function () {
+      if (_bgAudio) _bgAudio.currentTime = (elapsedMs / 1000) % _bgAudio.duration;
+      doPlay();
+    }, { once: true });
+    _bgAudio.load();
+  } else {
+    doPlay();
   }
 }
 
 function stopMusic() {
   if (_bgAudio) { _bgAudio.pause(); _bgAudio = null; }
+  sessionStorage.removeItem('cfMusicSession');
   sessionStorage.setItem('cfMusic', '');
 }
 
@@ -56,7 +75,16 @@ document.addEventListener('DOMContentLoaded', function () {
       applyTheme(j.data.theme);
       var track = j.data.music || null;
       sessionStorage.setItem('cfMusic', track || '');
-      if (track) startMusic(track);
+      if (track) {
+        var elapsedMs = 0;
+        try {
+          var session = JSON.parse(sessionStorage.getItem('cfMusicSession') || 'null');
+          if (session && session.track === track && session.startedAt) {
+            elapsedMs = Date.now() - session.startedAt;
+          }
+        } catch (e) {}
+        startMusic(track, elapsedMs);
+      }
     })
     .catch(function () { /* not authenticated yet — use cached theme */ });
 });
