@@ -374,7 +374,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!document.getElementById('progress-page')) return;
   await checkAuth();
 
-  const rangeEl = document.getElementById('progress-range');
-  await loadProgress(parseInt(rangeEl.value, 10));
-  rangeEl.addEventListener('change', () => loadProgress(parseInt(rangeEl.value, 10)));
+  const userRes   = await fetch('api/user.php').then(r => r.json());
+  const isGuild   = userRes.ok && userRes.data?.isPremium;
+
+  const rangeEl   = document.getElementById('progress-range');
+  const overlay   = document.getElementById('guild-gate-modal');
+  const msgEl     = document.getElementById('guild-gate-msg');
+  const defaultMsg = 'Join the Guild for more exciting features like this!';
+
+  // Guild gate wiring for this page
+  function closeGuildGate() {
+    overlay?.classList.remove('open');
+    if (msgEl) msgEl.textContent = defaultMsg;
+  }
+  document.getElementById('guild-gate-dismiss')?.addEventListener('click', closeGuildGate);
+  overlay?.addEventListener('click', e => { if (e.target === overlay) closeGuildGate(); });
+
+  await loadProgress(7);
+
+  rangeEl.addEventListener('change', () => {
+    const days = parseInt(rangeEl.value, 10);
+    if (!isGuild && days !== 7) {
+      rangeEl.value = '7';
+      if (msgEl) msgEl.textContent = 'Join the Guild for more exciting features like tracking your progress for up to a year.';
+      overlay?.classList.add('open');
+      return;
+    }
+    loadProgress(days);
+  });
 });
