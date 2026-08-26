@@ -38,11 +38,15 @@ function showGuildGate() {
 
 function initGuildGate() {
   const overlay = document.getElementById('guild-gate-modal');
-  document.getElementById('guild-gate-dismiss')?.addEventListener('click', () => {
+  const defaultGateMsg = 'Join the Guild for more exciting features like this!';
+  function closeGuildGate() {
     overlay?.classList.remove('open');
-  });
+    const msgEl = document.getElementById('guild-gate-msg');
+    if (msgEl) msgEl.textContent = defaultGateMsg;
+  }
+  document.getElementById('guild-gate-dismiss')?.addEventListener('click', closeGuildGate);
   overlay?.addEventListener('click', e => {
-    if (e.target === overlay) overlay.classList.remove('open');
+    if (e.target === overlay) closeGuildGate();
   });
 }
 

@@ -473,10 +473,10 @@ async function openModal() {
   document.body.style.overflow = 'hidden';
   hideFoodDetail();
 
-  // Show mode toggle only for guild members
+  // Always show mode row; non-members default to USDA
   const isGuildMember = typeof cachedUser !== 'undefined' && cachedUser?.isPremium;
   const modeRow       = document.getElementById('search-mode-row');
-  if (modeRow) modeRow.hidden = !isGuildMember;
+  if (modeRow) modeRow.hidden = false;
   if (!isGuildMember) searchMode = 'usda';
   syncModePills();
 
@@ -525,6 +525,13 @@ function initLogRation() {
 
   // Mode toggle
   document.getElementById('mode-ai')?.addEventListener('click', () => {
+    const isGuild = typeof cachedUser !== 'undefined' && cachedUser?.isPremium;
+    if (!isGuild) {
+      const msgEl = document.getElementById('guild-gate-msg');
+      if (msgEl) msgEl.textContent = 'Join the Guild for more exciting features like the Wizard Search, which enables AI assisted searching that includes restaurant & branded food items.';
+      document.getElementById('guild-gate-modal')?.classList.add('open');
+      return;
+    }
     searchMode = 'ai';
     syncModePills();
     const q = searchInput?.value.trim();
