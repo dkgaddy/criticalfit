@@ -25,7 +25,7 @@ function _buildAudio(track, elapsedMs) {
   if (_bgAudio) { _bgAudio.pause(); _bgAudio = null; }
   _bgTrack  = track;
   _bgAudio  = new Audio('music/' + track);
-  _bgAudio.volume = 0.5;
+  _bgAudio.volume = 0.33;
   _bgAudio.loop   = true;
   if (elapsedMs > 0) {
     _bgAudio.addEventListener('loadedmetadata', function () {
