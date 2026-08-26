@@ -263,7 +263,7 @@ async function showDefault() {
           <div class="meal-row-name">${esc(meal.name)}</div>
           <div class="meal-row-cal">${meal.totalCalories} cal &middot; P:&nbsp;${meal.totalProtein}g &middot; C:&nbsp;${meal.totalCarbs}g &middot; F:&nbsp;${meal.totalFat}g</div>
         </div>
-        <button class="btn btn-primary btn--sm">Log Meal</button>
+        <button class="food-add-btn">Log Meal</button>
       `;
       const logBtn = row.querySelector('button');
       logBtn.addEventListener('click', () => logMealFromModal(meal.id, logBtn));
