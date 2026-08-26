@@ -85,7 +85,7 @@
 [data-theme="lake-nightrun"],
 [data-theme="mount-protein"],
 [data-theme="recovery-tavern"] {
-  --theme-gradient: linear-gradient(rgba(0,0,0,0.38), rgba(0,0,0,0.38));
+  --theme-gradient: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25));
   --modal-bg:    #101214;
   --header-bg:   rgba(0, 0, 0, 0.62);
   --nav-bg:      rgba(0, 0, 0, 0.72);
@@ -95,37 +95,37 @@
 
 [data-theme="bog-of-carbohydrates"] body,
 [data-theme="bog-of-carbohydrates"] .splash {
-  background: linear-gradient(rgba(0,0,0,0.38), rgba(0,0,0,0.38)),
+  background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
               url('../images/themes/BogOfCarbohydrates.jpg') center / cover no-repeat;
   background-attachment: scroll;
 }
 [data-theme="dungeons-and-dumbells"] body,
 [data-theme="dungeons-and-dumbells"] .splash {
-  background: linear-gradient(rgba(0,0,0,0.38), rgba(0,0,0,0.38)),
+  background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
               url('../images/themes/DungeonsAndDumbells.jpg') center / cover no-repeat;
   background-attachment: scroll;
 }
 [data-theme="fatburn-forest"] body,
 [data-theme="fatburn-forest"] .splash {
-  background: linear-gradient(rgba(0,0,0,0.38), rgba(0,0,0,0.38)),
+  background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
               url('../images/themes/FatburnForest.jpg') center / cover no-repeat;
   background-attachment: scroll;
 }
 [data-theme="lake-nightrun"] body,
 [data-theme="lake-nightrun"] .splash {
-  background: linear-gradient(rgba(0,0,0,0.38), rgba(0,0,0,0.38)),
+  background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
               url('../images/themes/LakeNightrun.jpg') center / cover no-repeat;
   background-attachment: scroll;
 }
 [data-theme="mount-protein"] body,
 [data-theme="mount-protein"] .splash {
-  background: linear-gradient(rgba(0,0,0,0.38), rgba(0,0,0,0.38)),
+  background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
               url('../images/themes/MountProtein.jpg') center / cover no-repeat;
   background-attachment: scroll;
 }
 [data-theme="recovery-tavern"] body,
 [data-theme="recovery-tavern"] .splash {
-  background: linear-gradient(rgba(0,0,0,0.38), rgba(0,0,0,0.38)),
+  background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
               url('../images/themes/RecoveryTavern.jpg') center / cover no-repeat;
   background-attachment: scroll;
 }
