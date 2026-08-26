@@ -2,7 +2,7 @@
 require_once __DIR__ . '/db.php';
 $uid = requireAuth();
 
-const VALID_THEMES = ['forest', 'dragons-fire', 'royal-sash'];
+const VALID_THEMES = ['forest', 'dragons-fire', 'royal-sash', 'bog-of-carbohydrates', 'dungeons-and-dumbells', 'fatburn-forest', 'lake-nightrun', 'mount-protein', 'recovery-tavern'];
 const VALID_TRACKS = [
     'HammeringHearts.mp3',
     'MistyTaverns.mp3',
