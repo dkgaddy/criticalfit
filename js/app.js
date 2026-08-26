@@ -99,6 +99,12 @@ const store = {
       body:    JSON.stringify(food),
     });
   },
+
+  getMeals: async () => {
+    const r = await fetch('api/meals.php');
+    const j = await r.json();
+    return j.ok ? j.data : [];
+  },
 };
 
 // ---- Module-level state ----

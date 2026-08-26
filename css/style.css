@@ -2454,6 +2454,159 @@ input[type=number] { -moz-appearance: textfield; }
 }
 
 /* ============================================================
+   MEALS
+   ============================================================ */
+
+.btn--sm {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  min-height: 0;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-danger:active { opacity: 0.75; }
+
+/* Meal card in meals list */
+.meal-card { padding: 1rem 1.25rem; }
+.meal-card + .meal-card { margin-top: 0.75rem; }
+
+.meal-card-name {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text);
+}
+.meal-card-meta {
+  font-size: 0.78rem;
+  color: var(--text-mid);
+  margin-top: 0.2rem;
+  line-height: 1.4;
+}
+.meal-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Items list in meal-edit */
+.meal-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.meal-item-row:last-child { border-bottom: none; }
+
+.meal-item-info {
+  flex: 1;
+  min-width: 0;
+}
+.meal-item-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.meal-item-macros {
+  font-size: 0.72rem;
+  color: var(--text-mid);
+  margin-top: 0.1rem;
+}
+.meal-item-remove {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 1.05rem;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  border-radius: 6px;
+  line-height: 1;
+}
+.meal-item-remove:hover { background: rgba(208,64,48,0.12); }
+
+/* Nutrition total in meal-edit */
+.meal-nutrition-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+.meal-nutrition-cal {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--amber);
+}
+.meal-nutrition-macros {
+  font-size: 0.82rem;
+  color: var(--text-mid);
+}
+
+/* Saved Meals rows in ration modal */
+.meal-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.meal-row:last-child { border-bottom: none; }
+
+.meal-row-info { flex: 1; min-width: 0; }
+
+.meal-row-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.meal-row-cal {
+  font-size: 0.72rem;
+  color: var(--text-mid);
+  margin-top: 0.1rem;
+}
+
+/* Meals page toast */
+#meals-toast {
+  position: fixed;
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 1rem);
+  left: 50%;
+  transform: translateX(-50%) translateY(0.5rem);
+  background: var(--modal-bg);
+  border: 1px solid var(--border-hi);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.55rem 1.4rem;
+  border-radius: 20px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.22s, transform 0.22s;
+  white-space: nowrap;
+  z-index: 500;
+}
+#meals-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 

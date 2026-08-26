@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#142019">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Critical Fit">
+  <title>Critical Fit — Meals</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="images/criticalfitLogo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="meals-page">
+
+  <header class="app-header">
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu" aria-expanded="false">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <img src="images/CriticalFit-1line-logo-small.png" alt="Critical Fit" class="header-logo">
+  </header>
+
+  <!-- ======= Hamburger Menu ======= -->
+  <div class="ham-menu" id="ham-menu" hidden>
+    <a href="info.html" class="ham-item">
+      <i class="fa-solid fa-circle-info"></i> Info
+    </a>
+    <button class="ham-item" id="nav-install">
+      <i class="fa-solid fa-wand-magic-sparkles"></i> Install
+    </button>
+    <button class="ham-item" id="ham-settings">
+      <i class="fa-solid fa-gear"></i> Settings
+    </button>
+  </div>
+
+  <main class="journal-page">
+
+    <div class="page-heading">
+      <h2 class="page-title">Meals</h2>
+      <p class="page-sub">Save your favorite meal combinations for quick logging.</p>
+    </div>
+
+    <button class="btn btn-primary btn-full" id="new-meal-btn">
+      <i class="fa-solid fa-plus"></i> Create New Meal
+    </button>
+
+    <div id="meals-list" style="margin-top:1rem"></div>
+
+  </main>
+
+  <!-- ======= Bottom Navigation ======= -->
+  <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
+    <a href="index.html" class="nav-item">
+      <i class="fa-solid fa-scroll nav-icon" aria-hidden="true"></i>
+      Journal
+    </a>
+    <a href="meals.html" class="nav-item active" aria-current="page">
+      <i class="fa-solid fa-bowl-rice nav-icon" aria-hidden="true"></i>
+      Meals
+    </a>
+    <a href="progress.html" class="nav-item">
+      <i class="fa-solid fa-chart-line nav-icon" aria-hidden="true"></i>
+      Progress
+    </a>
+    <a href="profile.html" class="nav-item">
+      <i class="fa-solid fa-circle-user nav-icon" aria-hidden="true"></i>
+      Profile
+    </a>
+  </nav>
+
+  <!-- ======= Guild Gate Popup ======= -->
+  <div class="guild-gate-overlay" id="guild-gate-modal" role="dialog" aria-modal="true">
+    <div class="guild-gate-sheet">
+      <i class="fa-solid fa-ring guild-gate-icon"></i>
+      <p class="guild-gate-msg">Join the Guild for more exciting features like this!</p>
+      <button class="btn btn-primary" id="guild-gate-dismiss">OK</button>
+    </div>
+  </div>
+
+  <!-- ======= Delete Confirm ======= -->
+  <div class="confirm-overlay" id="delete-confirm-modal" role="dialog" aria-modal="true">
+    <div class="confirm-sheet">
+      <p class="confirm-title">Delete Meal</p>
+      <p class="confirm-body">Delete "<span id="delete-confirm-name"></span>"? This cannot be undone.</p>
+      <div class="confirm-actions">
+        <button class="btn btn-secondary" id="delete-confirm-cancel">Cancel</button>
+        <button class="btn btn-danger"    id="delete-confirm-yes">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= Toast ======= -->
+  <div id="meals-toast"></div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/meals.js"></script>
+  <script src="js/install.js"></script>
+  <script src="js/nav.js"></script>
+</body>
+</html>

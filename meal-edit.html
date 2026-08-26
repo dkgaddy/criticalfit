@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#142019">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Critical Fit">
+  <title>Critical Fit — Meal</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="images/criticalfitLogo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="meal-edit-page">
+
+  <header class="app-header">
+    <a href="meals.html" class="hamburger-btn" id="meal-back-btn" aria-label="Back to Meals">
+      <i class="fa-solid fa-chevron-left"></i>
+    </a>
+    <img src="images/CriticalFit-1line-logo-small.png" alt="Critical Fit" class="header-logo">
+  </header>
+
+  <main class="journal-page">
+
+    <div class="page-heading">
+      <h2 class="page-title" id="meal-edit-title">New Meal</h2>
+    </div>
+
+    <!-- Name -->
+    <section class="card">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label" for="meal-name">Meal Name</label>
+        <input type="text" id="meal-name" class="form-input" placeholder="e.g. Breakfast Burrito"
+               autocomplete="off" autocorrect="on" maxlength="100">
+      </div>
+    </section>
+
+    <!-- Rations list -->
+    <section class="card">
+      <h3 class="card-title">Rations in this Meal</h3>
+      <div id="meal-items-list">
+        <p class="food-empty">No rations added yet.</p>
+      </div>
+    </section>
+
+    <!-- Nutrition summary -->
+    <section class="card" id="meal-nutrition-card" hidden>
+      <h3 class="card-title">Total Nutrition</h3>
+      <div id="meal-nutrition-summary"></div>
+    </section>
+
+    <button class="btn btn-secondary btn-full" id="add-food-btn">
+      <i class="fa-solid fa-plus"></i> Add Ration
+    </button>
+
+    <button class="btn btn-primary btn-full" id="save-meal-btn" style="margin-top:0.5rem">
+      Save Meal
+    </button>
+
+    <p class="save-status" id="meal-save-status"></p>
+
+  </main>
+
+  <!-- ======= Bottom Navigation ======= -->
+  <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
+    <a href="index.html" class="nav-item">
+      <i class="fa-solid fa-scroll nav-icon" aria-hidden="true"></i>
+      Journal
+    </a>
+    <a href="meals.html" class="nav-item active" aria-current="page">
+      <i class="fa-solid fa-bowl-rice nav-icon" aria-hidden="true"></i>
+      Meals
+    </a>
+    <a href="progress.html" class="nav-item">
+      <i class="fa-solid fa-chart-line nav-icon" aria-hidden="true"></i>
+      Progress
+    </a>
+    <a href="profile.html" class="nav-item">
+      <i class="fa-solid fa-circle-user nav-icon" aria-hidden="true"></i>
+      Profile
+    </a>
+  </nav>
+
+  <!-- ======= Guild Gate Popup ======= -->
+  <div class="guild-gate-overlay" id="guild-gate-modal" role="dialog" aria-modal="true">
+    <div class="guild-gate-sheet">
+      <i class="fa-solid fa-ring guild-gate-icon"></i>
+      <p class="guild-gate-msg">Join the Guild for more exciting features like this!</p>
+      <button class="btn btn-primary" id="guild-gate-dismiss">OK</button>
+    </div>
+  </div>
+
+  <!-- ======= Food Search Modal ======= -->
+  <div id="ration-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Add Ration">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h2 class="modal-title">Add Ration to Meal</h2>
+        <button class="modal-close-btn" id="ration-close" aria-label="Close">✕</button>
+      </div>
+      <div class="search-mode-row" id="search-mode-row">
+        <button class="mode-pill mode-pill--active" id="mode-ai" data-mode="ai">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Wizard Search
+        </button>
+        <button class="mode-pill" id="mode-usda" data-mode="usda">
+          <i class="fa-solid fa-database"></i> USDA Database
+        </button>
+      </div>
+      <div class="modal-search-wrap">
+        <div class="modal-search-field">
+          <i class="fa-solid fa-magnifying-glass modal-search-icon" aria-hidden="true"></i>
+          <input type="search" id="ration-search" class="modal-search-input" enterkeyhint="search"
+                 placeholder="Search Rations…" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+        <button type="button" class="modal-search-go" id="ration-search-go">Go</button>
+      </div>
+      <div class="modal-content" id="ration-content"></div>
+
+      <!-- Food Detail Panel -->
+      <div id="food-detail-panel" class="food-detail-panel">
+        <div class="food-detail-header">
+          <button class="food-detail-back" id="food-detail-back" aria-label="Back to search">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <span class="food-detail-title">Add to Meal</span>
+        </div>
+        <div class="food-detail-scroll">
+          <p class="food-detail-name" id="food-detail-name"></p>
+          <p class="food-detail-per" id="food-detail-per">Per serving · 100g</p>
+          <div class="food-detail-macros" id="food-detail-macros"></div>
+          <div class="food-qty-row">
+            <button class="qty-stepper" id="qty-minus" aria-label="Decrease servings">−</button>
+            <div class="qty-center">
+              <span class="qty-num" id="qty-display">1</span>
+              <span class="qty-unit-lbl">servings</span>
+            </div>
+            <button class="qty-stepper" id="qty-plus" aria-label="Increase servings">+</button>
+          </div>
+          <div id="food-detail-totals"></div>
+          <button class="log-it-btn food-log-btn-full" id="food-log-btn">Add to Meal</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/meal-edit.js"></script>
+  <script src="js/install.js"></script>
+  <script src="js/nav.js"></script>
+</body>
+</html>

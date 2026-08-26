@@ -57,18 +57,22 @@ async function searchAI(query) {
   return j.data;
 }
 
-// ---- Local (recent/yesterday) foods, cached when modal opens ----
+// ---- Local (recent/yesterday) foods + saved meals, cached when modal opens ----
 
 let recentFoods    = [];
 let yesterdayFoods = [];
+let savedMeals     = [];
 
 async function loadLocalFoods() {
-  const [recent, yEntries] = await Promise.all([
+  const isPremium = typeof cachedUser !== 'undefined' && cachedUser?.isPremium;
+  const [recent, yEntries, meals] = await Promise.all([
     store.getRecentFoods(),
     store.getFoodEntries(yesterdayKey()),
+    isPremium ? store.getMeals() : Promise.resolve([]),
   ]);
   recentFoods    = recent;
   yesterdayFoods = yEntries.map(entryToFood).filter(Boolean);
+  savedMeals     = meals;
 }
 
 // ---- Escape HTML ----
@@ -219,12 +223,60 @@ function renderSection(title, foods) {
   return wrap;
 }
 
+// ---- Log a saved meal from the ration modal ----
+
+async function logMealFromModal(mealId, btn) {
+  const origText  = btn.textContent;
+  btn.disabled    = true;
+  btn.textContent = 'Logging…';
+
+  await fetch('api/meals.php', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ action: 'log', id: mealId, date: viewingDate }),
+  });
+
+  btn.disabled    = false;
+  btn.textContent = origText;
+  closeModal();
+  showEnergyToast();
+  if (typeof refreshHomeForToday === 'function') await refreshHomeForToday();
+}
+
 async function showDefault() {
   const pane = document.getElementById('ration-content');
   pane.innerHTML = '';
 
+  // Saved Meals section (guild members only)
+  if (savedMeals.length > 0) {
+    const section = document.createElement('div');
+    const hdr     = document.createElement('p');
+    hdr.className   = 'food-section-label';
+    hdr.textContent = 'Saved Meals';
+    section.appendChild(hdr);
+
+    savedMeals.forEach(meal => {
+      const row = document.createElement('div');
+      row.className = 'meal-row';
+      row.innerHTML = `
+        <div class="meal-row-info">
+          <div class="meal-row-name">${esc(meal.name)}</div>
+          <div class="meal-row-cal">${meal.totalCalories} cal &middot; P:&nbsp;${meal.totalProtein}g &middot; C:&nbsp;${meal.totalCarbs}g &middot; F:&nbsp;${meal.totalFat}g</div>
+        </div>
+        <button class="btn btn-primary btn--sm">Log Meal</button>
+      `;
+      const logBtn = row.querySelector('button');
+      logBtn.addEventListener('click', () => logMealFromModal(meal.id, logBtn));
+      section.appendChild(row);
+    });
+
+    pane.appendChild(section);
+  }
+
   if (yesterdayFoods.length === 0 && recentFoods.length === 0) {
-    pane.appendChild(renderEmpty('No recent rations. Search above to get started.'));
+    if (!savedMeals.length) {
+      pane.appendChild(renderEmpty('No recent rations. Search above to get started.'));
+    }
     return;
   }
 
