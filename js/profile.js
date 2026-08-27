@@ -46,6 +46,20 @@ function calcBMR(weightKg, heightCm, age, gender) {
   return Math.round(gender === 'male' ? base + 5 : base - 161);
 }
 
+// ---- Personalized TDEE confidence display ----
+
+function renderTdeeConfidence(confidence, days) {
+  const el = document.getElementById('calc-tdee-confidence');
+  if (!el) return;
+  if (confidence === 'observed') {
+    el.textContent = `(Confidence level: Observed over ${days} days)`;
+  } else if (confidence === 'personalized') {
+    el.textContent = '(Confidence level: Personalized to you)';
+  } else {
+    el.textContent = '(Confidence level: Estimated)';
+  }
+}
+
 // ---- Update calculated display ----
 
 function updateCalcs() {
@@ -176,6 +190,17 @@ async function loadProfile() {
   }
 
   updateCalcs();
+
+  // Fetch personalized TDEE from historical data and override display
+  const tdeeRes = await fetch('api/tdee.php').then(r => r.json()).catch(() => null);
+  if (tdeeRes?.ok && tdeeRes.data?.personalizedTdee) {
+    const { personalizedTdee, confidence, confidenceDays } = tdeeRes.data;
+    const tdeeEl = document.getElementById('calc-tdee');
+    if (tdeeEl) tdeeEl.textContent = personalizedTdee.toLocaleString() + ' cals';
+    renderTdeeConfidence(confidence, confidenceDays);
+  } else {
+    renderTdeeConfidence('estimated', 0);
+  }
 }
 
 async function saveProfile() {

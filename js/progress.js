@@ -319,9 +319,10 @@ function drawChart(container, dates, datasets, opts = {}) {
 // ---- Fetch + render ----
 
 async function loadProgress(days) {
-  const [data, user] = await Promise.all([
+  const [data, user, tdeeData] = await Promise.all([
     fetch(`api/progress.php?days=${days}`).then(r => r.json()),
     fetch('api/user.php').then(r => r.json()),
+    fetch('api/tdee.php').then(r => r.json()).catch(() => null),
   ]);
 
   if (!data.ok) return;
@@ -334,7 +335,9 @@ async function loadProgress(days) {
 
   const bmr        = progressUser?.bmr || 0;
   const multiplier = (progressUser?.activity && CF_LIFESTYLE[progressUser.activity]) || 1.20;
-  const baseline   = Math.round(bmr * multiplier);
+  const baseline   = (tdeeData?.ok && tdeeData.data?.personalizedTdee)
+    ? tdeeData.data.personalizedTdee
+    : Math.round(bmr * multiplier);
 
   const caloriesIn    = [];
   const carbsArr      = [];

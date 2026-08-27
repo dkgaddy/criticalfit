@@ -109,9 +109,10 @@ const store = {
 
 // ---- Module-level state ----
 
-let viewingDate     = '';
-let cachedUser      = null;
-let cachedSummaries = [];
+let viewingDate          = '';
+let cachedUser           = null;
+let cachedPersonalTdee   = null;
+let cachedSummaries      = [];
 let cachedExercise  = [];
 let cachedFood      = [];
 let cachedSummary   = { caloriesIn: 0, caloriesOut: 0 };
@@ -456,7 +457,7 @@ function renderEnergyUsed() {
     }
   }
 
-  const adjustedBurn = cachedUser.tdee || state.baselineDailyBurn;
+  const adjustedBurn = cachedPersonalTdee || cachedUser.tdee || state.baselineDailyBurn;
 
   numEl.textContent = state.energyUsedSoFar.toLocaleString();
 
@@ -575,16 +576,18 @@ async function shiftDay(delta) {
 async function initHome() {
   viewingDate = todayKey();
 
-  const [summary, dragon, food, exercise, summaries, user] = await Promise.all([
+  const [summary, dragon, food, exercise, summaries, user, tdeeData] = await Promise.all([
     store.getDailySummary(viewingDate),
     store.getDragonProgress(),
     store.getFoodEntries(viewingDate),
     store.getExerciseEntries(viewingDate),
     store.getRecentSummaries(90),
     store.getUser(),
+    fetch('api/tdee.php').then(r => r.json()).catch(() => null),
   ]);
 
-  cachedUser      = user;
+  cachedUser         = user;
+  cachedPersonalTdee = tdeeData?.ok ? (tdeeData.data?.personalizedTdee ?? null) : null;
   cachedSummaries = summaries;
   cachedExercise  = exercise;
   cachedFood      = food;

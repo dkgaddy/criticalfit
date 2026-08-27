@@ -1881,6 +1881,14 @@ input[type=number] { -moz-appearance: textfield; }
   color: var(--text-mid);
 }
 
+.quest-num-confidence {
+  font-family: var(--font-serif);
+  font-size: 0.70rem;
+  font-style: italic;
+  color: var(--text-muted, rgba(210,195,165,0.50));
+  margin-top: 0.1rem;
+}
+
 .quest-num-value {
   font-family: var(--font-display);
   font-size: 1.25rem;
