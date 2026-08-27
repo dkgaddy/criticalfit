@@ -364,7 +364,7 @@ async function loadProgress(days) {
 
   drawChart(document.getElementById('chart-lifepoints'), dates,
     [{ values: lifePointsArr, color: '#E8A020' }],
-    { zeroLine: true, refLines: [{ value: 500, color: '#E03535', label: '500 HP Threshold' }] });
+    { zeroLine: true, refLines: [{ value: 500, color: '#E03535', label: 'You should be losing weight above this line' }] });
 
   drawChart(document.getElementById('chart-energy-stored'), dates,
     [{ values: caloriesIn, color: '#6B9E6B' }]);
