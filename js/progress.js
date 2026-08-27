@@ -88,9 +88,12 @@ function svgText(x, y, txt, attrs = {}) {
 // ---- Core chart renderer ----
 
 function drawChart(container, dates, datasets, opts = {}) {
-  const { zeroLine = false, sparse = false } = opts;
+  const { zeroLine = false, sparse = false, refLines = [] } = opts;
 
-  const allVals = datasets.flatMap(d => d.values.filter(v => v !== null && v !== undefined));
+  const allVals = [
+    ...datasets.flatMap(d => d.values.filter(v => v !== null && v !== undefined)),
+    ...refLines.map(r => r.value),
+  ];
 
   if (allVals.length === 0 || allVals.every(v => v === 0)) {
     container.innerHTML = '<p class="chart-empty">No data for this period.</p>';
@@ -229,6 +232,17 @@ function drawChart(container, dates, datasets, opts = {}) {
 
   svg.appendChild(dataG);
 
+  // ---- Reference lines ----
+  for (const rl of refLines) {
+    const y = toY(rl.value);
+    if (y < chartT - 1 || y > chartB + 1) continue;
+    svg.appendChild(el('line', {
+      x1: chartL, y1: y.toFixed(1), x2: chartR, y2: y.toFixed(1),
+      stroke: rl.color || '#E03535', 'stroke-width': '1.5',
+      'stroke-dasharray': rl.dash || '6,3', opacity: '0.80',
+    }));
+  }
+
   // ---- Axes (drawn on top of data) ----
   const axisStroke = 'rgba(210,195,165,0.35)';
   svg.appendChild(el('line', {
@@ -276,20 +290,24 @@ function drawChart(container, dates, datasets, opts = {}) {
   container.innerHTML = '';
   container.appendChild(svg);
 
-  // ---- Legend (below chart, only for multi-dataset) ----
-  if (datasets.some(d => d.label)) {
+  // ---- Legend (below chart, for labeled datasets and ref lines) ----
+  const legendEntries = [
+    ...datasets.filter(d => d.label).map(d => ({ label: d.label, color: d.color, dash: false })),
+    ...refLines.filter(r => r.label).map(r => ({ label: r.label, color: r.color, dash: true })),
+  ];
+  if (legendEntries.length > 0) {
     const leg = document.createElement('div');
     leg.className = 'progress-legend';
-    for (const ds of datasets) {
-      if (!ds.label) continue;
+    for (const entry of legendEntries) {
       const item = document.createElement('div');
       item.className = 'pleg-item';
       const swatch = document.createElement('span');
-      swatch.className = 'pleg-swatch';
-      swatch.style.background = ds.color;
+      swatch.className = entry.dash ? 'pleg-swatch pleg-swatch--dash' : 'pleg-swatch';
+      swatch.style.background = entry.dash ? 'none' : entry.color;
+      if (entry.dash) swatch.style.borderBottom = `2px dashed ${entry.color}`;
       const lbl = document.createElement('span');
       lbl.className = 'pleg-text';
-      lbl.textContent = ds.label;
+      lbl.textContent = entry.label;
       item.appendChild(swatch);
       item.appendChild(lbl);
       leg.appendChild(item);
@@ -346,7 +364,7 @@ async function loadProgress(days) {
 
   drawChart(document.getElementById('chart-lifepoints'), dates,
     [{ values: lifePointsArr, color: '#E8A020' }],
-    { zeroLine: true });
+    { zeroLine: true, refLines: [{ value: 500, color: '#E03535', label: '500 HP Threshold' }] });
 
   drawChart(document.getElementById('chart-energy-stored'), dates,
     [{ values: caloriesIn, color: '#6B9E6B' }]);

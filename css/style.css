@@ -1958,6 +1958,12 @@ input[type=number] { -moz-appearance: textfield; }
   border-radius: 2px;
   flex-shrink: 0;
 }
+.pleg-swatch--dash {
+  width: 18px;
+  height: 0;
+  border-radius: 0;
+  align-self: center;
+}
 
 .pleg-text {
   font-size: 0.65rem;
