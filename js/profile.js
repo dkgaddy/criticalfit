@@ -51,13 +51,18 @@ function calcBMR(weightKg, heightCm, age, gender) {
 function renderTdeeConfidence(confidence, days) {
   const el = document.getElementById('calc-tdee-confidence');
   if (!el) return;
+  let level, suffix;
   if (confidence === 'observed') {
-    el.textContent = `(Confidence level: Observed over ${days} days)`;
+    level  = 'Observed';
+    suffix = ` over ${days} days`;
   } else if (confidence === 'personalized') {
-    el.textContent = '(Confidence level: Personalized to you)';
+    level  = 'Personalized';
+    suffix = ' to you';
   } else {
-    el.textContent = '(Confidence level: Estimated)';
+    level  = 'Estimated';
+    suffix = '';
   }
+  el.innerHTML = `Confidence level: <span class="quest-num-confidence-level quest-num-confidence-level--${confidence}">${level}</span>${suffix}`;
 }
 
 // ---- Update calculated display ----

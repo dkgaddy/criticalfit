@@ -1883,11 +1883,18 @@ input[type=number] { -moz-appearance: textfield; }
 
 .quest-num-confidence {
   font-family: var(--font-serif);
-  font-size: 0.70rem;
-  font-style: italic;
-  color: var(--text-muted, rgba(210,195,165,0.50));
+  font-size: 0.78rem;
+  color: var(--text-mid);
   margin-top: 0.1rem;
 }
+
+.quest-num-confidence-level {
+  font-weight: 700;
+}
+
+.quest-num-confidence-level--estimated    { color: var(--warning); }
+.quest-num-confidence-level--observed     { color: #E8D020; }
+.quest-num-confidence-level--personalized { color: var(--success); }
 
 .quest-num-value {
   font-family: var(--font-display);
