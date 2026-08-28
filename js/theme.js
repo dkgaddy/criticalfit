@@ -38,7 +38,7 @@ function _buildAudio(track, elapsedMs) {
   if (_bgAudio) { _bgAudio.pause(); _bgAudio = null; }
   _bgTrack       = track;
   _bgAudio       = new Audio('music/' + track);
-  _bgAudio.volume = 0.33;
+  _bgAudio.volume = 0.15;
   _bgAudio.loop   = true;
   _bgAudio.muted  = _muted;
   if (elapsedMs > 0) {
