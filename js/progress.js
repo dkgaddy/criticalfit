@@ -88,7 +88,7 @@ function svgText(x, y, txt, attrs = {}) {
 // ---- Core chart renderer ----
 
 function drawChart(container, dates, datasets, opts = {}) {
-  const { zeroLine = false, sparse = false, refLines = [] } = opts;
+  const { zeroLine = false, sparse = false, refLines = [], yPad = 0 } = opts;
 
   const allVals = [
     ...datasets.flatMap(d => d.values.filter(v => v !== null && v !== undefined)),
@@ -101,8 +101,8 @@ function drawChart(container, dates, datasets, opts = {}) {
   }
 
   // Snap y range to nice tick boundaries
-  let rawMin = Math.min(...allVals);
-  let rawMax = Math.max(...allVals);
+  let rawMin = Math.min(...allVals) - yPad;
+  let rawMax = Math.max(...allVals) + yPad;
   if (zeroLine) { rawMin = Math.min(0, rawMin); rawMax = Math.max(0, rawMax); }
   if (rawMin === rawMax) { rawMin -= 10; rawMax += 10; }
 
@@ -386,7 +386,7 @@ async function loadProgress(days) {
 
   drawChart(document.getElementById('chart-weight'), dates,
     [{ values: weightArr, color: '#A07BC6' }],
-    { sparse: true });
+    { sparse: true, yPad: 5 });
 }
 
 // ---- Init ----
