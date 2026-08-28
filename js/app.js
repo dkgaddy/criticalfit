@@ -112,6 +112,7 @@ const store = {
 let viewingDate          = '';
 let cachedUser           = null;
 let cachedPersonalTdee   = null;
+let cachedWeight         = null;
 let cachedSummaries      = [];
 let cachedExercise  = [];
 let cachedFood      = [];
@@ -165,18 +166,20 @@ function closePastDayModal() {
 
 async function _pastDayGoToday(fn) {
   viewingDate = todayKey();
-  const [summary, food, exercise] = await Promise.all([
+  const [summary, food, exercise, weightRes] = await Promise.all([
     store.getDailySummary(viewingDate),
     store.getFoodEntries(viewingDate),
     store.getExerciseEntries(viewingDate),
+    fetch(`api/weight.php?date=${viewingDate}`).then(r => r.json()).catch(() => null),
   ]);
   cachedExercise = exercise;
   cachedFood     = food;
   cachedSummary  = summary;
+  cachedWeight   = weightRes?.ok ? weightRes.data : null;
   renderWeekNav();
   renderEnergyBalance(summary, cachedUser);
   renderEnergyUsed();
-  renderJournalEntries(food, exercise);
+  renderJournalEntries(food, exercise, cachedWeight);
   fn();
 }
 
@@ -503,7 +506,7 @@ function startEnergyTick() {
 
 // ---- Journal Entries ----
 
-function renderJournalEntries(food, exercise) {
+function renderJournalEntries(food, exercise, weight) {
   const today     = todayKey();
   const titleEl   = document.getElementById('journal-date-title');
   const journalEl = document.getElementById('journal-entries');
@@ -519,7 +522,7 @@ function renderJournalEntries(food, exercise) {
 
   if (!journalEl) return;
 
-  if (food.length === 0 && exercise.length === 0) {
+  if (food.length === 0 && exercise.length === 0 && !weight) {
     const msg = viewingDate === today
       ? 'No rations recorded yet today.<br>Begin your quest.'
       : 'No entries for this day.';
@@ -527,6 +530,7 @@ function renderJournalEntries(food, exercise) {
     return;
   }
 
+  const weightUnit = weight?.unit === 'metric' ? 'kg' : 'lbs';
   const rows = [
     ...food.map(e => `
       <div class="journal-entry">
@@ -544,6 +548,14 @@ function renderJournalEntries(food, exercise) {
         </div>
         <span class="entry-cal burned">−${fmtCal(e.calories)} kcal</span>
       </div>`),
+    ...(weight ? [`
+      <div class="journal-entry">
+        <div class="entry-info">
+          <span class="entry-name">Weight Logged</span>
+          <span class="entry-detail">Body Weight</span>
+        </div>
+        <span class="entry-cal weight-val">${weight.weight.toFixed(1)} ${weightUnit}</span>
+      </div>`] : []),
   ];
   journalEl.innerHTML = rows.join('');
 }
@@ -555,20 +567,22 @@ async function shiftDay(delta) {
   d.setDate(d.getDate() + delta);
   viewingDate = d.toISOString().slice(0, 10);
 
-  const [summary, food, exercise] = await Promise.all([
+  const [summary, food, exercise, weightRes] = await Promise.all([
     store.getDailySummary(viewingDate),
     store.getFoodEntries(viewingDate),
     store.getExerciseEntries(viewingDate),
+    fetch(`api/weight.php?date=${viewingDate}`).then(r => r.json()).catch(() => null),
   ]);
 
   cachedExercise = exercise;
   cachedFood     = food;
   cachedSummary  = summary;
+  cachedWeight   = weightRes?.ok ? weightRes.data : null;
 
   renderWeekNav();
   renderEnergyBalance(summary, cachedUser);
   renderEnergyUsed();
-  renderJournalEntries(food, exercise);
+  renderJournalEntries(food, exercise, cachedWeight);
 }
 
 // ---- Home Screen ----
@@ -576,7 +590,7 @@ async function shiftDay(delta) {
 async function initHome() {
   viewingDate = todayKey();
 
-  const [summary, dragon, food, exercise, summaries, user, tdeeData] = await Promise.all([
+  const [summary, dragon, food, exercise, summaries, user, tdeeData, weightRes] = await Promise.all([
     store.getDailySummary(viewingDate),
     store.getDragonProgress(),
     store.getFoodEntries(viewingDate),
@@ -584,21 +598,23 @@ async function initHome() {
     store.getRecentSummaries(90),
     store.getUser(),
     fetch('api/tdee.php').then(r => r.json()).catch(() => null),
+    fetch(`api/weight.php?date=${viewingDate}`).then(r => r.json()).catch(() => null),
   ]);
 
   cachedUser         = user;
   cachedPersonalTdee = tdeeData?.ok ? (tdeeData.data?.personalizedTdee ?? null) : null;
-  cachedSummaries = summaries;
-  cachedExercise  = exercise;
-  cachedFood      = food;
-  cachedSummary   = summary;
+  cachedSummaries    = summaries;
+  cachedExercise     = exercise;
+  cachedFood         = food;
+  cachedSummary      = summary;
+  cachedWeight       = weightRes?.ok ? weightRes.data : null;
 
   renderDragon(dragon, user);
   renderWeekNav();
   renderEnergyBalance(summary, user);
   renderEnergyUsed();
   renderEvoBar(dragon);
-  renderJournalEntries(food, exercise);
+  renderJournalEntries(food, exercise, cachedWeight);
   initPastDayModal();
   initProfileAlert();
 
@@ -609,24 +625,26 @@ async function initHome() {
 
 async function refreshHomeForToday() {
   viewingDate = todayKey();
-  const [summary, food, exercise, summaries, dragon] = await Promise.all([
+  const [summary, food, exercise, summaries, dragon, weightRes] = await Promise.all([
     store.getDailySummary(viewingDate),
     store.getFoodEntries(viewingDate),
     store.getExerciseEntries(viewingDate),
     store.getRecentSummaries(90),
     store.getDragonProgress(),
+    fetch(`api/weight.php?date=${viewingDate}`).then(r => r.json()).catch(() => null),
   ]);
   cachedSummaries = summaries;
   cachedExercise  = exercise;
   cachedFood      = food;
   cachedSummary   = summary;
+  cachedWeight    = weightRes?.ok ? weightRes.data : null;
 
   renderDragon(dragon, cachedUser);
   renderWeekNav();
   renderEnergyBalance(summary, cachedUser);
   renderEnergyUsed();
   renderEvoBar(dragon);
-  renderJournalEntries(food, exercise);
+  renderJournalEntries(food, exercise, cachedWeight);
 
   if (dragon.promoted) showLevelUp(dragon);
 }

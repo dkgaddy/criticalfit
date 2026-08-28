@@ -98,12 +98,14 @@ function initLogWeight() {
         const fresh = await store.getUser();
         if (fresh) cachedUser = fresh;
 
+        cachedWeight = { weight: currentWeight, unit: cachedUser?.unit ?? 'imperial', date: viewingDate };
         btn.textContent = `Saved — ${currentWeight.toFixed(1)} ${unit}`;
         setTimeout(() => {
           closeWeightModal();
           showWeightToast(currentWeight, unit);
-          if (typeof renderEnergyBalance === 'function') renderEnergyBalance(cachedSummary, cachedUser);
-          if (typeof renderEnergyUsed    === 'function') renderEnergyUsed();
+          if (typeof renderEnergyBalance    === 'function') renderEnergyBalance(cachedSummary, cachedUser);
+          if (typeof renderEnergyUsed       === 'function') renderEnergyUsed();
+          if (typeof renderJournalEntries   === 'function') renderJournalEntries(cachedFood, cachedExercise, cachedWeight);
         }, 900);
       } else {
         btn.disabled    = false;

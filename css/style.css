@@ -866,6 +866,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 .entry-cal.burned { color: var(--green-pop); }
+.entry-cal.weight-val { color: #A07BC6; }
 
 .empty-state {
   text-align: center;
