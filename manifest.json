@@ -1,6 +1,6 @@
 {
   "name": "Critical Fit",
-  "short_name": "CritFit",
+  "short_name": "CriticalFit",
   "description": "The calmest calorie tracker — your adventure journal for health.",
   "start_url": "./",
   "display": "standalone",
