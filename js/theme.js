@@ -26,11 +26,11 @@ function _syncMuteBtn() {
   var btn  = document.getElementById('mute-btn');
   var icon = document.getElementById('mute-icon');
   if (!btn) return;
-  btn.hidden = !_bgTrack;
+  btn.style.display = _bgTrack ? '' : 'none';
   if (icon) {
     icon.className = _muted
       ? 'fa-solid fa-volume-xmark'
-      : 'fa-solid fa-volume';
+      : 'fa-solid fa-volume-high';
   }
 }
 
@@ -98,8 +98,8 @@ document.addEventListener('DOMContentLoaded', function () {
     muteBtn.id        = 'mute-btn';
     muteBtn.className = 'mute-btn';
     muteBtn.setAttribute('aria-label', 'Toggle music');
-    muteBtn.hidden    = true;
-    muteBtn.innerHTML = '<i class="fa-solid fa-volume" id="mute-icon"></i>';
+    muteBtn.style.display = 'none';
+    muteBtn.innerHTML = '<i class="fa-solid fa-volume-high" id="mute-icon"></i>';
     header.appendChild(muteBtn);
 
     muteBtn.addEventListener('click', function () {
