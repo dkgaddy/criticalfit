@@ -2270,6 +2270,23 @@ input[type=number] { -moz-appearance: textfield; }
   margin-top: calc(env(safe-area-inset-top, 0px) / 2);
 }
 
+.mute-btn {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 1.15rem;
+  line-height: 1;
+  padding: 0.4rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  margin-top: calc(env(safe-area-inset-top, 0px) / 2);
+  opacity: 0.75;
+}
+
 .ham-menu {
   position: fixed;
   top: calc(var(--header-h) + env(safe-area-inset-top, 0px));

@@ -20,13 +20,27 @@ function applyTheme(theme) {
 
 var _bgAudio = null;
 var _bgTrack  = null;
+var _muted    = localStorage.getItem('cfMusicMuted') === '1';
+
+function _syncMuteBtn() {
+  var btn  = document.getElementById('mute-btn');
+  var icon = document.getElementById('mute-icon');
+  if (!btn) return;
+  btn.hidden = !_bgTrack;
+  if (icon) {
+    icon.className = _muted
+      ? 'fa-solid fa-volume-xmark'
+      : 'fa-solid fa-volume';
+  }
+}
 
 function _buildAudio(track, elapsedMs) {
   if (_bgAudio) { _bgAudio.pause(); _bgAudio = null; }
-  _bgTrack  = track;
-  _bgAudio  = new Audio('music/' + track);
+  _bgTrack       = track;
+  _bgAudio       = new Audio('music/' + track);
   _bgAudio.volume = 0.33;
   _bgAudio.loop   = true;
+  _bgAudio.muted  = _muted;
   if (elapsedMs > 0) {
     _bgAudio.addEventListener('loadedmetadata', function () {
       if (_bgAudio) _bgAudio.currentTime = (elapsedMs / 1000) % _bgAudio.duration;
@@ -51,14 +65,14 @@ function startMusic(track, elapsedMs) {
   sessionStorage.setItem('cfMusicSession', JSON.stringify({ track: track, startedAt: effectiveStart }));
 
   var p = _buildAudio(track, elapsedMs || 0);
+  _syncMuteBtn();
   if (p !== undefined) {
     p.catch(function () {
-      // Capture phase fires before any child stopPropagation.
-      // Re-build the Audio object INSIDE the gesture so iOS accepts the play() call.
       var t = track;
       function resume() {
-        if (_bgTrack !== t) return; // track changed while waiting
+        if (_bgTrack !== t) return;
         _buildAudio(t, _elapsedFor(t));
+        _syncMuteBtn();
       }
       document.addEventListener('click',      resume, { capture: true, once: true });
       document.addEventListener('touchstart', resume, { capture: true, once: true });
@@ -71,13 +85,32 @@ function stopMusic() {
   _bgTrack = null;
   sessionStorage.removeItem('cfMusicSession');
   localStorage.setItem('cfMusic', '');
+  _syncMuteBtn();
 }
 
 // ---- Load settings from API and apply ----
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Start from localStorage immediately — avoids waiting for the API round-trip
-  // on pages where the user already has activation state (any page after the first).
+  // Inject mute button into header
+  var header = document.querySelector('.app-header');
+  if (header && !header.querySelector('#mute-btn')) {
+    var muteBtn = document.createElement('button');
+    muteBtn.id        = 'mute-btn';
+    muteBtn.className = 'mute-btn';
+    muteBtn.setAttribute('aria-label', 'Toggle music');
+    muteBtn.hidden    = true;
+    muteBtn.innerHTML = '<i class="fa-solid fa-volume" id="mute-icon"></i>';
+    header.appendChild(muteBtn);
+
+    muteBtn.addEventListener('click', function () {
+      _muted = !_muted;
+      localStorage.setItem('cfMusicMuted', _muted ? '1' : '');
+      if (_bgAudio) _bgAudio.muted = _muted;
+      _syncMuteBtn();
+    });
+  }
+
+  // Start from localStorage immediately
   var cached = localStorage.getItem('cfMusic') || '';
   if (cached) startMusic(cached, _elapsedFor(cached));
 
@@ -88,7 +121,6 @@ document.addEventListener('DOMContentLoaded', function () {
       applyTheme(j.data.theme);
       var track = j.data.music || null;
       localStorage.setItem('cfMusic', track || '');
-      // Only act if the API track differs from what's already started
       if (track && track !== _bgTrack) {
         startMusic(track, 0);
       } else if (!track && _bgAudio) {
