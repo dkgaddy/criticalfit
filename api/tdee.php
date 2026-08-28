@@ -13,11 +13,13 @@ if (!$user || !$user['bmr']) {
     exit;
 }
 
-// Initial TDEE: use stored value if set, else compute from BMR
-$MULTS = ['sedentary' => 1.200, 'light' => 1.375, 'moderate' => 1.550, 'active' => 1.725];
-$initialTdee = $user['tdee']
-    ? (int)$user['tdee']
-    : (int)round($user['bmr'] * ($MULTS[$user['activity']] ?? 1.200));
+// Initial TDEE: BMR x non-exercise lifestyle multiplier — the same basis
+// used for the Life Points calc in energy.js (CF_LIFESTYLE). Deliberately
+// lower than a traditional activity multiplier, which already assumes
+// exercise is baked in — that would pre-credit calories before any
+// exercise is logged or real weight data proves otherwise.
+$CF_LIFESTYLE = ['sedentary' => 1.20, 'light' => 1.30, 'moderate' => 1.40, 'active' => 1.50];
+$initialTdee  = (int)round($user['bmr'] * ($CF_LIFESTYLE[$user['activity']] ?? 1.20));
 
 // ---- Last 35 days of weight entries ----
 $stmt = $pdo->prepare("
