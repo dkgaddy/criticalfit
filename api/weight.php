@@ -40,6 +40,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pdo->prepare('UPDATE users SET weight = ? WHERE id = ?')
         ->execute([$weight, $uid]);
 
+    // Recalculate BMR/TDEE (Mifflin-St Jeor) from the new weight so the
+    // profile doesn't go stale until the user happens to revisit it.
+    $stmt = $pdo->prepare(
+        'SELECT gender, age, activity, height_ft, height_in, height_cm FROM users WHERE id = ?'
+    );
+    $stmt->execute([$uid]);
+    $u = $stmt->fetch();
+
+    if ($u && $u['age'] && $u['gender']) {
+        $weightKg = $unit === 'metric' ? $weight : $weight * 0.453592;
+        $heightCm = $u['height_cm']
+            ? (float)$u['height_cm']
+            : ((float)$u['height_ft'] * 12 + (float)$u['height_in']) * 2.54;
+
+        if ($weightKg > 0 && $heightCm > 0) {
+            $base = 10 * $weightKg + 6.25 * $heightCm - 5 * (int)$u['age'];
+            $bmr  = (int)round($u['gender'] === 'male' ? $base + 5 : $base - 161);
+
+            $MULTS = ['sedentary' => 1.200, 'light' => 1.375, 'moderate' => 1.550, 'active' => 1.725];
+            $tdee  = (int)round($bmr * ($MULTS[$u['activity']] ?? 1.200));
+
+            $pdo->prepare('UPDATE users SET bmr = ?, tdee = ? WHERE id = ?')
+                ->execute([$bmr, $tdee, $uid]);
+        }
+    }
+
     json_out(['logged' => true, 'weight' => $weight, 'unit' => $unit]);
     exit;
 }
