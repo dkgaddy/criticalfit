@@ -398,6 +398,14 @@ a { color: inherit; text-decoration: none; }
   cursor: default;
 }
 
+.viewing-date-label {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-mid);
+  letter-spacing: 0.04em;
+  margin-top: -0.25rem;
+}
+
 .week-strip {
   flex: 1;
   display: flex;

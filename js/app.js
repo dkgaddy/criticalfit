@@ -341,6 +341,12 @@ function renderWeekNav() {
 
   prevBtn.disabled = ![...loggedSet].some(d => d < viewingDate);
   nextBtn.disabled = viewingDate >= today;
+
+  const labelEl = document.getElementById('viewing-date-label');
+  if (labelEl) {
+    const vd = new Date(viewingDate + 'T12:00:00');
+    labelEl.textContent = vd.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }
 }
 
 // ---- Energy Balance ----
