@@ -2212,6 +2212,7 @@ input[type=number] { -moz-appearance: textfield; }
 
 #guide-page .card-title {
   font-size: 0.78rem;
+  color: var(--amber);
 }
 
 /* ============================================================
