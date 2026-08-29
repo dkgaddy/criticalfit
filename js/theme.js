@@ -18,9 +18,11 @@ function applyTheme(theme) {
 
 // ---- Music ----
 
-var _bgAudio = null;
+var _bgAudio  = null;
 var _bgTrack  = null;
 var _muted    = localStorage.getItem('cfMusicMuted') === '1';
+var _audioCtx = null;
+var MUSIC_VOLUME = 0.15;
 
 function _syncMuteBtn() {
   var btn  = document.getElementById('mute-btn');
@@ -38,9 +40,25 @@ function _buildAudio(track, elapsedMs) {
   if (_bgAudio) { _bgAudio.pause(); _bgAudio = null; }
   _bgTrack       = track;
   _bgAudio       = new Audio('music/' + track);
-  _bgAudio.volume = 0.15;
-  _bgAudio.loop   = true;
-  _bgAudio.muted  = _muted;
+  _bgAudio.loop  = true;
+  _bgAudio.muted = _muted;
+
+  // iOS WebKit (every iOS browser, since Apple mandates WebKit under
+  // the hood) silently ignores HTMLMediaElement.volume — actual output
+  // stays pinned to the hardware volume regardless of what we set here.
+  // Route through a Web Audio GainNode instead, which iOS does honor.
+  try {
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!_audioCtx) _audioCtx = new Ctx();
+    if (_audioCtx.state === 'suspended') _audioCtx.resume();
+    var source = _audioCtx.createMediaElementSource(_bgAudio);
+    var gain   = _audioCtx.createGain();
+    gain.gain.value = MUSIC_VOLUME;
+    source.connect(gain).connect(_audioCtx.destination);
+  } catch (e) {
+    _bgAudio.volume = MUSIC_VOLUME; // fallback if Web Audio is unavailable
+  }
+
   if (elapsedMs > 0) {
     _bgAudio.addEventListener('loadedmetadata', function () {
       if (_bgAudio) _bgAudio.currentTime = (elapsedMs / 1000) % _bgAudio.duration;
