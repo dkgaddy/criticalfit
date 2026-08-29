@@ -2155,7 +2155,7 @@ input[type=number] { -moz-appearance: textfield; }
 
 .guide-p {
   font-family: var(--font-serif);
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: var(--text-mid);
   line-height: 1.65;
   margin: 0 0 0.9rem;
@@ -2173,7 +2173,7 @@ input[type=number] { -moz-appearance: textfield; }
 
 .guide-list li {
   font-family: var(--font-serif);
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: var(--text-mid);
   line-height: 1.6;
   padding-left: 0.3rem;
@@ -2194,7 +2194,7 @@ input[type=number] { -moz-appearance: textfield; }
 
 .guide-tldr-label {
   font-family: var(--font-display);
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -2204,10 +2204,14 @@ input[type=number] { -moz-appearance: textfield; }
 
 .guide-tldr-text {
   font-family: var(--font-serif);
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: var(--text);
   line-height: 1.6;
   margin: 0;
+}
+
+#guide-page .card-title {
+  font-size: 0.78rem;
 }
 
 /* ============================================================
