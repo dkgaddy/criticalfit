@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#142019">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Critical Fit">
+  <title>Critical Fit — Guide</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="images/CriticalFit-icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="guide-page">
+
+  <header class="app-header">
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu" aria-expanded="false">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <img src="images/CriticalFit-1line-logo-small.png" alt="Critical Fit" class="header-logo">
+  </header>
+
+  <!-- ======= Hamburger Menu ======= -->
+  <div class="ham-menu" id="ham-menu" hidden>
+    <a href="info.html" class="ham-item">
+      <i class="fa-solid fa-circle-info"></i> Info
+    </a>
+    <button class="ham-item" id="nav-install">
+      <i class="fa-solid fa-wand-magic-sparkles"></i> Install
+    </button>
+    <a href="guide.html" class="ham-item">
+      <i class="fa-solid fa-book-open"></i> Guide
+    </a>
+    <button class="ham-item" id="ham-settings">
+      <i class="fa-solid fa-gear"></i> Settings
+    </button>
+  </div>
+
+  <main class="journal-page">
+
+    <div class="info-hero">
+      <h1 class="info-app-name" style="font-size: 1.25rem;">How to Get the Most Out of Critical Fit</h1>
+    </div>
+
+    <div class="journal-divider">✦</div>
+
+    <section class="card">
+      <h3 class="card-title">The Big Idea</h3>
+      <p class="guide-p">
+        The goal of Critical Fit is to keep things simple yet fun while you begin your campaign to lose weight.
+        The goal of this app is to keep you in a caloric deficit. We won't push you so much on what you eat as
+        much as keeping your intake lower than what you use.
+      </p>
+      <p class="guide-p">
+        Weight loss is not all that difficult in theory. Only in practice. Many weight loss programs are gimmicky
+        or macro-centric, selling some fad or trick. While we do suggest a healthy balance of carbs, fats, and
+        proteins in your diet, mostly the app is meant to keep you using more energy than you store.
+      </p>
+    </section>
+
+    <div class="journal-divider">✦</div>
+
+    <section class="card">
+      <h3 class="card-title">Use It Daily</h3>
+      <p class="guide-p">
+        The key to get Critical Fit to help you is to use it&hellip; daily. Once you fill out your profile,
+        Critical Fit will calculate how many calories your body burns each day if you actually just laid in bed
+        all day (your basal metabolic rate). Then, using an industry-standard algorithm, it will adjust that
+        number based on your usual level of activity. If you sit behind a desk all day, or if you work on a farm
+        all day, or do something in between, that has an impact on how many calories you burn. The common term
+        for this number is TDEE (total daily energy expenditure).
+      </p>
+      <p class="guide-p">
+        Every day you should log your weight, what you eat (Rations), and how much dedicated exercise you do
+        (Activity). Critical Fit takes all of this and calculates if you are storing more calories than you burn&hellip;
+        or burning more calories than you eat. The running result of this score is called your caloric deficit
+        (Critical Fit calls it your Life Points). If you can maintain at least 500 Life Points at the end of each
+        day, you should be losing at least 1 pound per week.
+      </p>
+    </section>
+
+    <div class="journal-divider">✦</div>
+
+    <section class="card">
+      <h3 class="card-title">Not Losing Weight? It's Not Working!</h3>
+      <p class="guide-p">
+        If you are consistently seeing more than 500 Life Points each day but not actually losing weight, here
+        are the potential reasons.
+      </p>
+      <ol class="guide-list">
+        <li>You are eating calories that are not getting logged. Make sure you log everything you eat.</li>
+        <li>You are overestimating how much exercise you are actually doing. Don't log anything more than you are really doing.</li>
+        <li>Your profile page has you as a higher activity lifestyle than you really have. If you do not have a blue collar job or are on your feet all day, you are most likely in the sedentary category.</li>
+        <li>
+          You aren't logging your actual weight every day. This is the most likely reason. Why is this important?
+          Because the initial estimate of your caloric spend (TDEE) is exactly that&hellip; an estimate. The Life
+          Points in the app are calculated off this number. However, because we are logging all your calories
+          <em>and</em> your weight, we have all the data we need to be more precise. Logging daily will take that
+          number from estimate to an observed pattern to a factual personalization. If you will log your calories
+          and your weight into Critical Fit every day &mdash; whether the weight changes or not &mdash; for at
+          least 7 days, your calculated data improves, and if you can log these for 28 days straight, we will know
+          exactly how much energy your body burns. You can actually see this accuracy notated on your profile page
+          near the bottom.
+        </li>
+      </ol>
+    </section>
+
+    <div class="guide-tldr">
+      <p class="guide-tldr-label">TL;DR</p>
+      <p class="guide-tldr-text">
+        Log everything &mdash; including your weight &mdash; every day, and Critical Fit will customize itself to
+        your personal information and become much more precise.
+      </p>
+    </div>
+
+  </main>
+
+  <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
+    <a href="index.html" class="nav-item">
+      <i class="fa-solid fa-scroll nav-icon" aria-hidden="true"></i>
+      Journal
+    </a>
+    <a href="meals.html" class="nav-item" id="nav-meals">
+      <i class="fa-solid fa-bowl-rice nav-icon" aria-hidden="true"></i>
+      Meals
+    </a>
+    <a href="progress.html" class="nav-item">
+      <i class="fa-solid fa-chart-line nav-icon" aria-hidden="true"></i>
+      Progress
+    </a>
+    <a href="profile.html" class="nav-item">
+      <i class="fa-solid fa-circle-user nav-icon" aria-hidden="true"></i>
+      Profile
+    </a>
+  </nav>
+
+  <!-- ======= Guild Gate Popup ======= -->
+  <div class="guild-gate-overlay" id="guild-gate-modal" role="dialog" aria-modal="true">
+    <div class="guild-gate-sheet">
+      <i class="fa-solid fa-ring guild-gate-icon"></i>
+      <p class="guild-gate-msg">Join the Guild for more exciting features like this!</p>
+      <button class="btn btn-primary" id="guild-gate-dismiss">OK</button>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/install.js"></script>
+  <script src="js/nav.js"></script>
+</body>
+</html>
