@@ -2,6 +2,14 @@
 // Critical Fit — System Info (DM only)
 // ============================================================
 
+const _esc = (function () {
+  const d = document.createElement('div');
+  return function esc(str) {
+    d.textContent = str == null ? '' : String(str);
+    return d.innerHTML;
+  };
+}());
+
 function _fmtDate(str) {
   if (!str) return '—';
   const d = new Date(str);
@@ -24,8 +32,8 @@ function renderUsers(users) {
   tbody.innerHTML = users.map((u, i) => `
     <tr>
       <td class="admin-td-num">${i + 1}</td>
-      <td>${u.name || '—'}</td>
-      <td class="admin-td-num">${u.daysLogged}</td>
+      <td>${_esc(u.name) || '—'}</td>
+      <td class="admin-td-num">${_esc(u.daysLogged)}</td>
       <td class="admin-td-center">${u.isGuild ? '<i class="fa-solid fa-ring" title="Guild Member"></i>' : '<span class="admin-muted">—</span>'}</td>
       <td>${_fmtDateTime(u.lastLogin)}</td>
     </tr>`).join('');
@@ -40,8 +48,8 @@ function renderTraffic(traffic) {
   tbody.innerHTML = traffic.map(t => `
     <tr>
       <td>${_fmtDate(t.date)}</td>
-      <td class="admin-ip">${t.ip || '—'}</td>
-      <td class="admin-td-num">${t.pagesVisited}</td>
+      <td class="admin-ip">${_esc(t.ip) || '—'}</td>
+      <td class="admin-td-num">${_esc(t.pagesVisited)}</td>
       <td class="admin-td-center">${t.hasPasskey ? '<i class="fa-solid fa-key" title="Has Passkey"></i>' : '<span class="admin-muted">—</span>'}</td>
     </tr>`).join('');
 }
@@ -59,8 +67,8 @@ async function loadSystemInfo() {
     renderUsers(j.data.users);
     renderTraffic(j.data.traffic);
   } catch (e) {
-    document.getElementById('users-body').innerHTML  = `<tr><td colspan="5" class="admin-loading">Error: ${e.message}</td></tr>`;
-    document.getElementById('traffic-body').innerHTML = `<tr><td colspan="4" class="admin-loading">Error: ${e.message}</td></tr>`;
+    document.getElementById('users-body').innerHTML  = `<tr><td colspan="5" class="admin-loading">Error: ${_esc(e.message)}</td></tr>`;
+    document.getElementById('traffic-body').innerHTML = `<tr><td colspan="4" class="admin-loading">Error: ${_esc(e.message)}</td></tr>`;
   }
 }
 

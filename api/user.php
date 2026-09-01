@@ -5,13 +5,6 @@ $uid  = requireAuth();
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    // Ensure is_dm column exists and David's account is marked (idempotent)
-    if (empty($_SESSION['_dm_ddl'])) {
-        try { db()->exec("ALTER TABLE users ADD COLUMN is_dm TINYINT(1) NOT NULL DEFAULT 0"); } catch (Exception $e) {}
-        try { db()->exec("UPDATE users SET is_dm = 1 WHERE name = 'David' AND is_dm = 0"); } catch (Exception $e) {}
-        $_SESSION['_dm_ddl'] = 1;
-    }
-
     $stmt = db()->prepare('SELECT * FROM users WHERE id = ?');
     $stmt->execute([$uid]);
     $row = $stmt->fetch();
