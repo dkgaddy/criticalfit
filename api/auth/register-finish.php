@@ -48,6 +48,7 @@ try {
 
     // Start session
     unset($_SESSION['wa_challenge'], $_SESSION['wa_reg_user_id']);
+    session_regenerate_id(true);
     $_SESSION['user_id'] = $userId;
 
     $stmt = db()->prepare('SELECT id, display_name, first_seen FROM users WHERE id = ?');

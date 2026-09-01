@@ -22,27 +22,29 @@ A malicious user could register with a name like `<img src=x onerror=alert(docum
 
 ## HIGH
 
-**3. `food-search.php` requires no authentication**
-`api/food-search.php` has no `requireAuth()` call and includes `Access-Control-Allow-Origin: *`. The USDA API key is used freely by any unauthenticated visitor or by any third-party website making a cross-origin request. An attacker could hammer this endpoint to exhaust the API rate limit or rack up usage, degrading search for all users.
+**3. `food-search.php` requires no authentication** ✅ FIXED
+`api/food-search.php` had no `requireAuth()` call and included `Access-Control-Allow-Origin: *`. The USDA API key was used freely by any unauthenticated visitor or by any third-party website making a cross-origin request. An attacker could hammer this endpoint to exhaust the API rate limit or rack up usage, degrading search for all users.
 
-**4. Internal error details exposed in registration responses**
-`api/auth/register-begin.php` returns `file`, `line number`, and the full stack trace in error JSON responses:
+**4. Internal error details exposed in registration responses** ✅ FIXED
+`api/auth/register-begin.php` and `login-begin.php` returned `file`, `line number`, and full stack traces in error JSON responses:
 ```php
 'file'  => basename($e->getFile()) . ':' . $e->getLine(),
 'trace' => substr($e->getTraceAsString(), 0, 500),
 ```
-This maps out internal file paths and library versions to anyone who can trigger an error, making targeted exploit development significantly easier.
+This mapped out internal file paths and library versions to anyone who can trigger an error. Both endpoints now return a single generic error string.
 
-**5. No session ID regeneration after login (session fixation)**
-`login-finish.php` sets `$_SESSION['user_id']` but never calls `session_regenerate_id(true)`. An attacker who can set a victim's session cookie before they log in (via subdomain injection, network interception before HTTPS, or browser extension) takes over the authenticated session after the victim completes their passkey challenge.
+**5. No session ID regeneration after login (session fixation)** ✅ FIXED
+`login-finish.php` and `register-finish.php` set `$_SESSION['user_id']` but never called `session_regenerate_id(true)`. An attacker who can set a victim's session cookie before they log in (via subdomain injection, network interception before HTTPS, or browser extension) could take over the authenticated session after the victim completes their passkey challenge. Both files now call `session_regenerate_id(true)` immediately before writing the user ID to the session.
 
-**6. No HTTP security headers**
-There is no `.htaccess` file at the web root or in `api/`. The following headers are absent on every response:
-- `Content-Security-Policy` — would block XSS attacks
-- `X-Frame-Options` — app can be embedded in iframes for clickjacking
-- `X-Content-Type-Options: nosniff` — browser MIME sniffing attacks
-- `Strict-Transport-Security` — no HTTPS enforcement at the HTTP layer
-- `Referrer-Policy` — navigation paths leak to third-party resources (Google Fonts, FontAwesome CDN)
+**6. No HTTP security headers** ✅ FIXED
+There was no `.htaccess` file at the web root. A `.htaccess` has been added with the following headers on every response:
+- `Content-Security-Policy` — restricts scripts to same-origin, blocks inline scripts, whitelists Google Fonts and FontAwesome CDN; `frame-ancestors 'none'` blocks iframe embedding
+- `X-Frame-Options: DENY` — belt-and-suspenders clickjacking protection for older browsers
+- `X-Content-Type-Options: nosniff` — prevents MIME-type sniffing attacks
+- `Strict-Transport-Security` — enforces HTTPS for 1 year including subdomains
+- `Referrer-Policy: strict-origin-when-cross-origin` — limits referrer leakage to third parties
+- `Permissions-Policy` — disables geolocation, microphone, and camera APIs
+- `Options -Indexes` — also resolves Low finding #13 (directory listing)
 
 ---
 
@@ -87,16 +89,16 @@ In `claude-food-search.php`, the user query is run through `htmlspecialchars()` 
 |---|-------|----------|--------------------------|--------|
 | 1 | DM privilege escalation via name | **Critical** | No (requires account) | ✅ Fixed |
 | 2 | Stored XSS in admin page | **Critical** | No (requires account) | ✅ Fixed |
-| 3 | Unauthenticated USDA proxy endpoint | High | Yes | Open |
-| 4 | Stack traces in error responses | High | Partial | Open |
-| 5 | Session fixation | High | Requires network position | Open |
-| 6 | No security headers | High | Yes (passive) | Open |
+| 3 | Unauthenticated USDA proxy endpoint | High | Yes | ✅ Fixed |
+| 4 | Stack traces in error responses | High | Partial | ✅ Fixed |
+| 5 | Session fixation | High | Requires network position | ✅ Fixed |
+| 6 | No security headers | High | Yes (passive) | ✅ Fixed |
 | 7 | IP spoofing in visit log | Medium | No (requires account) | Open |
 | 8 | No rate limiting on auth/register | Medium | Yes | Open |
 | 9 | Client-controlled date in dragon calc | Medium | No (requires account) | Open |
 | 10 | Unvalidated date inputs | Medium | No (requires account) | Open |
 | 11 | Prompt injection in AI search | Low | No (requires guild) | Open |
 | 12 | DDL on every weight request | Low | No | Open |
-| 13 | API directory listing | Low | Yes | Open |
+| 13 | API directory listing | Low | Yes | ✅ Fixed (via #6 .htaccess) |
 | 14 | 30-day session, no inactivity expiry | Low | Requires stolen cookie | Open |
 | 15 | Misapplied `htmlspecialchars` | Low | No | Open |

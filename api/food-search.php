@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/db.php';
+$uid = requireAuth();
 
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
 
 $query    = trim($_GET['query'] ?? '');
 $pageSize = min((int)($_GET['pageSize'] ?? 50), 50);

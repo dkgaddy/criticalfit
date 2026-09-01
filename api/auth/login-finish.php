@@ -51,6 +51,7 @@ try {
         ->execute([$webAuthn->getSignatureCounter() ?? 0, $passkey['id']]);
 
     unset($_SESSION['wa_challenge']);
+    session_regenerate_id(true);
     $_SESSION['user_id'] = (int)$passkey['user_id'];
 
     $stmt = db()->prepare('SELECT id, display_name, first_seen FROM users WHERE id = ?');

@@ -1,0 +1,29 @@
+# Disable directory listing (also fixes Low finding #13)
+Options -Indexes
+
+<IfModule mod_headers.c>
+    # Prevent MIME-type sniffing
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Prevent clickjacking (redundant with frame-ancestors in CSP, belt-and-suspenders)
+    Header always set X-Frame-Options "DENY"
+
+    # Limit referrer info sent to third-party resources
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Enforce HTTPS for 1 year (only safe because the site is already HTTPS-only)
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    # Restrict browser feature access
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+
+    # Content Security Policy
+    # - script-src 'self': all JS is served from same origin, no inline scripts
+    # - style-src needs 'unsafe-inline' for HTML style= attributes; Google Fonts and FontAwesome CDN for CSS
+    # - font-src: Google Fonts files from gstatic, FontAwesome files from cdnjs
+    # - img-src data: covers any base64 data URIs used by the PWA or libraries
+    # - connect-src 'self': all fetch() calls are to local api/ endpoints
+    # - media-src 'self': background music files are local
+    # - frame-ancestors 'none': disallows embedding in any iframe
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self'; media-src 'self'; frame-ancestors 'none'"
+</IfModule>
