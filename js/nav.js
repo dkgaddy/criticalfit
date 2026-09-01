@@ -118,15 +118,10 @@ async function _initDmMenu() {
     if (cachedUser.isDm) _addSystemInfoLink();
     return;
   }
-  const stored = sessionStorage.getItem('cfIsDm');
-  if (stored === '1') { _addSystemInfoLink(); return; }
-  if (stored === '0') return;
   try {
     const r = await fetch('api/user.php');
     const j = await r.json();
-    const dm = j.ok && j.data?.isDm;
-    sessionStorage.setItem('cfIsDm', dm ? '1' : '0');
-    if (dm) _addSystemInfoLink();
+    if (j.ok && j.data?.isDm) _addSystemInfoLink();
   } catch {}
 }
 
