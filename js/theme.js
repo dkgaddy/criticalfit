@@ -126,6 +126,9 @@ document.addEventListener('DOMContentLoaded', function () {
       } else if (!track && _bgAudio) {
         stopMusic();
       }
+      // Log page visit now that we know the user is authenticated
+      var page = location.pathname.split('/').pop().replace('.html', '') || 'home';
+      fetch('api/visit.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ page: page }) }).catch(function () {});
     })
     .catch(function () { /* not authenticated yet — use cached theme */ });
 });

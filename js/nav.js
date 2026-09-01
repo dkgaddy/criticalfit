@@ -100,6 +100,36 @@ async function handleSettingsClick() {
   }
 }
 
+// ---- DM menu item ----
+
+function _addSystemInfoLink() {
+  const menu = document.getElementById('ham-menu');
+  if (!menu || menu.querySelector('#nav-system-info')) return;
+  const a = document.createElement('a');
+  a.href      = 'system.html';
+  a.className = 'ham-item';
+  a.id        = 'nav-system-info';
+  a.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i> System Info';
+  menu.appendChild(a);
+}
+
+async function _initDmMenu() {
+  if (typeof cachedUser !== 'undefined' && cachedUser !== null) {
+    if (cachedUser.isDm) _addSystemInfoLink();
+    return;
+  }
+  const stored = sessionStorage.getItem('cfIsDm');
+  if (stored === '1') { _addSystemInfoLink(); return; }
+  if (stored === '0') return;
+  try {
+    const r = await fetch('api/user.php');
+    const j = await r.json();
+    const dm = j.ok && j.data?.isDm;
+    sessionStorage.setItem('cfIsDm', dm ? '1' : '0');
+    if (dm) _addSystemInfoLink();
+  } catch {}
+}
+
 // ---- Init ----
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -108,4 +138,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('ham-settings')?.addEventListener('click', handleSettingsClick);
   document.getElementById('nav-meals')?.addEventListener('click', handleMealsClick);
+  _initDmMenu();
 });

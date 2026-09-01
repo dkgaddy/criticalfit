@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#142019">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Critical Fit — System Info</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="images/CriticalFit-icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="system-page">
+
+  <header class="app-header">
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu" aria-expanded="false">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <img src="images/CriticalFit-1line-logo-small.png" alt="Critical Fit" class="header-logo">
+  </header>
+
+  <!-- ======= Hamburger Menu ======= -->
+  <div class="ham-menu" id="ham-menu" hidden>
+    <a href="info.html" class="ham-item">
+      <i class="fa-solid fa-circle-info"></i> Info
+    </a>
+    <button class="ham-item" id="nav-install">
+      <i class="fa-solid fa-wand-magic-sparkles"></i> Install
+    </button>
+    <a href="guide.html" class="ham-item">
+      <i class="fa-solid fa-book-open"></i> Guide
+    </a>
+    <button class="ham-item" id="ham-settings">
+      <i class="fa-solid fa-gear"></i> Settings
+    </button>
+  </div>
+
+  <main class="journal-page">
+
+    <div class="page-heading">
+      <h2 class="page-title">System Info</h2>
+      <p class="page-sub">Usage reports — Dungeon Master view</p>
+    </div>
+
+    <!-- Top 20 Users -->
+    <section class="card">
+      <h3 class="card-title">Top 20 Adventurers by Days Logged</h3>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="tbl-users">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Days Logged</th>
+              <th>Guild</th>
+              <th>Last Login</th>
+            </tr>
+          </thead>
+          <tbody id="users-body">
+            <tr><td colspan="5" class="admin-loading">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Recent Traffic -->
+    <section class="card">
+      <h3 class="card-title">Recent Traffic — Last 30 Days</h3>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="tbl-traffic">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>IP Address</th>
+              <th>Pages Visited</th>
+              <th>Passkey</th>
+            </tr>
+          </thead>
+          <tbody id="traffic-body">
+            <tr><td colspan="4" class="admin-loading">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <a href="index.html" class="btn btn-secondary btn-full" style="display:block;margin-top:1rem;">Back to Journal</a>
+
+  </main>
+
+  <!-- ======= Guild Gate Popup ======= -->
+  <div class="guild-gate-overlay" id="guild-gate-modal" role="dialog" aria-modal="true">
+    <div class="guild-gate-sheet">
+      <i class="fa-solid fa-ring guild-gate-icon"></i>
+      <p class="guild-gate-msg">Join the Guild for more exciting features like this!</p>
+      <button class="btn btn-primary" id="guild-gate-dismiss">OK</button>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/system.js"></script>
+  <script src="js/install.js"></script>
+  <script src="js/nav.js"></script>
+</body>
+</html>

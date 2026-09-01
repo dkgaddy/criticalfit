@@ -2785,3 +2785,47 @@ input[type=number] { -moz-appearance: textfield; }
 @media (min-width: 768px) {
   .journal-page { max-width: 560px; }
 }
+
+/* ======= Admin / System Info Tables ======= */
+
+.admin-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -0.25rem;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  min-width: 340px;
+}
+
+.admin-table th {
+  text-align: left;
+  color: var(--text-mid);
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--border-hi);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  color: var(--text-hi);
+}
+
+.admin-table tr:last-child td { border-bottom: none; }
+
+.admin-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+.admin-td-num    { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.admin-td-center { text-align: center; }
+.admin-ip        { font-family: monospace; font-size: 0.75rem; color: var(--text-mid); white-space: nowrap; }
+.admin-muted     { color: var(--text-dim); }
+.admin-loading   { text-align: center; color: var(--text-dim); padding: 1.5rem; font-style: italic; }
