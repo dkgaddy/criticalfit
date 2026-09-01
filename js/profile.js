@@ -159,6 +159,7 @@ function renderGuildCard(isPremium) {
         <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Wizard Ration Search</strong> — restaurant &amp; branded food items with suggested servings</div></li>
         <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Advanced Charting</strong> — track up to a year's worth of progress</div></li>
         <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Build Meals</strong> — log regular food rations in custom made meals</div></li>
+        <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Custom Themes and Music</strong> — Choose from a myriad of colors, scenes, and background music</div></li>
         <li><i class="fa-solid fa-ring guild-bullet"></i><div>Get exclusive fitness suggestions</div></li>
       </ul>
       <button class="btn btn-primary btn-full" disabled style="opacity:0.45;cursor:not-allowed">
