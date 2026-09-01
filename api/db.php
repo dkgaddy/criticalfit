@@ -39,6 +39,16 @@ function requireAuth(): int {
         echo json_encode(['ok' => false, 'error' => 'Not authenticated']);
         exit;
     }
+    // Expire sessions after 30 days of inactivity (measured from last use, not login)
+    if (time() - ($_SESSION['_last_activity'] ?? time()) > 86400 * 30) {
+        session_unset();
+        session_destroy();
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(401);
+        echo json_encode(['ok' => false, 'error' => 'Session expired']);
+        exit;
+    }
+    $_SESSION['_last_activity'] = time();
     return $uid;
 }
 

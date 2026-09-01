@@ -15,11 +15,23 @@ if (strlen($query) < 2) {
     json_err('Query too short');
     exit;
 }
+if (strlen($query) > 100) {
+    json_err('Query too long');
+    exit;
+}
 
-$safeQuery = htmlspecialchars($query, ENT_QUOTES, 'UTF-8');
+// Allowlist: letters, numbers, spaces, and punctuation that appear in food names.
+// Strips anything else so injected instructions cannot reach the model.
+$query = trim(preg_replace('/[^\p{L}\p{N}\s\-\'\.,&()\/]/u', '', $query));
+if (strlen($query) < 2) {
+    json_err('Query too short');
+    exit;
+}
 
-$prompt = <<<PROMPT
-You are a precise nutrition database. For the food query "{$safeQuery}", return 6-8 relevant food items as a JSON array.
+// System prompt holds all instructions; user turn holds only the sanitized query.
+// Separating them is the strongest available defence against prompt injection.
+$system = <<<SYS
+You are a precise nutrition database. When given a food name, return 6-8 relevant food items as a JSON array.
 
 Include popular restaurant menu items and branded products when relevant (e.g. if asked for "whopper" return "Burger King Whopper" with real published nutrition data; if asked for "big mac" return "McDonald's Big Mac", etc.).
 
@@ -33,12 +45,13 @@ Each object must have exactly these fields:
 - "fat": total fat grams per serving as a number
 
 Use published nutrition facts where known. Return ONLY a valid JSON array with no markdown, no commentary, and no code fences.
-PROMPT;
+SYS;
 
 $payload = json_encode([
     'model'      => 'claude-haiku-4-5-20251001',
     'max_tokens' => 1024,
-    'messages'   => [['role' => 'user', 'content' => $prompt]],
+    'system'     => $system,
+    'messages'   => [['role' => 'user', 'content' => $query]],
 ]);
 
 $ch = curl_init('https://api.anthropic.com/v1/messages');

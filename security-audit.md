@@ -66,20 +66,20 @@ The `?today=YYYY-MM-DD` parameter was accepted without bounds, allowing a user w
 
 ## LOW
 
-**11. Prompt injection in AI food search (`claude-food-search.php`)**
-User input is inserted into the Claude prompt after `htmlspecialchars()` escaping. HTML escaping does not protect against prompt injection. The endpoint is guild-member only and output is validated as JSON with numeric bounds. Worst case is inaccurate nutrition data.
+**11. Prompt injection in AI food search (`claude-food-search.php`)** ✅ FIXED
+User input was inserted into the Claude prompt after `htmlspecialchars()` escaping. HTML escaping does not protect against prompt injection. Fixed by: (1) adding a Unicode character allowlist that strips anything not found in real food names, capping the query at 100 chars; (2) moving all instructions into the API `system` prompt and placing only the sanitized user query in the `messages` user turn — the strongest available structural defence against injection.
 
-**12. DDL statement on every request in `weight.php`**
-`CREATE TABLE IF NOT EXISTS weight_entries (...)` executes on every single GET and POST to `weight.php`. The table has existed since launch. Unnecessary database overhead on every weight-related request.
+**12. DDL statement on every request in `weight.php`** ✅ FIXED
+`CREATE TABLE IF NOT EXISTS weight_entries (...)` executed on every single GET and POST to `weight.php`. Fixed by gating it with a `$_SESSION['_weight_ddl']` flag so the DDL runs at most once per session, matching the pattern used elsewhere in the codebase.
 
-**13. `api/` directory may be listable**
-No `index.php` or `Options -Indexes` directive exists in the `api/` directory. Depending on Apache configuration, a browser GET to `/api/` may return a directory listing of all PHP endpoint filenames, disclosing the full API surface.
+**13. `api/` directory may be listable** ✅ FIXED (via #6 .htaccess)
+Resolved by `Options -Indexes` in the `.htaccess` added for finding #6.
 
-**14. Long session lifetime with no inactivity expiry**
-Sessions are set to `lifetime: 86400 * 30` (30 days). There is no server-side activity check — a stolen session token is valid for a full month.
+**14. Long session lifetime with no inactivity expiry** ✅ FIXED
+Sessions were set to `lifetime: 86400 * 30` (30 days) with no server-side activity check, meaning a stolen token was valid for a full month regardless of use. Fixed in `requireAuth()` in `db.php`: a `_last_activity` timestamp is written to the session on every authenticated request. If the gap since last activity exceeds 30 days, the session is destroyed server-side and a 401 is returned. The 30-day window now measures idle time rather than time-since-login.
 
-**15. `htmlspecialchars` misapplied in AI search**
-In `claude-food-search.php`, the user query is run through `htmlspecialchars()` before being injected into an AI prompt. This converts `"` to `&quot;`, slightly degrading search accuracy while providing no meaningful security benefit in a non-HTML context.
+**15. `htmlspecialchars` misapplied in AI search** ✅ FIXED
+`htmlspecialchars()` was converting `"` to `&quot;` in food search queries before they reached the AI prompt, degrading accuracy (e.g. `"Big Mac"` became `&quot;Big Mac&quot;`) while providing no meaningful protection. Removed entirely as part of the fix for #11; replaced with a proper character allowlist.
 
 ---
 
@@ -97,8 +97,8 @@ In `claude-food-search.php`, the user query is run through `htmlspecialchars()` 
 | 8 | No rate limiting on auth/register | Medium | Yes | ✅ Fixed |
 | 9 | Client-controlled date in dragon calc | Medium | No (requires account) | ✅ Fixed |
 | 10 | Unvalidated date inputs | Medium | No (requires account) | ✅ Fixed |
-| 11 | Prompt injection in AI search | Low | No (requires guild) | Open |
-| 12 | DDL on every weight request | Low | No | Open |
+| 11 | Prompt injection in AI search | Low | No (requires guild) | ✅ Fixed |
+| 12 | DDL on every weight request | Low | No | ✅ Fixed |
 | 13 | API directory listing | Low | Yes | ✅ Fixed (via #6 .htaccess) |
-| 14 | 30-day session, no inactivity expiry | Low | Requires stolen cookie | Open |
-| 15 | Misapplied `htmlspecialchars` | Low | No | Open |
+| 14 | 30-day session, no inactivity expiry | Low | Requires stolen cookie | ✅ Fixed |
+| 15 | Misapplied `htmlspecialchars` | Low | No | ✅ Fixed (via #11) |

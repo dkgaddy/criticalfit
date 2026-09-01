@@ -3,15 +3,20 @@ require_once __DIR__ . '/db.php';
 $uid = requireAuth();
 $pdo = db();
 
-$pdo->exec("CREATE TABLE IF NOT EXISTS weight_entries (
-    id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    user_id    INT UNSIGNED NOT NULL,
-    weight     DECIMAL(6,2) NOT NULL,
-    unit       VARCHAR(10) NOT NULL DEFAULT 'imperial',
-    log_date   DATE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_user_date (user_id, log_date)
-)");
+if (empty($_SESSION['_weight_ddl'])) {
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS weight_entries (
+            id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            user_id    INT UNSIGNED NOT NULL,
+            weight     DECIMAL(6,2) NOT NULL,
+            unit       VARCHAR(10) NOT NULL DEFAULT 'imperial',
+            log_date   DATE NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY uq_user_date (user_id, log_date)
+        )");
+    } catch (Exception $e) {}
+    $_SESSION['_weight_ddl'] = 1;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET['date'])) {
