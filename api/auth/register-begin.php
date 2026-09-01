@@ -17,6 +17,10 @@ try {
         http_response_code(400); echo json_encode(['ok' => false, 'error' => 'Display name required']); exit;
     }
 
+    if (!checkRateLimit(clientIp(), 'register', 5, 3600)) {
+        http_response_code(429); echo json_encode(['ok' => false, 'error' => 'Too many registration attempts. Please try again later.']); exit;
+    }
+
     // Create a provisional user row; delete it if registration never completes
     $stmt = db()->prepare(
         'INSERT INTO users (display_name, first_seen) VALUES (?, CURDATE())'

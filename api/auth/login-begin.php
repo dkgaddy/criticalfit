@@ -9,6 +9,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405); echo json_encode(['ok' => false, 'error' => 'Method not allowed']); exit;
 }
 
+if (!checkRateLimit(clientIp(), 'login', 10, 900)) {
+    http_response_code(429); echo json_encode(['ok' => false, 'error' => 'Too many login attempts. Please try again later.']); exit;
+}
+
 $webAuthn = new lbuchs\WebAuthn\WebAuthn(RP_NAME, RP_ID, ['none']);
 try {
     $getArgs = $webAuthn->getGetArgs(

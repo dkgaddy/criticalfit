@@ -46,10 +46,14 @@ $stmt = $pdo->prepare("
 $stmt->execute([$uid, $uid]);
 $lastActivityDate = $stmt->fetchColumn() ?: null;
 
-// Use client-supplied local date to avoid server timezone mismatch
+// Use client-supplied local date to handle timezone differences, but clamp
+// to within 1 day of server time so users cannot suppress demotion by sending old dates
 $clientToday = preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['today'] ?? '')
     ? $_GET['today']
     : date('Y-m-d');
+if (abs(strtotime($clientToday) - time()) > 86400) {
+    $clientToday = date('Y-m-d');
+}
 
 $daysSinceLast = $lastActivityDate
     ? (int) date_diff(date_create($lastActivityDate), date_create($clientToday))->days

@@ -50,17 +50,17 @@ There was no `.htaccess` file at the web root. A `.htaccess` has been added with
 
 ## MEDIUM
 
-**7. IP address spoofable via X-Forwarded-For**
-`api/visit.php` unconditionally trusts the `HTTP_X_FORWARDED_FOR` header, which is fully client-controlled on SiteGround shared hosting. Any user can log any IP address into `visit_log`, poisoning the traffic report. Combined with finding #2, a crafted header becomes an XSS delivery vector.
+**7. IP address spoofable via X-Forwarded-For** ✅ FIXED
+`api/visit.php` unconditionally trusted the `HTTP_X_FORWARDED_FOR` header, which is fully client-controlled on SiteGround shared hosting. Any user could log any IP address into `visit_log`, poisoning the traffic report, and combined with finding #2 (now fixed), a crafted header could deliver a stored XSS payload. Fixed by adding `clientIp()` to `db.php` that always uses `REMOTE_ADDR` only; all auth rate limiting also uses this function.
 
-**8. No rate limiting on authentication or registration**
-`register-begin.php` creates a database row on every call with no throttling. An attacker can flood the `users` table with provisional rows (never cleaned up if registration is abandoned). Login attempts are also unlimited, though WebAuthn's hardware key requirement significantly raises the practical bar.
+**8. No rate limiting on authentication or registration** ✅ FIXED
+`register-begin.php` created a database row on every call with no throttling, enabling `users` table flooding. Login was also unlimited. Fixed by adding `checkRateLimit()` to `db.php` backed by a new `auth_attempts` table. Registration is capped at 5 attempts per IP per hour; login is capped at 10 attempts per IP per 15 minutes. The table self-cleans on a 1-in-50 probabilistic sweep.
 
-**9. `dragon.php` allows client to control "today's date"**
-The `?today=YYYY-MM-DD` parameter is accepted from the client to avoid timezone mismatches. A user who has been inactive for 15+ days can pass the real current date to avoid dragon level demotion indefinitely. Only affects the calling user's own gamification state.
+**9. `dragon.php` allows client to control "today's date"** ✅ FIXED
+The `?today=YYYY-MM-DD` parameter was accepted without bounds, allowing a user who had been inactive 15+ days to pass an old date and avoid dragon level demotion. Fixed by clamping the client-supplied date to within ±1 day of server time — wide enough to absorb any real timezone difference, narrow enough to prevent abuse.
 
-**10. Unvalidated date values stored directly**
-`food.php`, `exercise.php`, `weight.php`, and `daily.php` accept `date` from POST/GET input and pass it to prepared statements without format-checking. Malformed values like `not-a-date` would be silently coerced by MySQL to `0000-00-00`, storing corrupt entries. Not SQL-injectable (prepared statements used), but data integrity is unprotected.
+**10. Unvalidated date values stored directly** ✅ FIXED
+`food.php`, `exercise.php`, `weight.php`, and `daily.php` accepted `date` from POST/GET input without format-checking. Malformed values like `not-a-date` would be silently coerced by MySQL to `0000-00-00`, storing corrupt entries. Fixed by adding `validDate()` to `db.php` (regex + `checkdate()` calendar check); all four endpoints now fall back to today's date on invalid input.
 
 ---
 
@@ -93,10 +93,10 @@ In `claude-food-search.php`, the user query is run through `htmlspecialchars()` 
 | 4 | Stack traces in error responses | High | Partial | ✅ Fixed |
 | 5 | Session fixation | High | Requires network position | ✅ Fixed |
 | 6 | No security headers | High | Yes (passive) | ✅ Fixed |
-| 7 | IP spoofing in visit log | Medium | No (requires account) | Open |
-| 8 | No rate limiting on auth/register | Medium | Yes | Open |
-| 9 | Client-controlled date in dragon calc | Medium | No (requires account) | Open |
-| 10 | Unvalidated date inputs | Medium | No (requires account) | Open |
+| 7 | IP spoofing in visit log | Medium | No (requires account) | ✅ Fixed |
+| 8 | No rate limiting on auth/register | Medium | Yes | ✅ Fixed |
+| 9 | Client-controlled date in dragon calc | Medium | No (requires account) | ✅ Fixed |
+| 10 | Unvalidated date inputs | Medium | No (requires account) | ✅ Fixed |
 | 11 | Prompt injection in AI search | Low | No (requires guild) | Open |
 | 12 | DDL on every weight request | Low | No | Open |
 | 13 | API directory listing | Low | Yes | ✅ Fixed (via #6 .htaccess) |

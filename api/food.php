@@ -6,6 +6,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
     $date = $_GET['date'] ?? date('Y-m-d');
+    if (!validDate($date)) $date = date('Y-m-d');
     $stmt = db()->prepare(
         'SELECT id, fdc_id as fdcId, name, grams, calories, protein, carbs, fat
          FROM food_entries WHERE user_id = ? AND log_date = ? ORDER BY created_at'
@@ -28,6 +29,7 @@ if ($method === 'GET') {
 } elseif ($method === 'POST') {
     $b    = json_decode(file_get_contents('php://input'), true) ?? [];
     $date = $b['date'] ?? date('Y-m-d');
+    if (!validDate($date)) $date = date('Y-m-d');
 
     $stmt = db()->prepare(
         'INSERT INTO food_entries (user_id, log_date, fdc_id, name, grams, calories, protein, carbs, fat)

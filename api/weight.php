@@ -15,7 +15,8 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS weight_entries (
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET['date'])) {
-        $date = preg_replace('/[^0-9\-]/', '', $_GET['date']);
+        $date = $_GET['date'];
+        if (!validDate($date)) { json_out(null); exit; }
         $stmt = $pdo->prepare(
             'SELECT log_date, weight, unit FROM weight_entries WHERE user_id = ? AND log_date = ?'
         );
@@ -39,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $weight = round((float)($b['weight'] ?? 0), 2);
     $unit   = ($b['unit'] ?? 'imperial') === 'metric' ? 'metric' : 'imperial';
     $date   = $b['date'] ?? date('Y-m-d');
+    if (!validDate($date)) $date = date('Y-m-d');
 
     if ($weight <= 0) { json_err('Invalid weight'); exit; }
 

@@ -25,9 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $b    = json_decode(file_get_contents('php://input'), true) ?? [];
 $page = substr(preg_replace('/[^a-z0-9\-_]/', '', strtolower($b['page'] ?? 'unknown')), 0, 100);
 
-$ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
-$ip = trim(explode(',', $ip)[0]);
-$ip = substr($ip, 0, 45);
+$ip = clientIp();
 
 $pdo->prepare('INSERT INTO visit_log (user_id, ip_address, page) VALUES (?, ?, ?)')
     ->execute([$uid, $ip, $page]);
