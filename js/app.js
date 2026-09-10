@@ -353,7 +353,10 @@ function renderWeekNav() {
 
 function renderEnergyBalance(summary, user) {
   const caloriesIn = Math.round(summary.caloriesIn);
-  const dailyGoal  = user && user.dailyGoal ? user.dailyGoal : null;
+  // Prefer personalized TDEE - 500 over the stale saved dailyGoal.
+  const dailyGoal  = cachedPersonalTdee
+    ? Math.max(1200, Math.round(cachedPersonalTdee - 500))
+    : (user?.dailyGoal || null);
   const today      = todayKey();
 
   // Card title — changes when viewing a past day
@@ -468,14 +471,19 @@ function renderEnergyUsed() {
 
   const adjustedBurn = cachedPersonalTdee || cachedUser.tdee || state.baselineDailyBurn;
 
-  numEl.textContent = state.energyUsedSoFar.toLocaleString();
+  // Use adjustedBurn as the burn rate so the numerator and denominator are
+  // always derived from the same source. Formula baseline (state.baselineDailyBurn)
+  // can diverge from personalized TDEE, making the "used/total" display inconsistent.
+  const usedSoFar = Math.round(adjustedBurn * state.elapsedFraction) + state.trainingCalories;
+
+  numEl.textContent = usedSoFar.toLocaleString();
 
   if (projEl) {
     projEl.textContent = `/ ${adjustedBurn.toLocaleString()}`;
   }
 
   if (state.isToday) {
-    const needed = Math.max(0, adjustedBurn - state.energyUsedSoFar);
+    const needed = Math.max(0, adjustedBurn - usedSoFar);
     if (deltaNumEl) deltaNumEl.textContent = needed.toLocaleString();
     if (deltaLblEl) deltaLblEl.textContent = 'needed';
   } else {
@@ -485,7 +493,7 @@ function renderEnergyUsed() {
 
   if (barEl) {
     const pct = adjustedBurn > 0
-      ? Math.min((state.energyUsedSoFar / adjustedBurn) * 100, 100)
+      ? Math.min((usedSoFar / adjustedBurn) * 100, 100)
       : 0;
     barEl.style.width = pct + '%';
   }
@@ -494,7 +502,7 @@ function renderEnergyUsed() {
   const lpVal  = document.getElementById('lp-value');
   const lpIcon = document.getElementById('lp-icon');
   if (lpVal && lpIcon) {
-    const lp    = Math.round(state.energyUsedSoFar - state.caloriesConsumed);
+    const lp    = Math.round(usedSoFar - state.caloriesConsumed);
     const hot   = lp >= 500;
     lpVal.textContent = Math.abs(lp).toLocaleString();
     lpVal.className   = 'lp-value' + (lp < 0 ? ' lp-negative' : '');
