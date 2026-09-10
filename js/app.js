@@ -512,6 +512,13 @@ function startEnergyTick() {
 
 // ---- Journal Entries ----
 
+function _trashBtn(type, id) {
+  return `<button class="entry-delete-btn" aria-label="Remove entry"
+            data-type="${type}" data-id="${id}">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>`;
+}
+
 function renderJournalEntries(food, exercise, weight) {
   const today     = todayKey();
   const titleEl   = document.getElementById('journal-date-title');
@@ -545,6 +552,7 @@ function renderJournalEntries(food, exercise, weight) {
           <span class="entry-detail">${e.grams ? e.grams + 'g' : ''}</span>
         </div>
         <span class="entry-cal">${fmtCal(e.calories)} kcal</span>
+        ${_trashBtn('food', e.id)}
       </div>`),
     ...exercise.map(e => `
       <div class="journal-entry">
@@ -553,6 +561,7 @@ function renderJournalEntries(food, exercise, weight) {
           <span class="entry-detail">${e.duration ? e.duration + ' min · Activity' : 'Activity'}</span>
         </div>
         <span class="entry-cal burned">−${fmtCal(e.calories)} kcal</span>
+        ${_trashBtn('exercise', e.id)}
       </div>`),
     ...(weight ? [`
       <div class="journal-entry">
@@ -561,9 +570,63 @@ function renderJournalEntries(food, exercise, weight) {
           <span class="entry-detail">Body Weight</span>
         </div>
         <span class="entry-cal weight-val">${weight.weight.toFixed(1)} ${weightUnit}</span>
+        ${_trashBtn('weight', viewingDate)}
       </div>`] : []),
   ];
   journalEl.innerHTML = rows.join('');
+}
+
+// ---- Delete Entry ----
+
+let _pendingDelete = null;
+
+function initDeleteConfirm() {
+  const modal     = document.getElementById('delete-confirm-modal');
+  const cancelBtn = document.getElementById('delete-confirm-cancel');
+  const okBtn     = document.getElementById('delete-confirm-ok');
+  if (!modal) return;
+
+  // Tap trash icon → populate and open confirm modal
+  document.getElementById('journal-entries')?.addEventListener('click', e => {
+    const btn = e.target.closest('.entry-delete-btn');
+    if (!btn) return;
+    const type = btn.dataset.type;
+    const id   = btn.dataset.id;
+    const name = btn.closest('.journal-entry')?.querySelector('.entry-name')?.textContent || 'this entry';
+    document.getElementById('delete-confirm-body').textContent =
+      `Remove "${name}" from the journal? This will affect all calculations for the day.`;
+    _pendingDelete = { type, id };
+    modal.classList.add('open');
+  });
+
+  cancelBtn?.addEventListener('click', () => {
+    modal.classList.remove('open');
+    _pendingDelete = null;
+  });
+
+  modal?.addEventListener('click', e => {
+    if (e.target === modal) { modal.classList.remove('open'); _pendingDelete = null; }
+  });
+
+  okBtn?.addEventListener('click', async () => {
+    if (!_pendingDelete) return;
+    modal.classList.remove('open');
+    const { type, id } = _pendingDelete;
+    _pendingDelete = null;
+
+    let url;
+    if (type === 'food')     url = `api/food.php?id=${id}`;
+    if (type === 'exercise') url = `api/exercise.php?id=${id}`;
+    if (type === 'weight')   url = `api/weight.php?date=${id}`;
+
+    try {
+      const r = await fetch(url, { method: 'DELETE' });
+      const j = await r.json();
+      if (j.ok) await refreshHomeForToday();
+    } catch (e) {
+      console.error('Delete failed', e);
+    }
+  });
 }
 
 // ---- Day Navigation ----
@@ -623,6 +686,7 @@ async function initHome() {
   renderJournalEntries(food, exercise, cachedWeight);
   initPastDayModal();
   initProfileAlert();
+  initDeleteConfirm();
 
   if (dragon.promoted) showLevelUp(dragon);
 }

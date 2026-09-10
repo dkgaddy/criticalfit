@@ -87,5 +87,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    $date = $_GET['date'] ?? '';
+    if (!validDate($date)) { json_err('Invalid date'); exit; }
+    $pdo->prepare('DELETE FROM weight_entries WHERE user_id = ? AND log_date = ?')
+        ->execute([$uid, $date]);
+    json_out(['deleted' => true]);
+    exit;
+}
+
 json_err('Method not allowed', 405);
 exit;

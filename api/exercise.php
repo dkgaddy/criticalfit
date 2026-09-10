@@ -41,6 +41,13 @@ if ($method === 'GET') {
 
     json_out(['id' => (int)db()->lastInsertId()]);
 
+} elseif ($method === 'DELETE') {
+    $id = (int)($_GET['id'] ?? 0);
+    if (!$id) { json_err('id required'); exit; }
+    $stmt = db()->prepare('DELETE FROM exercise_entries WHERE id = ? AND user_id = ?');
+    $stmt->execute([$id, $uid]);
+    json_out(['deleted' => $stmt->rowCount() > 0]);
+
 } else {
     json_err('Method not allowed', 405);
 }
