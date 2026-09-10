@@ -5,11 +5,20 @@ $uid  = requireAuth();
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    $stmt = db()->prepare(
-        'SELECT fdc_id AS fdcId, name, calories, protein, carbs, fat, serving_desc, grams_per_serving
-         FROM recent_foods WHERE user_id = ? ORDER BY used_at DESC LIMIT 20'
-    );
-    $stmt->execute([$uid]);
+    if (isset($_GET['q']) && strlen(trim($_GET['q'])) >= 2) {
+        $q    = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], trim($_GET['q'])) . '%';
+        $stmt = db()->prepare(
+            'SELECT fdc_id AS fdcId, name, calories, protein, carbs, fat, serving_desc, grams_per_serving
+             FROM recent_foods WHERE user_id = ? AND name LIKE ? ORDER BY used_at DESC LIMIT 100'
+        );
+        $stmt->execute([$uid, $q]);
+    } else {
+        $stmt = db()->prepare(
+            'SELECT fdc_id AS fdcId, name, calories, protein, carbs, fat, serving_desc, grams_per_serving
+             FROM recent_foods WHERE user_id = ? ORDER BY used_at DESC LIMIT 20'
+        );
+        $stmt->execute([$uid]);
+    }
     $rows = array_map(function ($r) {
         $out = [
             'fdcId'    => $r['fdcId'] ? (int)$r['fdcId'] : null,

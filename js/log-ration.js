@@ -307,6 +307,29 @@ function localMatches(query) {
   return out;
 }
 
+// ---- Full history search ----
+
+const historySearchCache = {};
+
+async function searchHistory(query) {
+  if (query in historySearchCache) return historySearchCache[query];
+  const res = await fetch(`api/recent-foods.php?q=${encodeURIComponent(query)}`);
+  if (!res.ok) return [];
+  const j = await res.json();
+  const foods = j.ok ? j.data.map(r => ({
+    fdcId:       r.fdcId ?? null,
+    name:        r.name,
+    calories:    r.calories,
+    protein:     r.protein ?? 0,
+    carbs:       r.carbs   ?? 0,
+    fat:         r.fat     ?? 0,
+    serving_desc: r.serving_desc ?? null,
+    grams:       r.grams   ?? null,
+  })) : [];
+  if (foods.length > 0) historySearchCache[query] = foods;
+  return foods;
+}
+
 // ---- Search prompt nodes ----
 
 function renderSearchPrompt(query) {
@@ -367,18 +390,38 @@ function renderAiError(query) {
   return wrap;
 }
 
-function showLocalMatches(query) {
-  const pane   = document.getElementById('ration-content');
-  const recent = localMatches(query);
+async function showLocalMatches(query) {
+  const pane = document.getElementById('ration-content');
+  const seq  = searchSeq;
+
+  // Show cached/in-memory matches instantly while history loads
+  const instant = localMatches(query);
+  pane.innerHTML = '';
+  if (instant.length) pane.appendChild(renderSection('Recent Rations', instant));
+  if (searchMode === 'ai') pane.appendChild(renderAiSearchPrompt(query));
+  else pane.appendChild(renderSearchPrompt(query));
+
+  // Fetch full history and update if still the current search
+  const history = await searchHistory(query);
+  if (seq !== searchSeq) return;
+
+  const seen = new Set(instant.map(f => f.name.toLowerCase()));
+  const extra = history.filter(f => !seen.has(f.name.toLowerCase()));
+  if (extra.length === 0) return;
+
+  // Merge: show all history matches (superset of instant)
+  const merged = [...instant];
+  for (const f of history) {
+    if (!seen.has(f.name.toLowerCase())) {
+      seen.add(f.name.toLowerCase());
+      merged.push(f);
+    }
+  }
 
   pane.innerHTML = '';
-  if (recent.length) pane.appendChild(renderSection('Recent Rations', recent));
-
-  if (searchMode === 'ai') {
-    pane.appendChild(renderAiSearchPrompt(query));
-  } else {
-    pane.appendChild(renderSearchPrompt(query));
-  }
+  pane.appendChild(renderSection('Recent Rations', merged));
+  if (searchMode === 'ai') pane.appendChild(renderAiSearchPrompt(query));
+  else pane.appendChild(renderSearchPrompt(query));
 }
 
 // ---- USDA database search ----
@@ -503,7 +546,7 @@ function handleSearchInput(val) {
   const q = val.trim();
   if (!q) { showDefault(); return; }
   if (q.length < 2) return;
-  searchTimer = setTimeout(() => showLocalMatches(q), 120);
+  searchTimer = setTimeout(() => showLocalMatches(q).catch(() => {}), 120);
 }
 
 // ---- Init ----
