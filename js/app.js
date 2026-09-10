@@ -547,30 +547,30 @@ function renderJournalEntries(food, exercise, weight) {
   const rows = [
     ...food.map(e => `
       <div class="journal-entry">
+        ${_trashBtn('food', e.id)}
         <div class="entry-info">
           <span class="entry-name">${e.name}</span>
           <span class="entry-detail">${e.grams ? e.grams + 'g' : ''}</span>
         </div>
         <span class="entry-cal">${fmtCal(e.calories)} kcal</span>
-        ${_trashBtn('food', e.id)}
       </div>`),
     ...exercise.map(e => `
       <div class="journal-entry">
+        ${_trashBtn('exercise', e.id)}
         <div class="entry-info">
           <span class="entry-name">${e.name}</span>
           <span class="entry-detail">${e.duration ? e.duration + ' min · Activity' : 'Activity'}</span>
         </div>
         <span class="entry-cal burned">−${fmtCal(e.calories)} kcal</span>
-        ${_trashBtn('exercise', e.id)}
       </div>`),
     ...(weight ? [`
       <div class="journal-entry">
+        ${_trashBtn('weight', viewingDate)}
         <div class="entry-info">
           <span class="entry-name">Weight Logged</span>
           <span class="entry-detail">Body Weight</span>
         </div>
         <span class="entry-cal weight-val">${weight.weight.toFixed(1)} ${weightUnit}</span>
-        ${_trashBtn('weight', viewingDate)}
       </div>`] : []),
   ];
   journalEl.innerHTML = rows.join('');
