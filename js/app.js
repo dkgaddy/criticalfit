@@ -504,7 +504,7 @@ function renderEnergyUsed() {
   if (lpVal && lpIcon) {
     const lp    = Math.round(usedSoFar - state.caloriesConsumed);
     const hot   = lp >= 500;
-    lpVal.textContent = Math.abs(lp).toLocaleString();
+    lpVal.textContent = (lp < 0 ? '−' : '') + Math.abs(lp).toLocaleString();
     lpVal.className   = 'lp-value' + (lp < 0 ? ' lp-negative' : '');
     lpIcon.src        = hot ? 'images/FireOn.png' : 'images/FireOff.png';
   }
