@@ -851,7 +851,7 @@ a { color: inherit; text-decoration: none; }
 
 .journal-entry:last-child { border-bottom: none; }
 
-.entry-info { display: flex; flex-direction: column; gap: 0.15rem; }
+.entry-info { display: flex; flex-direction: column; gap: 0.15rem; flex: 1; }
 
 .entry-name {
   font-size: 0.9rem;
