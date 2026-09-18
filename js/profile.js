@@ -48,7 +48,7 @@ function calcBMR(weightKg, heightCm, age, gender) {
 
 // ---- Personalized TDEE confidence display ----
 
-function renderTdeeConfidence(confidence, days) {
+function renderTdeeConfidence(confidence, days, underReporting) {
   const el = document.getElementById('calc-tdee-confidence');
   if (!el) return;
   let level, suffix;
@@ -58,6 +58,12 @@ function renderTdeeConfidence(confidence, days) {
   } else if (confidence === 'personalized') {
     level  = 'Personalized';
     suffix = ' to you';
+  } else if (underReporting) {
+    // Distinguish "hit the sanity-check floor after real data" from the
+    // plain beginner "Estimated" shown before 7 days of logging exist —
+    // otherwise it reads like personalization isn't working at all.
+    level  = 'Estimated';
+    suffix = ` after ${days} observed days*`;
   } else {
     level  = 'Estimated';
     suffix = '';
@@ -205,7 +211,7 @@ async function loadProfile() {
     if (tdeeEl) tdeeEl.textContent = personalizedTdee.toLocaleString() + ' cals';
     const goalEl = document.getElementById('calc-goal');
     if (goalEl) goalEl.textContent = Math.max(1200, Math.round(personalizedTdee - 500)).toLocaleString() + ' cals';
-    renderTdeeConfidence(confidence, confidenceDays);
+    renderTdeeConfidence(confidence, confidenceDays, underReporting);
     const banner = document.getElementById('underreporting-banner');
     if (banner) banner.style.display = underReporting ? '' : 'none';
   } else {
