@@ -1,6 +1,9 @@
 <?php
-// Run only from cPanel's Cron Jobs (CLI), never over HTTP — this script isn't
-// meant to be web-reachable at all, but refuse anyway as defense-in-depth.
+// Run hourly from cPanel's Cron Jobs (CLI), never over HTTP — this script
+// isn't meant to be web-reachable at all, but refuse anyway as
+// defense-in-depth. Hourly (not once/day) so each user can be nudged at
+// their own local evening rather than everyone getting pinged at whatever
+// the server's single fixed cron hour happens to translate to in their zone.
 if (php_sapi_name() !== 'cli') {
     http_response_code(403);
     exit;
@@ -9,26 +12,30 @@ if (php_sapi_name() !== 'cli') {
 require_once __DIR__ . '/../api/db.php';
 require_once __DIR__ . '/../api/push-lib.php';
 
+const TARGET_LOCAL_HOUR = 19; // 7 PM in the user's own timezone
+
 $pdo = db();
 
-// Users who've opted in and haven't logged any food today. The server clock
-// is UTC; the app itself has no per-user timezone field, so this uses a
-// single fixed zone (Central) rather than the server's date — CURDATE()
-// would be wrong here because a Central-evening cron run lands right at (or
-// past) the UTC day rollover, making "today" on the server actually
-// tomorrow from the user's perspective.
-$today = (new DateTime('now', new DateTimeZone('America/Chicago')))->format('Y-m-d');
-
-$stmt = $pdo->prepare(
-    "SELECT u.id FROM users u
-     WHERE u.notifications = 1
-       AND NOT EXISTS (
-         SELECT 1 FROM food_entries f WHERE f.user_id = u.id AND f.log_date = ?
-       )"
-);
-$stmt->execute([$today]);
+// Each user's local hour/date is computed from their own IANA timezone
+// (captured on every page load by api/auth/session.php), not the server's
+// UTC clock or any single fixed zone. Only users currently at
+// TARGET_LOCAL_HOUR get checked/sent — since that's true for exactly one
+// hour a day per user, no "already sent today" bookkeeping is needed.
+$stmt = $pdo->query('SELECT id, timezone FROM users WHERE notifications = 1');
+$checkStmt = $pdo->prepare('SELECT 1 FROM food_entries WHERE user_id = ? AND log_date = ? LIMIT 1');
 
 foreach ($stmt->fetchAll() as $row) {
+    try {
+        $tz = new DateTimeZone($row['timezone'] ?: 'UTC');
+    } catch (Exception $e) {
+        $tz = new DateTimeZone('UTC');
+    }
+    $now = new DateTime('now', $tz);
+    if ((int)$now->format('G') !== TARGET_LOCAL_HOUR) continue;
+
+    $checkStmt->execute([$row['id'], $now->format('Y-m-d')]);
+    if ($checkStmt->fetch()) continue;
+
     sendPushToUser($pdo, (int)$row['id'], [
         'title' => 'Your dragon is waiting 🐉',
         'body'  => "You haven't logged any rations today.",

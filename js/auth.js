@@ -23,7 +23,8 @@ function bufferToB64url(buf) {
 // ---- Session check (called on every app page) ----
 
 async function checkAuth() {
-  const r = await fetch('api/auth/session.php');
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const r = await fetch('api/auth/session.php?tz=' + encodeURIComponent(tz));
   const j = await r.json();
   if (!j.ok || !j.data) {
     window.location.replace('login.html');
