@@ -200,12 +200,14 @@ async function loadProfile() {
   // Fetch personalized TDEE from historical data and override display + goal
   const tdeeRes = await fetch('api/tdee.php').then(r => r.json()).catch(() => null);
   if (tdeeRes?.ok && tdeeRes.data?.personalizedTdee) {
-    const { personalizedTdee, confidence, confidenceDays } = tdeeRes.data;
+    const { personalizedTdee, confidence, confidenceDays, underReporting } = tdeeRes.data;
     const tdeeEl = document.getElementById('calc-tdee');
     if (tdeeEl) tdeeEl.textContent = personalizedTdee.toLocaleString() + ' cals';
     const goalEl = document.getElementById('calc-goal');
     if (goalEl) goalEl.textContent = Math.max(1200, Math.round(personalizedTdee - 500)).toLocaleString() + ' cals';
     renderTdeeConfidence(confidence, confidenceDays);
+    const banner = document.getElementById('underreporting-banner');
+    if (banner) banner.style.display = underReporting ? '' : 'none';
   } else {
     renderTdeeConfidence('estimated', 0);
   }

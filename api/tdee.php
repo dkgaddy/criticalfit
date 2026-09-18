@@ -101,6 +101,22 @@ if ($observedTdee < 1000 || $observedTdee > 6000) {
     exit;
 }
 
+// Observed TDEE below BMR (plus a small buffer) is not physiologically
+// plausible — even fully sedentary days include the thermic effect of
+// food and incidental movement on top of resting burn. When the observed
+// math lands here it's almost always under-logged food intake dragging
+// avgCalories down, not a genuinely slower metabolism. Fall back to the
+// initial estimate and flag it so the UI can prompt for better logging.
+if ($observedTdee < $user['bmr'] * 1.05) {
+    json_out([
+        'personalizedTdee' => $initialTdee,
+        'confidence'       => 'estimated',
+        'confidenceDays'   => $entryCount,
+        'underReporting'   => true,
+    ]);
+    exit;
+}
+
 // Step 7 & 8: confidence level and blend weights
 if ($entryCount < 28) {
     $confidence       = 'observed';
@@ -117,5 +133,6 @@ json_out([
     'personalizedTdee' => $personalizedTdee,
     'confidence'       => $confidence,
     'confidenceDays'   => $entryCount,
+    'underReporting'   => false,
 ]);
 exit;
