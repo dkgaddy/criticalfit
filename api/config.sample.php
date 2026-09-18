@@ -10,3 +10,8 @@ define('DB_PASS', 'your_db_password');
 define('RP_NAME',   'Critical Fit');
 define('RP_ID',     'criticalfitapp.com');
 define('RP_ORIGIN', 'https://criticalfitapp.com');
+
+// Generate with vendor/bin/web-push-vapid-gen (see minishlink/web-push docs)
+define('VAPID_PUBLIC_KEY',  'PASTE_YOUR_VAPID_PUBLIC_KEY_HERE');
+define('VAPID_PRIVATE_KEY', 'PASTE_YOUR_VAPID_PRIVATE_KEY_HERE');
+define('VAPID_SUBJECT',     'mailto:you@example.com');

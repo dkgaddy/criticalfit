@@ -16,9 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $stmt->execute([$uid]);
     $row = $stmt->fetch();
     json_out([
-        'theme'         => $row['theme']  ?? 'forest',
-        'music'         => $row['music']  ?? null,
-        'notifications' => !empty($row['notifications']),
+        'theme'          => $row['theme']  ?? 'forest',
+        'music'          => $row['music']  ?? null,
+        'notifications'  => !empty($row['notifications']),
+        'vapidPublicKey' => defined('VAPID_PUBLIC_KEY') ? VAPID_PUBLIC_KEY : null,
     ]);
     exit;
 }

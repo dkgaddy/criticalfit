@@ -84,3 +84,24 @@ self.addEventListener('fetch', e => {
   // Everything else (images, fonts, icons): stale-while-revalidate.
   e.respondWith(staleWhileRevalidate(req));
 });
+
+self.addEventListener('push', e => {
+  const data = e.data ? e.data.json() : {};
+  e.waitUntil(self.registration.showNotification(data.title || 'Critical Fit', {
+    body:  data.body || '',
+    icon:  './images/CriticalFit-icon-192.jpg',
+    badge: './images/CriticalFit-icon-192.jpg',
+    data:  { url: data.url || './index.html' },
+  }));
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = e.notification.data?.url || './index.html';
+  e.waitUntil(
+    clients.matchAll({ type: 'window' }).then(list => {
+      for (const c of list) if (c.url.includes(url) && 'focus' in c) return c.focus();
+      return clients.openWindow(url);
+    })
+  );
+});
