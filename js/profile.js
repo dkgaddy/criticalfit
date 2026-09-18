@@ -212,8 +212,10 @@ async function loadProfile() {
     const goalEl = document.getElementById('calc-goal');
     if (goalEl) goalEl.textContent = Math.max(1200, Math.round(personalizedTdee - 500)).toLocaleString() + ' cals';
     renderTdeeConfidence(confidence, confidenceDays, underReporting);
-    const banner = document.getElementById('underreporting-banner');
-    if (banner) banner.style.display = underReporting ? '' : 'none';
+    const banner  = document.getElementById('underreporting-banner');
+    const divider = document.getElementById('underreporting-divider');
+    if (banner)  banner.style.display  = underReporting ? '' : 'none';
+    if (divider) divider.style.display = underReporting ? '' : 'none';
   } else {
     renderTdeeConfidence('estimated', 0);
   }
