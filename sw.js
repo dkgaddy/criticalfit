@@ -65,6 +65,11 @@ self.addEventListener('fetch', e => {
 
   const url = new URL(req.url);
 
+  // Cross-origin requests (Font Awesome, Google Fonts) go straight to the
+  // browser. A worker's fetch() is bound by the CSP on sw.js (connect-src
+  // 'self'), so proxying them here fails in Safari and breaks icons/fonts.
+  if (url.origin !== self.location.origin) return;
+
   // API calls: always network-first (fall back to cache offline).
   if (url.pathname.includes('/api/')) {
     e.respondWith(networkFirst(req));
