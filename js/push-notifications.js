@@ -9,11 +9,12 @@ function esc(s) {
 }
 
 const SCHEDULE_LABELS = {
-  daily_morning: 'Daily Morning',
-  daily_noon:    'Daily Noon',
-  daily_night:   'Daily Night',
-  weekly:        'Weekly',
-  monthly:       'Monthly',
+  daily_morning:   'Daily Morning',
+  daily_noon:      'Daily Noon',
+  daily_night:     'Daily Night',
+  weekly:          'Weekly',
+  monthly:         'Monthly',
+  daily_unlogged:  'Unlogged Reminder',
 };
 
 // ---- Toast ----

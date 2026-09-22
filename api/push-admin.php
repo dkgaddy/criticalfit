@@ -17,7 +17,10 @@ if (empty($_SESSION['_push_notif_ddl'])) {
     $_SESSION['_push_notif_ddl'] = 1;
 }
 
-const SCHEDULES = ['daily_morning', 'daily_noon', 'daily_night', 'weekly', 'monthly'];
+// 'daily_unlogged' is the DM-editable "haven't logged food today" reminder
+// (cron/send-daily-reminder.php) — a per-user-timezone, conditional send,
+// unlike the plain broadcasts the other five buckets get from cron/push-*.php.
+const SCHEDULES = ['daily_morning', 'daily_noon', 'daily_night', 'weekly', 'monthly', 'daily_unlogged'];
 
 $method = $_SERVER['REQUEST_METHOD'];
 

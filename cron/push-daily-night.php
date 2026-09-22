@@ -3,9 +3,10 @@
 // "Daily Night" notification defined on the DM's Push Notifications admin
 // page (system.html → Push Notifications) to every subscribed user.
 //
-// This is independent of cron/send-daily-reminder.php, which is a separate,
-// conditional "you haven't logged food today" nudge tied to each user's own
-// local evening — not something the DM edits here.
+// This is a different bucket from cron/send-daily-reminder.php's "haven't
+// logged food today" reminder (schedule 'daily_unlogged'), which is also
+// DM-editable but stays conditional and per-user-timezone rather than a
+// plain broadcast — see that script for why it's kept separate.
 if (php_sapi_name() !== 'cli') {
     http_response_code(403);
     exit;
