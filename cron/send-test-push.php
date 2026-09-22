@@ -14,14 +14,9 @@ require_once __DIR__ . '/../api/push-lib.php';
 
 $message = $argv[1] ?? 'This is a Critical Fit test!';
 
-$pdo = db();
-$userIds = $pdo->query('SELECT DISTINCT user_id FROM push_subscriptions')->fetchAll(PDO::FETCH_COLUMN);
-
-foreach ($userIds as $userId) {
-    sendPushToUser($pdo, (int)$userId, [
-        'title' => 'Critical Fit',
-        'body'  => $message,
-        'url'   => './index.html',
-    ]);
-    echo "Sent to user $userId\n";
-}
+$sent = broadcastPush(db(), [
+    'title' => 'Critical Fit',
+    'body'  => $message,
+    'url'   => './index.html',
+]);
+echo "Sent to $sent user(s)\n";

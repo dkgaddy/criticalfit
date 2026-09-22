@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#142019">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Critical Fit — System</title>
+  <title>Critical Fit — Usage Reports</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="images/CriticalFit-icon-180.png">
   <link rel="icon" href="images/CriticalFit-icon-192.jpg" type="image/jpeg">
@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="css/style.css">
   <script src="js/theme.js"></script>
 </head>
-<body id="system-page">
+<body id="usage-reports-page">
 
   <header class="app-header">
     <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu" aria-expanded="false">
@@ -46,20 +46,52 @@
   <main class="journal-page">
 
     <div class="page-heading">
-      <h2 class="page-title">System</h2>
-      <p class="page-sub">Dungeon Master tools</p>
+      <h2 class="page-title">Usage Reports</h2>
+      <p class="page-sub">Dungeon Master view</p>
     </div>
 
-    <div id="system-menu" style="display:flex;flex-direction:column;gap:0.75rem;">
-      <a href="usage-reports.html" class="btn btn-secondary btn-full">
-        <i class="fa-solid fa-chart-column"></i> Usage Reports
-      </a>
-      <a href="push-notifications.html" class="btn btn-secondary btn-full">
-        <i class="fa-solid fa-bell"></i> Push Notifications
-      </a>
-    </div>
+    <!-- Top 20 Users -->
+    <section class="card">
+      <h3 class="card-title">Top 20 Adventurers by Days Logged</h3>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="tbl-users">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Days Logged</th>
+              <th>Guild</th>
+              <th>Last Login</th>
+            </tr>
+          </thead>
+          <tbody id="users-body">
+            <tr><td colspan="5" class="admin-loading">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-    <a href="index.html" class="btn btn-secondary btn-full" style="display:block;margin-top:1rem;">Back to Journal</a>
+    <!-- Recent Traffic -->
+    <section class="card">
+      <h3 class="card-title">Recent Traffic — Last 30 Days</h3>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="tbl-traffic">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>IP Address</th>
+              <th>Pages Visited</th>
+              <th>Passkey</th>
+            </tr>
+          </thead>
+          <tbody id="traffic-body">
+            <tr><td colspan="4" class="admin-loading">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <a href="system.html" class="btn btn-secondary btn-full" style="display:block;margin-top:1rem;">Back to System</a>
 
   </main>
 
@@ -73,7 +105,7 @@
   </div>
 
   <script src="js/auth.js"></script>
-  <script src="js/system.js"></script>
+  <script src="js/usage-reports.js"></script>
   <script src="js/install.js"></script>
   <script src="js/nav.js"></script>
 </body>

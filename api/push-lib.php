@@ -41,3 +41,49 @@ function sendPushToUser(PDO $pdo, int $userId, array $payload): void {
         }
     }
 }
+
+// Sends $payload to every user who has at least one push subscription on
+// file. Used for broadcast-style sends: the "Send Now" ad-hoc form and the
+// per-schedule cron scripts (cron/push-<schedule>.php). Returns the number
+// of users targeted.
+function broadcastPush(PDO $pdo, array $payload): int {
+    $userIds = $pdo->query('SELECT DISTINCT user_id FROM push_subscriptions')->fetchAll(PDO::FETCH_COLUMN);
+    foreach ($userIds as $userId) {
+        sendPushToUser($pdo, (int)$userId, $payload);
+    }
+    return count($userIds);
+}
+
+// Creates the push_notifications table if it doesn't exist yet — lazy DDL,
+// same pattern as push_subscriptions/weight_entries elsewhere in the app.
+// Called from both api/push-admin.php (the DM's management page) and the
+// per-schedule cron scripts, so a schedule can fire even before the DM has
+// ever opened the admin page.
+function ensurePushNotificationsTable(PDO $pdo): void {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS push_notifications (
+        id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        title      VARCHAR(255) NOT NULL,
+        message    VARCHAR(500) NOT NULL,
+        schedule   ENUM('daily_morning','daily_noon','daily_night','weekly','monthly') NOT NULL,
+        active     TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )");
+}
+
+// Sends every active push_notifications row for $schedule to every
+// subscribed user. Called by cron/push-<schedule>.php, one per schedule
+// bucket (daily_morning, daily_noon, daily_night, weekly, monthly) — each
+// cron job just needs to run at the time the DM wants that bucket to fire.
+function sendScheduledPushes(PDO $pdo, string $schedule): void {
+    ensurePushNotificationsTable($pdo);
+    $stmt = $pdo->prepare('SELECT title, message FROM push_notifications WHERE schedule = ? AND active = 1');
+    $stmt->execute([$schedule]);
+    foreach ($stmt->fetchAll() as $row) {
+        broadcastPush($pdo, [
+            'title' => $row['title'],
+            'body'  => $row['message'],
+            'url'   => './index.html',
+        ]);
+    }
+}

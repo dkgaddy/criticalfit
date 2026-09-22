@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#142019">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Critical Fit — Push Notifications</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="images/CriticalFit-icon-180.png">
+  <link rel="icon" href="images/CriticalFit-icon-192.jpg" type="image/jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="push-notifications-page">
+
+  <header class="app-header">
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu" aria-expanded="false">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <img src="images/CriticalFit-1line-logo-small.png" alt="Critical Fit" class="header-logo">
+  </header>
+
+  <!-- ======= Hamburger Menu ======= -->
+  <div class="ham-menu" id="ham-menu" hidden>
+    <a href="info.html" class="ham-item">
+      <i class="fa-solid fa-circle-info"></i> Info
+    </a>
+    <button class="ham-item" id="nav-install">
+      <i class="fa-solid fa-wand-magic-sparkles"></i> Install
+    </button>
+    <a href="guide.html" class="ham-item">
+      <i class="fa-solid fa-book-open"></i> Guide
+    </a>
+    <button class="ham-item" id="ham-settings">
+      <i class="fa-solid fa-gear"></i> Settings
+    </button>
+  </div>
+
+  <main class="journal-page">
+
+    <div class="page-heading">
+      <h2 class="page-title">Push Notifications</h2>
+      <p class="page-sub">Dungeon Master view</p>
+    </div>
+
+    <!-- Scheduled Notifications -->
+    <section class="card">
+      <h3 class="card-title">Scheduled Notifications</h3>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="tbl-notifications">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Schedule</th>
+              <th class="admin-td-center">Active</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="notifications-body">
+            <tr><td colspan="4" class="admin-loading">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <button class="btn btn-primary btn-full" id="new-notification-btn" style="margin-top:1rem;">
+        <i class="fa-solid fa-plus"></i> New Notification
+      </button>
+    </section>
+
+    <!-- Send Now -->
+    <section class="card">
+      <h3 class="card-title">Send Now</h3>
+      <div class="form-group">
+        <label class="form-label" for="sendnow-title">Title</label>
+        <input class="form-input" id="sendnow-title" type="text" placeholder="Critical Fit" maxlength="255">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="sendnow-message">Message</label>
+        <textarea class="form-input" id="sendnow-message" rows="3" maxlength="500" placeholder="Type an ad-hoc message to send immediately…"></textarea>
+      </div>
+      <button class="btn btn-primary btn-full" id="sendnow-btn">
+        <i class="fa-solid fa-paper-plane"></i> Send Now
+      </button>
+    </section>
+
+    <a href="system.html" class="btn btn-secondary btn-full" style="display:block;margin-top:1rem;">Back to System</a>
+
+  </main>
+
+  <!-- ======= Create/Edit Notification Modal ======= -->
+  <div id="notification-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Push Notification">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <h2 class="modal-title" id="notification-modal-title">New Notification</h2>
+        <button class="modal-close-btn" id="notification-close" aria-label="Close">✕</button>
+      </div>
+      <div class="activity-form-wrap">
+        <div class="form-group">
+          <label class="form-label" for="notification-title">Title</label>
+          <input class="form-input" id="notification-title" type="text" maxlength="255">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="notification-message">Message</label>
+          <textarea class="form-input" id="notification-message" rows="3" maxlength="500"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="notification-schedule">Schedule</label>
+          <div class="form-select-wrap">
+            <select class="form-select" id="notification-schedule">
+              <option value="daily_morning">Daily Morning</option>
+              <option value="daily_noon">Daily Noon</option>
+              <option value="daily_night">Daily Night</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+            <i class="fa-solid fa-chevron-down form-select-icon" aria-hidden="true"></i>
+          </div>
+        </div>
+        <div class="setting-row">
+          <span class="setting-row-label">Active</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="notification-active" checked>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <button class="log-it-btn food-log-btn-full" id="notification-save-btn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= Delete Confirm ======= -->
+  <div class="confirm-overlay" id="delete-confirm-modal" role="dialog" aria-modal="true">
+    <div class="confirm-sheet">
+      <p class="confirm-title">Delete Notification</p>
+      <p class="confirm-body">Delete "<span id="delete-confirm-name"></span>"? This cannot be undone.</p>
+      <div class="confirm-actions">
+        <button class="btn btn-secondary" id="delete-confirm-cancel">Cancel</button>
+        <button class="btn btn-danger"    id="delete-confirm-yes">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= Toast ======= -->
+  <div id="push-admin-toast" class="admin-toast"></div>
+
+  <!-- ======= Guild Gate Popup ======= -->
+  <div class="guild-gate-overlay" id="guild-gate-modal" role="dialog" aria-modal="true">
+    <div class="guild-gate-sheet">
+      <i class="fa-solid fa-ring guild-gate-icon"></i>
+      <p class="guild-gate-msg">Join the Guild for more exciting features like this!</p>
+      <button class="btn btn-primary" id="guild-gate-dismiss">OK</button>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/push-notifications.js"></script>
+  <script src="js/install.js"></script>
+  <script src="js/nav.js"></script>
+</body>
+</html>

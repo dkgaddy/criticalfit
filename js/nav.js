@@ -109,7 +109,7 @@ function _addSystemInfoLink() {
   a.href      = 'system.html';
   a.className = 'ham-item';
   a.id        = 'nav-system-info';
-  a.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i> System Info';
+  a.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i> System';
   menu.appendChild(a);
 }
 
