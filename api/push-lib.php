@@ -64,7 +64,7 @@ function ensurePushNotificationsTable(PDO $pdo): void {
         id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         title      VARCHAR(255) NOT NULL,
         message    VARCHAR(500) NOT NULL,
-        schedule   ENUM('daily_morning','daily_noon','daily_night','weekly','monthly') NOT NULL,
+        schedule   ENUM('daily_morning','daily_noon','daily_night','weekly','monthly','daily_unlogged') NOT NULL,
         active     TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
