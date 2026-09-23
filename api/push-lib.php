@@ -56,34 +56,42 @@ function broadcastPush(PDO $pdo, array $payload): int {
 
 // Creates the push_notifications table if it doesn't exist yet — lazy DDL,
 // same pattern as push_subscriptions/weight_entries elsewhere in the app.
-// Called from both api/push-admin.php (the DM's management page) and the
-// per-schedule cron scripts, so a schedule can fire even before the DM has
-// ever opened the admin page.
+// There's no shared "schedule" concept here: every notification owns its own
+// cron script and delivery logic (simple broadcast, per-user-timezone
+// conditional, whatever it needs). This table is purely a management layer —
+// the DM can see what exists, edit its copy, and flip it active/inactive.
+// schedule_description is free text set by the code that registers the
+// notification (see registerPushNotification()), shown read-only in the UI.
 function ensurePushNotificationsTable(PDO $pdo): void {
     $pdo->exec("CREATE TABLE IF NOT EXISTS push_notifications (
-        id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        title      VARCHAR(255) NOT NULL,
-        message    VARCHAR(500) NOT NULL,
-        schedule   ENUM('daily_morning','daily_noon','daily_night','weekly','monthly','daily_unlogged') NOT NULL,
-        active     TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        id                   INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        slug                 VARCHAR(64) NOT NULL UNIQUE,
+        title                VARCHAR(255) NOT NULL,
+        message              VARCHAR(500) NOT NULL,
+        schedule_description VARCHAR(255) NOT NULL,
+        active               TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+        created_at           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )");
 }
 
-// Sends every active push_notifications row for $schedule to every
-// subscribed user. Called by cron/push-<schedule>.php, one per schedule
-// bucket (daily_morning, daily_noon, daily_night, weekly, monthly) — each
-// cron job just needs to run at the time the DM wants that bucket to fire.
-function sendScheduledPushes(PDO $pdo, string $schedule): void {
-    ensurePushNotificationsTable($pdo);
-    $stmt = $pdo->prepare('SELECT title, message FROM push_notifications WHERE schedule = ? AND active = 1');
-    $stmt->execute([$schedule]);
-    foreach ($stmt->fetchAll() as $row) {
-        broadcastPush($pdo, [
-            'title' => $row['title'],
-            'body'  => $row['message'],
-            'url'   => './index.html',
-        ]);
-    }
+// Registers a notification's row the first time its cron script runs, so it
+// shows up on the admin page with no manual DB step. No-ops (INSERT IGNORE)
+// once the slug exists, so it never clobbers a title/message/active the DM
+// has since edited — $title/$message/$scheduleDescription here are only the
+// initial defaults.
+function registerPushNotification(PDO $pdo, string $slug, string $title, string $message, string $scheduleDescription): void {
+    $pdo->prepare(
+        'INSERT IGNORE INTO push_notifications (slug, title, message, schedule_description, active) VALUES (?, ?, ?, ?, 1)'
+    )->execute([$slug, $title, $message, $scheduleDescription]);
+}
+
+// Fetches a notification's current title/message by its internal slug —
+// only if the DM has it switched on. Returns null if it's inactive, so
+// callers can just skip sending without any extra check.
+function activePushNotification(PDO $pdo, string $slug): ?array {
+    $stmt = $pdo->prepare('SELECT title, message FROM push_notifications WHERE slug = ? AND active = 1');
+    $stmt->execute([$slug]);
+    $row = $stmt->fetch();
+    return $row ?: null;
 }

@@ -12,22 +12,22 @@ if (php_sapi_name() !== 'cli') {
 require_once __DIR__ . '/../api/db.php';
 require_once __DIR__ . '/../api/push-lib.php';
 
-const TARGET_LOCAL_HOUR   = 19; // 7 PM in the user's own timezone
-const REMINDER_SCHEDULE   = 'daily_unlogged'; // its own bucket — see api/push-admin.php
+const TARGET_LOCAL_HOUR = 19; // 7 PM in the user's own timezone
+const SLUG = 'unlogged_reminder';
 
 $pdo = db();
 ensurePushNotificationsTable($pdo);
+registerPushNotification(
+    $pdo, SLUG,
+    'Your dragon is waiting 🐉',
+    "You haven't logged any rations today.",
+    "Hourly check — sends at each user's local 7 PM if they haven't logged a ration yet today"
+);
 
-// The title/message (and whether this reminder runs at all) are managed by
-// the DM on the Push Notifications admin page like any other notification —
-// nothing here is hardcoded. It's tagged with its own schedule slug so it
-// never collides with the plain broadcasts in cron/push-daily-night.php etc.,
-// which don't carry this reminder's per-user-timezone + "haven't logged yet"
-// conditions. Support (rare) multiple active rows of this type: send each.
-$remStmt = $pdo->prepare('SELECT title, message FROM push_notifications WHERE schedule = ? AND active = 1');
-$remStmt->execute([REMINDER_SCHEDULE]);
-$reminders = $remStmt->fetchAll();
-if (!$reminders) exit; // nothing active — skip the per-user work below entirely
+// The DM manages this notification's title/message and active/inactive
+// state on the Push Notifications admin page — nothing here is hardcoded.
+$notification = activePushNotification($pdo, SLUG);
+if (!$notification) exit; // switched off — skip the per-user work below entirely
 
 // Each user's local hour/date is computed from their own IANA timezone
 // (captured on every page load by api/auth/session.php), not the server's
@@ -49,11 +49,9 @@ foreach ($stmt->fetchAll() as $row) {
     $checkStmt->execute([$row['id'], $now->format('Y-m-d')]);
     if ($checkStmt->fetch()) continue;
 
-    foreach ($reminders as $reminder) {
-        sendPushToUser($pdo, (int)$row['id'], [
-            'title' => $reminder['title'],
-            'body'  => $reminder['message'],
-            'url'   => './index.html',
-        ]);
-    }
+    sendPushToUser($pdo, (int)$row['id'], [
+        'title' => $notification['title'],
+        'body'  => $notification['message'],
+        'url'   => './index.html',
+    ]);
 }

@@ -68,9 +68,7 @@
           </tbody>
         </table>
       </div>
-      <button class="btn btn-primary btn-full" id="new-notification-btn" style="margin-top:1rem;">
-        <i class="fa-solid fa-plus"></i> New Notification
-      </button>
+      <p class="setting-note">New notifications are added by a code change, not from this page.</p>
     </section>
 
     <!-- Send Now -->
@@ -93,15 +91,16 @@
 
   </main>
 
-  <!-- ======= Create/Edit Notification Modal ======= -->
-  <div id="notification-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Push Notification">
+  <!-- ======= Edit Notification Modal ======= -->
+  <div id="notification-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Edit Notification">
     <div class="modal-sheet">
       <div class="modal-handle"></div>
       <div class="modal-header">
-        <h2 class="modal-title" id="notification-modal-title">New Notification</h2>
+        <h2 class="modal-title">Edit Notification</h2>
         <button class="modal-close-btn" id="notification-close" aria-label="Close">✕</button>
       </div>
       <div class="activity-form-wrap">
+        <p class="setting-note" id="notification-schedule-display"></p>
         <div class="form-group">
           <label class="form-label" for="notification-title">Title</label>
           <input class="form-input" id="notification-title" type="text" maxlength="255">
@@ -109,20 +108,6 @@
         <div class="form-group">
           <label class="form-label" for="notification-message">Message</label>
           <textarea class="form-input" id="notification-message" rows="3" maxlength="500"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="notification-schedule">Schedule</label>
-          <div class="form-select-wrap">
-            <select class="form-select" id="notification-schedule">
-              <option value="daily_morning">Daily Morning</option>
-              <option value="daily_noon">Daily Noon</option>
-              <option value="daily_night">Daily Night</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-              <option value="daily_unlogged">Unlogged Reminder</option>
-            </select>
-            <i class="fa-solid fa-chevron-down form-select-icon" aria-hidden="true"></i>
-          </div>
         </div>
         <div class="setting-row">
           <span class="setting-row-label">Active</span>
@@ -132,18 +117,6 @@
           </label>
         </div>
         <button class="log-it-btn food-log-btn-full" id="notification-save-btn">Save</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ======= Delete Confirm ======= -->
-  <div class="confirm-overlay" id="delete-confirm-modal" role="dialog" aria-modal="true">
-    <div class="confirm-sheet">
-      <p class="confirm-title">Delete Notification</p>
-      <p class="confirm-body">Delete "<span id="delete-confirm-name"></span>"? This cannot be undone.</p>
-      <div class="confirm-actions">
-        <button class="btn btn-secondary" id="delete-confirm-cancel">Cancel</button>
-        <button class="btn btn-danger"    id="delete-confirm-yes">Delete</button>
       </div>
     </div>
   </div>
