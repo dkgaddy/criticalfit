@@ -46,7 +46,7 @@
 
   <main class="journal-page">
 
-    <!-- Range selector -->
+    <!-- Range selector + cumulative Life Points -->
     <div class="progress-range-row">
       <div class="form-select-wrap" style="max-width:220px;">
         <select class="form-select" id="progress-range">
@@ -57,6 +57,11 @@
           <option value="365">Last Year</option>
         </select>
         <i class="fa-solid fa-chevron-down form-select-icon" aria-hidden="true"></i>
+      </div>
+      <div class="life-points-box" id="progress-lp-box">
+        <span class="lp-label">Life Points</span>
+        <span class="lp-value" id="progress-lp-value">—</span>
+        <img class="lp-icon" id="progress-lp-icon" src="images/FireOff.png" alt="">
       </div>
     </div>
 

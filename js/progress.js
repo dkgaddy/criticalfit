@@ -316,6 +316,24 @@ function drawChart(container, dates, datasets, opts = {}) {
   }
 }
 
+// ---- Cumulative Life Points (upper-right box, mirrors the Journal's) ----
+
+const LIFE_POINTS_DAILY_GOAL = 500; // matches the Journal's per-day "hot" threshold
+
+function renderCumulativeLifePoints(lifePointsArr, days) {
+  const lpVal  = document.getElementById('progress-lp-value');
+  const lpIcon = document.getElementById('progress-lp-icon');
+  if (!lpVal || !lpIcon) return;
+
+  // Summing, not averaging, so a day with nothing logged just contributes 0.
+  const total = lifePointsArr.reduce((sum, v) => sum + (v || 0), 0);
+  const hot   = total >= LIFE_POINTS_DAILY_GOAL * days;
+
+  lpVal.textContent = (total < 0 ? '−' : '') + Math.abs(Math.round(total)).toLocaleString();
+  lpVal.className   = 'lp-value' + (total < 0 ? ' lp-negative' : '');
+  lpIcon.src        = hot ? 'images/FireOn.png' : 'images/FireOff.png';
+}
+
 // ---- Fetch + render ----
 
 async function loadProgress(days) {
@@ -368,6 +386,8 @@ async function loadProgress(days) {
   drawChart(document.getElementById('chart-lifepoints'), dates,
     [{ values: lifePointsArr, color: '#E8A020' }],
     { zeroLine: true, refLines: [{ value: 500, color: '#E03535', label: 'You should be losing weight above this line' }] });
+
+  renderCumulativeLifePoints(lifePointsArr, days);
 
   drawChart(document.getElementById('chart-energy-stored'), dates,
     [{ values: caloriesIn, color: '#6B9E6B' }]);

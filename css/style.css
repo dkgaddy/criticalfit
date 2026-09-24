@@ -1994,7 +1994,9 @@ input[type=number] { -moz-appearance: textfield; }
 
 .progress-range-row {
   display: flex;
-  justify-content: flex-start;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
   margin-bottom: 1rem;
 }
 
