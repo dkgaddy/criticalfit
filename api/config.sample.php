@@ -16,8 +16,16 @@ define('VAPID_PUBLIC_KEY',  'PASTE_YOUR_VAPID_PUBLIC_KEY_HERE');
 define('VAPID_PRIVATE_KEY', 'PASTE_YOUR_VAPID_PRIVATE_KEY_HERE');
 define('VAPID_SUBJECT',     'mailto:you@example.com');
 
-// Stripe (Guild Membership billing) — see Stripe Dashboard → Developers
+// Stripe (Guild Membership billing) — see Stripe Dashboard → Developers.
+// Code always reads the plain STRIPE_* names below. Keep sandbox (test mode)
+// values here while building/testing; stash live-mode values under the
+// *_LIVE names until you're ready to cut over, then swap them in.
 define('STRIPE_SECRET_KEY',        'PASTE_YOUR_STRIPE_SECRET_KEY_HERE');
 define('STRIPE_WEBHOOK_SECRET',    'PASTE_YOUR_STRIPE_WEBHOOK_SIGNING_SECRET_HERE');
 define('STRIPE_PRICE_ID_ANNUAL',   'PASTE_YOUR_STRIPE_ANNUAL_PRICE_ID_HERE');
 define('STRIPE_PRICE_ID_LIFETIME', 'PASTE_YOUR_STRIPE_LIFETIME_PRICE_ID_HERE');
+
+define('STRIPE_SECRET_KEY_LIVE',        'PASTE_YOUR_LIVE_STRIPE_SECRET_KEY_HERE');
+define('STRIPE_WEBHOOK_SECRET_LIVE',    'PASTE_YOUR_LIVE_STRIPE_WEBHOOK_SIGNING_SECRET_HERE');
+define('STRIPE_PRICE_ID_ANNUAL_LIVE',   'PASTE_YOUR_LIVE_STRIPE_ANNUAL_PRICE_ID_HERE');
+define('STRIPE_PRICE_ID_LIFETIME_LIVE', 'PASTE_YOUR_LIVE_STRIPE_LIFETIME_PRICE_ID_HERE');
