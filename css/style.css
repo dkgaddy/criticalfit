@@ -84,7 +84,8 @@
 [data-theme="fatburn-forest"],
 [data-theme="lake-nightrun"],
 [data-theme="mount-protein"],
-[data-theme="recovery-tavern"] {
+[data-theme="recovery-tavern"],
+[data-theme="grove-of-endurance"] {
   --theme-gradient: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25));
   --modal-bg:    #101214;
   --header-bg:   rgba(0, 0, 0, 0.62);
@@ -127,6 +128,12 @@
 [data-theme="recovery-tavern"] .splash {
   background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
               url('../images/themes/RecoveryTavern.jpg') center / cover no-repeat;
+  background-attachment: scroll;
+}
+[data-theme="grove-of-endurance"] body,
+[data-theme="grove-of-endurance"] .splash {
+  background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
+              url('../images/themes/GroveOfEndurance.jpg') center / cover no-repeat;
   background-attachment: scroll;
 }
 
