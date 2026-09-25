@@ -27,6 +27,7 @@ if ($method === 'GET') {
         'dailyGoal'   => $row['daily_goal'] !== null ? (int)$row['daily_goal'] : null,
         'isPremium'   => !empty($row['is_premium']),
         'isDm'        => !empty($row['is_dm']),
+        'guildPlan'   => $row['guild_plan'],
     ]);
 
 } elseif ($method === 'POST') {

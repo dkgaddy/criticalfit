@@ -148,38 +148,128 @@ function setToggleGroup(groupEl, value) {
 
 // ---- Load / Save ----
 
-function renderGuildCard(isPremium) {
+// ---- Toast ----
+
+let _profileToastTimer = null;
+function showProfileToast(msg) {
+  const toast = document.getElementById('profile-toast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(_profileToastTimer);
+  _profileToastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+}
+
+// ---- Guild purchase / billing actions ----
+
+async function startGuildCheckout(plan, btn) {
+  if (btn) { btn.disabled = true; }
+  const r = await fetch('api/stripe-checkout.php', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ plan }),
+  });
+  const j = await r.json();
+  if (!j.ok) {
+    showProfileToast(j.error || 'Could not start checkout');
+    if (btn) btn.disabled = false;
+    return;
+  }
+  window.location.href = j.data.url;
+}
+
+async function openBillingPortal(btn) {
+  if (btn) { btn.disabled = true; }
+  const r = await fetch('api/stripe-portal.php', { method: 'POST' });
+  const j = await r.json();
+  if (!j.ok) {
+    showProfileToast(j.error || 'Could not open billing portal');
+    if (btn) btn.disabled = false;
+    return;
+  }
+  window.location.href = j.data.url;
+}
+
+// After Stripe redirects back from Checkout, confirm the purchase server-side
+// (api/stripe-confirm.php) so the Guild card updates immediately rather than
+// waiting on the webhook, which is the durable path for everything after
+// this moment (renewals, cancellations, refunds).
+async function handleCheckoutReturn() {
+  const params   = new URLSearchParams(window.location.search);
+  const checkout = params.get('checkout');
+  if (!checkout) return;
+
+  if (checkout === 'success') {
+    const sessionId = params.get('session_id');
+    if (sessionId) {
+      const r = await fetch(`api/stripe-confirm.php?session_id=${encodeURIComponent(sessionId)}`);
+      const j = await r.json();
+      showProfileToast(
+        j.ok && j.data.applied
+          ? (j.data.plan === 'lifetime' ? 'Welcome to the Guild — Lifetime!' : 'Welcome to the Guild!')
+          : 'Payment received — finishing setup…'
+      );
+      await loadProfile();
+    }
+  } else if (checkout === 'cancelled') {
+    showProfileToast('Checkout cancelled');
+  }
+
+  // Clean the query string so refreshing the page doesn't re-trigger this.
+  history.replaceState(null, '', window.location.pathname);
+}
+
+// ---- Guild card ----
+
+function renderGuildCard(isPremium, guildPlan) {
   const el = document.getElementById('guild-content');
   if (!el) return;
-  if (isPremium) {
+
+  if (isPremium && guildPlan === 'lifetime') {
+    el.innerHTML = `
+      <div class="guild-active">
+        <i class="fa-solid fa-ring guild-crown"></i>
+        <p class="guild-active-title">Guild Member — Lifetime</p>
+      </div>
+    `;
+    return;
+  }
+
+  if (isPremium && guildPlan === 'annual') {
     el.innerHTML = `
       <div class="guild-active">
         <i class="fa-solid fa-ring guild-crown"></i>
         <p class="guild-active-title">Guild Member</p>
       </div>
+      <button class="btn btn-secondary btn-full" id="guild-manage-btn" style="margin-top:0.85rem;">Manage Membership</button>
+      <button class="btn btn-primary btn-full" id="guild-upgrade-btn" style="margin-top:0.6rem;">Upgrade to Lifetime — $69.99</button>
     `;
-  } else {
-    el.innerHTML = `
-      <p class="guild-join-heading">Join the Guild today to unlock these features:</p>
-      <ul class="guild-features">
-        <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Wizard Ration Search</strong> — restaurant &amp; branded food items with suggested servings</div></li>
-        <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Advanced Charting</strong> — track up to a year's worth of progress</div></li>
-        <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Build Meals</strong> — log regular food rations in custom made meals</div></li>
-        <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Custom Themes and Music</strong> — Choose from a myriad of colors, scenes, and background music</div></li>
-        <li><i class="fa-solid fa-ring guild-bullet"></i><div>Get exclusive fitness suggestions</div></li>
-      </ul>
-      <button class="btn btn-primary btn-full" disabled style="opacity:0.45;cursor:not-allowed">
-        Join the Guild — Coming Soon
-      </button>
-    `;
+    document.getElementById('guild-manage-btn')?.addEventListener('click', e => openBillingPortal(e.currentTarget));
+    document.getElementById('guild-upgrade-btn')?.addEventListener('click', e => startGuildCheckout('lifetime', e.currentTarget));
+    return;
   }
+
+  el.innerHTML = `
+    <p class="guild-join-heading">Join the Guild today to unlock these features:</p>
+    <ul class="guild-features">
+      <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Wizard Ration Search</strong> — restaurant &amp; branded food items with suggested servings</div></li>
+      <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Advanced Charting</strong> — track up to a year's worth of progress</div></li>
+      <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Build Meals</strong> — log regular food rations in custom made meals</div></li>
+      <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Custom Themes and Music</strong> — Choose from a myriad of colors, scenes, and background music</div></li>
+      <li><i class="fa-solid fa-ring guild-bullet"></i><div>Get exclusive fitness suggestions</div></li>
+    </ul>
+    <button class="btn btn-primary btn-full" id="guild-join-annual-btn">Join Annually — $29.99/yr</button>
+    <button class="btn btn-secondary btn-full" id="guild-join-lifetime-btn" style="margin-top:0.6rem;">Go Lifetime — $69.99</button>
+  `;
+  document.getElementById('guild-join-annual-btn')?.addEventListener('click', e => startGuildCheckout('annual', e.currentTarget));
+  document.getElementById('guild-join-lifetime-btn')?.addEventListener('click', e => startGuildCheckout('lifetime', e.currentTarget));
 }
 
 async function loadProfile() {
   const p = await store.getUser();
   if (!p) return;
 
-  renderGuildCard(p.isPremium ?? false);
+  renderGuildCard(p.isPremium ?? false, p.guildPlan ?? null);
 
   currentUnit     = p.unit     || 'imperial';
   currentGender   = p.gender   || 'male';
@@ -260,7 +350,7 @@ async function saveProfile() {
 
 // ---- Init ----
 
-function initProfile() {
+async function initProfile() {
   document.querySelectorAll('.unit-btn').forEach(btn =>
     btn.addEventListener('click', () => toggleUnits(btn.dataset.unit))
   );
@@ -290,12 +380,13 @@ function initProfile() {
 
   document.getElementById('save-profile').addEventListener('click', saveProfile);
 
-  loadProfile();
+  await loadProfile();
+  await handleCheckoutReturn();
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (document.getElementById('profile-page')) {
     await checkAuth();
-    initProfile();
+    await initProfile();
   }
 });
