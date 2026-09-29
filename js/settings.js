@@ -61,7 +61,7 @@ async function initSettings() {
   const j = await r.json();
   if (!j.ok) return;
 
-  const { theme, music, notifications, vapidPublicKey } = j.data;
+  const { theme, notifications, vapidPublicKey } = j.data;
 
   // Theme
   const themeEl = document.getElementById('setting-theme');
@@ -70,21 +70,6 @@ async function initSettings() {
     themeEl.addEventListener('change', function () {
       applyTheme(themeEl.value);
       saveSettingField({ theme: themeEl.value });
-    });
-  }
-
-  // Music
-  const musicEl = document.getElementById('setting-music');
-  if (musicEl) {
-    musicEl.value = music || '';
-    musicEl.addEventListener('change', function () {
-      const track = musicEl.value || null;
-      if (track) {
-        startMusic(track);
-      } else {
-        stopMusic();
-      }
-      saveSettingField({ music: track });
     });
   }
 
