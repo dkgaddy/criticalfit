@@ -13,17 +13,17 @@ async function isGuildMember() {
     _guildStatus = cachedUser.isPremium === true;
     return _guildStatus;
   }
-  // Session cache so we only hit the API once per browser session
-  const stored = sessionStorage.getItem('cfGuildMember');
-  if (stored !== null) {
-    _guildStatus = stored === 'true';
-    return _guildStatus;
-  }
+  // No sessionStorage cache here on purpose: it used to persist across page
+  // navigations within the same tab, so once it cached 'false' it stayed
+  // stale for the rest of the session even after a purchase or an
+  // admin-granted upgrade — blocking Settings/Meals from the hamburger menu
+  // on every page except the Journal (which always re-fetches fresh via
+  // cachedUser). _guildStatus above still dedupes repeat calls within a
+  // single page load; that's all the caching this needs.
   try {
     const r = await fetch('api/user.php');
     const j = await r.json();
     _guildStatus = j.ok && j.data?.isPremium === true;
-    sessionStorage.setItem('cfGuildMember', String(_guildStatus));
   } catch {
     _guildStatus = false;
   }
