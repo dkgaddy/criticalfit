@@ -35,6 +35,7 @@ function shapeQuest(PDO $pdo, int $uid, array $row, bool $full): array {
         'flavor'      => $row['flavor'],
         'durationMin' => (int)$row['duration_min'],
         'status'      => $row['status'],
+        'startedAtMs' => $row['started_at'] ? strtotime($row['started_at'] . ' UTC') * 1000 : null,
         'locked'      => !$full,
     ];
 
@@ -124,7 +125,12 @@ if ($method === 'POST') {
 
     } elseif ($action === 'begin') {
         if ($row['status'] !== 'ready') { json_err('Quest already started'); exit; }
-        $pdo->prepare("UPDATE daily_quests SET status = 'active', started_at = NOW() WHERE id = ?")->execute([$row['id']]);
+        // gmdate(), not SQL NOW() — NOW() is in the DB server's configured
+        // timezone, which this app never pins, so a naive read-back would be
+        // ambiguous. Writing UTC explicitly means shapeQuest() below can
+        // convert it to a Unix ms timestamp unambiguously for the client's
+        // timer math.
+        $pdo->prepare("UPDATE daily_quests SET status = 'active', started_at = ? WHERE id = ?")->execute([gmdate('Y-m-d H:i:s'), $row['id']]);
 
     } elseif ($action === 'complete') {
         if ($row['status'] !== 'active') { json_err('Quest is not active'); exit; }

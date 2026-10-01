@@ -256,7 +256,7 @@ function renderGuildCard(isPremium, guildPlan) {
       <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Advanced Charting</strong> — track up to a year's worth of progress</div></li>
       <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Build Meals</strong> — log regular food rations in custom made meals</div></li>
       <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Custom Themes</strong> — Choose from a myriad of colors and scenes</div></li>
-      <li><i class="fa-solid fa-ring guild-bullet"></i><div>Get exclusive fitness suggestions</div></li>
+      <li><i class="fa-solid fa-ring guild-bullet"></i><div><strong>Daily Quests</strong> — 15-minute home circuits matched to your gear and level</div></li>
     </ul>
     <button class="btn btn-primary btn-full" id="guild-join-annual-btn">Join Annually — $29.99/yr</button>
     <button class="btn btn-secondary btn-full" id="guild-join-lifetime-btn" style="margin-top:0.6rem;">Go Lifetime — $69.99</button>

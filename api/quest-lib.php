@@ -539,6 +539,12 @@ function generateQuestContent(int $userId, string $localDate, string $dayType, i
 // historical quests too, instead of freezing a snapshot in the DB.
 function resolveStation(string $exerciseId, string $difficulty): array {
     $ex = QUEST_EXERCISES[$exerciseId];
+    // Flattened union of every item across the exercise's equipment OR-groups
+    // — just enough for the Journal card's "equipment icons" (spec §5.1),
+    // not the AND/OR group structure the generator itself needs.
+    $equipmentItems = [];
+    foreach ($ex['equipment'] as $group) $equipmentItems = array_merge($equipmentItems, $group);
+
     return [
         'exerciseId' => $exerciseId,
         'name'       => $ex['name'],
@@ -548,6 +554,7 @@ function resolveStation(string $exerciseId, string $difficulty): array {
         'perSide'    => !empty($ex['perSide']),
         'cue'        => $ex['cue'],
         'details'    => $ex['details'],
+        'equipment'  => array_values(array_unique($equipmentItems)),
     ];
 }
 
