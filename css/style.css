@@ -3249,10 +3249,17 @@ body.quest-active-mode .ham-menu { display: none !important; }
   margin-bottom: 0.6rem;
 }
 
+/* Keeps the fire icon and number locked on one line — .quest-num-value is
+   plain inline elsewhere (Profile's Quest Numbers card), so this is scoped
+   to the id rather than changing that shared class. */
+#qv-life-points {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .qv-lp-icon {
   width: 20px;
   height: 20px;
   object-fit: contain;
-  vertical-align: middle;
-  margin-left: 0.3rem;
 }
