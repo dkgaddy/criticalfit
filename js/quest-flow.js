@@ -188,8 +188,8 @@ function renderBriefing() {
     : 'No record yet for this quest type.';
 
   const rerollBtn = document.getElementById('qb-reroll-btn');
-  rerollBtn.textContent = `Reroll (${quest.rerollsRemaining} left)`;
-  rerollBtn.disabled    = quest.rerollsRemaining <= 0 || quest.status !== 'ready';
+  document.getElementById('qb-reroll-label').textContent = `Reroll for a different quest (${quest.rerollsRemaining} left)`;
+  rerollBtn.disabled = quest.rerollsRemaining <= 0 || quest.status !== 'ready';
 
   document.getElementById('qb-begin-btn').disabled = quest.status !== 'ready';
 }

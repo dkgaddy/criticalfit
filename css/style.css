@@ -3094,6 +3094,20 @@ input[type=number] { -moz-appearance: textfield; }
   gap: 0.6rem;
 }
 
+.quest-reroll-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.quest-reroll-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 /* ---- Active Quest: readable from across the room ---- */
 
 body.quest-active-mode .ham-menu { display: none !important; }
