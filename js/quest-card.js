@@ -83,6 +83,22 @@ async function loadQuestCard() {
     const j = await r.json();
     if (j.ok) renderQuestCard(j.data);
   } catch (e) { /* Journal still works without the quest card */ }
+  applyQuestCardDateState();
+}
+
+// Quests only ever concern "today" — the card's own content never changes
+// based on which day is being viewed, so viewing a past/future day on the
+// Journal just disables the button rather than re-fetching anything. Called
+// here and again from app.js's shiftDay() whenever the viewed day changes.
+function applyQuestCardDateState() {
+  const btn = document.getElementById('quest-card-cta');
+  if (!btn) return;
+
+  const today = typeof viewingDate === 'undefined' || typeof todayKey !== 'function' || viewingDate === todayKey();
+  btn.disabled      = !today;
+  btn.title         = today ? '' : "Quests only apply to today — switch back to today's date first.";
+  btn.style.opacity = today ? '' : '0.45';
+  btn.style.cursor  = today ? '' : 'not-allowed';
 }
 
 document.addEventListener('DOMContentLoaded', () => {

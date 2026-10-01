@@ -660,6 +660,7 @@ async function shiftDay(delta) {
   renderEnergyBalance(summary, cachedUser);
   renderEnergyUsed();
   renderJournalEntries(food, exercise, cachedWeight);
+  if (typeof applyQuestCardDateState === 'function') applyQuestCardDateState();
 }
 
 // ---- Home Screen ----

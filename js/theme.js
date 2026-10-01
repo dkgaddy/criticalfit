@@ -138,6 +138,35 @@ function initMusicRotation() {
   }
 }
 
+// ---- Quest music override ----
+// Most of the rotation is chill; Spinning Elves is the one upbeat track, so
+// it plays on loop for the duration of an Active Quest regardless of where
+// the normal rotation was. The rotation's own sessionStorage bookkeeping is
+// left untouched the whole time, so exitQuestMusic() just resumes it at
+// wherever it would naturally be by now (same wall-clock-elapsed logic used
+// everywhere else here) — no separate "paused rotation" state to track.
+
+var _questMusicActive = false;
+
+function enterQuestMusic() {
+  if (_questMusicActive) return;
+  _questMusicActive = true;
+  if (_bgAudio) { _bgAudio.pause(); _bgAudio = null; }
+  var audio = new Audio('music/SpinningElves.mp3');
+  audio.volume = 0.15;
+  audio.loop   = true;
+  audio.muted  = _muted;
+  _bgAudio = audio;
+  audio.play().catch(function () { /* autoplay already unlocked by this point in a real session; fail silently if not */ });
+}
+
+function exitQuestMusic() {
+  if (!_questMusicActive) return;
+  _questMusicActive = false;
+  if (_bgAudio) { _bgAudio.pause(); _bgAudio = null; }
+  initMusicRotation();
+}
+
 // ---- Load settings from API and apply ----
 
 document.addEventListener('DOMContentLoaded', function () {

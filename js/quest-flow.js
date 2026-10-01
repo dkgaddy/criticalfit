@@ -390,12 +390,14 @@ function enterActiveView(resumed) {
 
   showView('active');
   requestWakeLock();
+  enterQuestMusic();
   startTimerLoop();
 }
 
 async function finishQuestNaturally() {
   stopTimerLoop();
   releaseWakeLock();
+  exitQuestMusic();
   const activeSeconds = Math.round(quest.durationMin * 60); // timer ran out — full active duration reached
   const rounds        = state.completedRounds;
   const extraStations = state.completedStationsThisRound;
@@ -433,6 +435,7 @@ function initEndQuestConfirm() {
     document.getElementById('quest-end-confirm-modal').classList.remove('open');
     stopTimerLoop();
     releaseWakeLock();
+    exitQuestMusic();
     clearLocalState(quest.id);
     await postAction('abandon');
     window.location.href = 'index.html';
@@ -442,6 +445,7 @@ function initEndQuestConfirm() {
     document.getElementById('quest-end-confirm-modal').classList.remove('open');
     stopTimerLoop();
     releaseWakeLock();
+    exitQuestMusic();
     const activeSeconds = Math.round(overallElapsedMs() / 1000);
     const rounds        = state.completedRounds;
     const extraStations = state.completedStationsThisRound;
