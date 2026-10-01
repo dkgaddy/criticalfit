@@ -56,6 +56,30 @@ function shapeQuest(PDO $pdo, int $uid, array $row, bool $full): array {
     $out['personalBest']   = computePersonalBest($pdo, $uid, $row['day_type'], $difficulty, (int)$row['duration_min']);
     $out['weeklyCampaign'] = computeWeeklyCampaign($pdo, $uid);
 
+    // The calories this specific quest burned (not the day's total) — the
+    // Victory screen shows this, not the whole-day Energy Used figure,
+    // since that reads as "this quest burned 2,000 cal" next to a score,
+    // which is wrong and was confusing in testing.
+    if ($row['status'] === 'completed') {
+        $compStmt = $pdo->prepare('
+            SELECT qc.rounds, qc.extra_stations, qc.partial, ee.calories
+            FROM quest_completions qc
+            LEFT JOIN exercise_entries ee ON ee.id = qc.activity_id
+            WHERE qc.daily_quest_id = ?
+            ORDER BY qc.completed_at DESC LIMIT 1
+        ');
+        $compStmt->execute([$row['id']]);
+        $comp = $compStmt->fetch();
+        if ($comp) {
+            $out['lastCompletion'] = [
+                'rounds'         => (int)$comp['rounds'],
+                'extraStations'  => (int)$comp['extra_stations'],
+                'partial'        => (bool)$comp['partial'],
+                'caloriesBurned' => $comp['calories'] !== null ? (int)round((float)$comp['calories']) : null,
+            ];
+        }
+    }
+
     $prefs = getQuestPreferences($pdo, $uid);
     $out['disclaimerAcknowledged'] = $prefs['disclaimerAcknowledged'];
 

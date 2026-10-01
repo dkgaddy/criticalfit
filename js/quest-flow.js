@@ -520,9 +520,13 @@ function todayKeyLocal() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// Mirrors the Energy Used / Life Points formula js/app.js and js/progress.js
-// already use — this page has no access to the Journal's live cachedUser
-// state since it's a separate full page, so it re-fetches the same pieces.
+// "Quest Calories Burned" is this specific quest's own contribution
+// (quest.lastCompletion.caloriesBurned, from the exercise_entries row it
+// created) — NOT the whole day's Energy Used, which would read as "this
+// quest burned 2,000 cal" next to a score and was confusing in testing.
+// "Today's Life Points" mirrors the Journal/Progress formula (used - cal
+// consumed) since this page has no access to the Journal's live cachedUser
+// state, being a separate full page — same 500-point fire threshold too.
 async function renderVictoryEnergyAndDragon() {
   const [user, dailySummary, tdeeData, dragon] = await Promise.all([
     fetch('api/user.php').then(r => r.json()).then(j => j.ok ? j.data : null),
@@ -531,15 +535,19 @@ async function renderVictoryEnergyAndDragon() {
     fetch(`api/dragon.php?today=${todayKeyLocal()}`).then(r => r.json()).then(j => j.ok ? j.data : null).catch(() => null),
   ]);
 
+  const burned = quest.lastCompletion?.caloriesBurned;
+  document.getElementById('qv-energy-used').textContent = burned != null ? `${burned.toLocaleString()} cal` : '—';
+
   if (user) {
     const bmr        = user.bmr || 0;
     const multiplier = (user.activity && CF_LIFESTYLE[user.activity]) || CF_LIFESTYLE.sedentary;
     const baseline   = (tdeeData?.ok && tdeeData.data?.personalizedTdee) ? tdeeData.data.personalizedTdee : Math.round(bmr * multiplier);
     const used       = baseline + (dailySummary.caloriesOut || 0);
     const lifePoints = Math.round(used - (dailySummary.caloriesIn || 0));
+    const hot        = lifePoints >= 500;
 
-    document.getElementById('qv-energy-used').textContent = `${Math.round(used).toLocaleString()} cal`;
-    document.getElementById('qv-life-points').textContent = (lifePoints < 0 ? '−' : '') + Math.abs(lifePoints).toLocaleString();
+    document.getElementById('qv-life-points-num').textContent = (lifePoints < 0 ? '−' : '') + Math.abs(lifePoints).toLocaleString();
+    document.getElementById('qv-life-points-icon').src = hot ? 'images/FireOn.png' : 'images/FireOff.png';
   }
 
   if (dragon) {
