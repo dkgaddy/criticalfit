@@ -212,9 +212,22 @@ function wireBriefingActions() {
     if (j.ok) { quest = j.data; renderBriefing(); }
   });
 
-  document.getElementById('qb-begin-btn')?.addEventListener('click', async () => {
+  document.getElementById('qb-begin-btn')?.addEventListener('click', async e => {
+    const btn = e.currentTarget;
+    if (btn.disabled) return; // guards against a double-tap firing two begins
+    btn.disabled = true;
+    btn.textContent = 'Starting…';
+
     const j = await postAction('begin');
-    if (!j.ok) return;
+    if (!j.ok) {
+      // Most likely: an earlier tap already started it. Re-fetch rather than
+      // leaving the user stuck on a Briefing that can no longer begin.
+      quest = await fetchQuest();
+      if (quest && quest.status === 'active') { enterActiveView(true); return; }
+      btn.disabled = false;
+      btn.textContent = 'Begin Quest';
+      return;
+    }
     quest = j.data;
     enterActiveView(false);
   });

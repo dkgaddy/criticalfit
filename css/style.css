@@ -2991,7 +2991,11 @@ input[type=number] { -moz-appearance: textfield; }
   padding: 2rem 0;
 }
 
-.quest-view { display: block; }
+/* No display:block rule here — a div's default display is already block,
+   and declaring it explicitly on .quest-view would tie with the browser's
+   own [hidden] { display: none } at equal specificity, with this
+   stylesheet loading later and winning — silently defeating every
+   showView() call and leaving all three views stacked and visible at once. */
 
 .quest-meta-row {
   text-align: center;
@@ -3235,4 +3239,12 @@ body.quest-active-mode .ham-menu { display: none !important; }
   padding: 0.6rem;
   border-radius: var(--radius);
   margin-bottom: 1rem;
+}
+
+.quest-reroll-hint {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 0.6rem;
 }
