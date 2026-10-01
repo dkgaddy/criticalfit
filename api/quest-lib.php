@@ -362,13 +362,29 @@ function userLocalDate(PDO $pdo, int $uid): string {
 // ---- Seeded RNG (mulberry32-style, masked to 32 bits throughout since PHP
 // ints don't wrap like JS's uint32 arithmetic) ----
 
+// Emulates 32-bit unsigned multiplication with wraparound (like JS's
+// Math.imul). PHP's native '*' on two values near 0xFFFFFFFF overflows its
+// 64-bit signed int range (~1.8e19 > PHP_INT_MAX) and silently promotes the
+// result to a float, which breaks the bitwise ops mulberry32 depends on.
+// Splitting into 16-bit halves keeps every intermediate product well within
+// range: (aHigh*2^16+aLow) * (bHigh*2^16+bLow) mod 2^32, and the aHigh*bHigh
+// term vanishes mod 2^32 so it's dropped entirely.
+function questMul32(int $a, int $b): int {
+    $a = $a & 0xFFFFFFFF;
+    $b = $b & 0xFFFFFFFF;
+    $aLow = $a & 0xFFFF; $aHigh = $a >> 16;
+    $bLow = $b & 0xFFFF; $bHigh = $b >> 16;
+    $cross = ($aHigh * $bLow + $aLow * $bHigh) & 0xFFFF;
+    return (($cross << 16) + $aLow * $bLow) & 0xFFFFFFFF;
+}
+
 function questSeededRng(int $seed): \Closure {
     $state = $seed & 0xFFFFFFFF;
     return function () use (&$state): float {
         $state = ($state + 0x6D2B79F5) & 0xFFFFFFFF;
         $t = $state;
-        $t = (($t ^ ($t >> 15)) * (1 | $t)) & 0xFFFFFFFF;
-        $t = ($t + ((($t ^ ($t >> 7)) * (61 | $t)) & 0xFFFFFFFF)) & 0xFFFFFFFF;
+        $t = questMul32($t ^ ($t >> 15), 1 | $t);
+        $t = ($t + questMul32($t ^ ($t >> 7), 61 | $t)) & 0xFFFFFFFF;
         $t ^= $t >> 14;
         return ($t & 0xFFFFFFFF) / 4294967296.0;
     };
