@@ -265,6 +265,76 @@ function renderGuildCard(isPremium, guildPlan) {
   document.getElementById('guild-join-lifetime-btn')?.addEventListener('click', e => startGuildCheckout('lifetime', e.currentTarget));
 }
 
+// ---- Quest Preferences ----
+
+async function saveQuestPref(payload) {
+  await fetch('api/quest-prefs.php', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(payload),
+  });
+}
+
+function initQuestPrefGroups() {
+  const difficultyGroup = document.getElementById('quest-difficulty-group');
+  difficultyGroup?.querySelectorAll('.toggle-btn').forEach(btn =>
+    btn.addEventListener('click', () => {
+      setToggleGroup(difficultyGroup, btn.dataset.value);
+      saveQuestPref({ difficulty: btn.dataset.value });
+    })
+  );
+
+  const lengthGroup = document.getElementById('quest-length-group');
+  lengthGroup?.querySelectorAll('.toggle-btn').forEach(btn =>
+    btn.addEventListener('click', () => {
+      setToggleGroup(lengthGroup, btn.dataset.value);
+      saveQuestPref({ lengthMin: parseInt(btn.dataset.value, 10) });
+    })
+  );
+
+  const stationsGroup = document.getElementById('quest-stations-group');
+  stationsGroup?.querySelectorAll('.toggle-btn').forEach(btn =>
+    btn.addEventListener('click', () => {
+      setToggleGroup(stationsGroup, btn.dataset.value);
+      saveQuestPref({ stations: parseInt(btn.dataset.value, 10) });
+    })
+  );
+
+  // Equipment is multi-select — each button toggles independently rather
+  // than exclusively selecting one, unlike the other toggle groups above.
+  const equipmentGroup = document.getElementById('quest-equipment-group');
+  equipmentGroup?.querySelectorAll('.toggle-btn').forEach(btn =>
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      const equipment = [...equipmentGroup.querySelectorAll('.toggle-btn.active')].map(b => b.dataset.value);
+      saveQuestPref({ equipment });
+    })
+  );
+
+  document.getElementById('quest-space-toggle')?.addEventListener('change', e => {
+    saveQuestPref({ spaceOk: e.target.checked });
+  });
+}
+
+async function loadQuestPrefs() {
+  const r = await fetch('api/quest-prefs.php');
+  const j = await r.json();
+  if (!j.ok) return;
+  const prefs = j.data;
+
+  setToggleGroup(document.getElementById('quest-difficulty-group'), prefs.difficulty);
+  setToggleGroup(document.getElementById('quest-length-group'), String(prefs.lengthMin));
+  setToggleGroup(document.getElementById('quest-stations-group'), String(prefs.stations));
+
+  const equipmentGroup = document.getElementById('quest-equipment-group');
+  equipmentGroup?.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.classList.toggle('active', prefs.equipment.includes(btn.dataset.value));
+  });
+
+  const spaceToggle = document.getElementById('quest-space-toggle');
+  if (spaceToggle) spaceToggle.checked = prefs.spaceOk;
+}
+
 async function loadProfile() {
   const p = await store.getUser();
   if (!p) return;
@@ -379,6 +449,9 @@ async function initProfile() {
   });
 
   document.getElementById('save-profile').addEventListener('click', saveProfile);
+
+  initQuestPrefGroups();
+  await loadQuestPrefs();
 
   await loadProfile();
   await handleCheckoutReturn();

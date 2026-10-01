@@ -138,6 +138,58 @@
       </div>
     </section>
 
+    <!-- Quest Preferences -->
+    <section class="card">
+      <h3 class="card-title">Quest Preferences</h3>
+      <p class="guide-p" style="margin-bottom:1rem;">Tune your Daily Quest circuits. Changes apply to your next quest.</p>
+
+      <div class="form-group">
+        <label class="form-label">Difficulty</label>
+        <div class="btn-group" id="quest-difficulty-group" role="group">
+          <button class="toggle-btn active" data-value="beginner">Beginner</button>
+          <button class="toggle-btn" data-value="intermediate">Intermediate</button>
+          <button class="toggle-btn" data-value="advanced">Advanced</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Quest Length</label>
+        <div class="btn-group btn-group--2col" id="quest-length-group" role="group">
+          <button class="toggle-btn" data-value="10">10 min</button>
+          <button class="toggle-btn active" data-value="15">15 min</button>
+          <button class="toggle-btn" data-value="20">20 min</button>
+          <button class="toggle-btn" data-value="30">30 min</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Stations per Circuit</label>
+        <div class="btn-group" id="quest-stations-group" role="group">
+          <button class="toggle-btn" data-value="3">3</button>
+          <button class="toggle-btn active" data-value="4">4</button>
+          <button class="toggle-btn" data-value="5">5</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Equipment Owned</label>
+        <div class="btn-group btn-group--2col" id="quest-equipment-group" role="group">
+          <button class="toggle-btn" data-value="dumbbells">Dumbbells</button>
+          <button class="toggle-btn" data-value="bands">Resistance Bands</button>
+          <button class="toggle-btn active" data-value="bench">Bench or Chair</button>
+          <button class="toggle-btn" data-value="anchor">Post or Pole</button>
+        </div>
+      </div>
+
+      <div class="setting-row" style="margin-bottom:0;">
+        <span class="setting-row-label">Include exercises that need space (~10–15 ft)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="quest-space-toggle">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </section>
+
     <!-- Quest Numbers -->
     <section class="card">
       <h3 class="card-title">Quest Numbers</h3>
