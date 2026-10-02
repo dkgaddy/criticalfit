@@ -24,7 +24,7 @@ function renderQuestCard(quest) {
   const el = document.getElementById('quest-card-content');
   if (!el || !quest) return;
 
-  const dayTypeLabel = { upper: 'Upper', lower: 'Lower', full: 'Full' }[quest.dayType] || quest.dayType;
+  const dayTypeLabel = { upper: 'Upper Body', lower: 'Lower Body', full: 'Full Body' }[quest.dayType] || quest.dayType;
 
   if (quest.locked) {
     el.innerHTML = `

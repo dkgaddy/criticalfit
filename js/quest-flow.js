@@ -155,7 +155,7 @@ function renderBriefing() {
   document.getElementById('qb-name').textContent   = quest.name;
   document.getElementById('qb-flavor').textContent = quest.flavor;
 
-  const dayTypeLabel = { upper: 'Upper', lower: 'Lower', full: 'Full' }[quest.dayType];
+  const dayTypeLabel = { upper: 'Upper Body', lower: 'Lower Body', full: 'Full Body' }[quest.dayType];
   document.getElementById('qb-meta').textContent = quest.locked
     ? `${dayTypeLabel} · ${quest.durationMin} min`
     : `${dayTypeLabel} · ${quest.durationMin} min · ${capitalize(quest.difficulty)}`;
