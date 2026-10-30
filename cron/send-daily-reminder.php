@@ -27,7 +27,7 @@ registerPushNotification(
 // The DM manages this notification's title/message and active/inactive
 // state on the Push Notifications admin page — nothing here is hardcoded.
 $notification = activePushNotification($pdo, SLUG);
-if (!$notification) exit; // switched off — skip the per-user work below entirely
+if (!$notification) { pushLog('daily reminder: skipped, notification inactive'); exit; }
 
 // Each user's local hour/date is computed from their own IANA timezone
 // (captured on every page load by api/auth/session.php), not the server's
@@ -37,6 +37,8 @@ if (!$notification) exit; // switched off — skip the per-user work below entir
 $stmt = $pdo->query('SELECT id, timezone FROM users WHERE notifications = 1');
 $checkStmt = $pdo->prepare('SELECT 1 FROM food_entries WHERE user_id = ? AND log_date = ? LIMIT 1');
 
+$targeted = 0;
+$delivered = 0;
 foreach ($stmt->fetchAll() as $row) {
     try {
         $tz = new DateTimeZone($row['timezone'] ?: 'UTC');
@@ -49,9 +51,13 @@ foreach ($stmt->fetchAll() as $row) {
     $checkStmt->execute([$row['id'], $now->format('Y-m-d')]);
     if ($checkStmt->fetch()) continue;
 
-    sendPushToUser($pdo, (int)$row['id'], [
+    $targeted++;
+    $delivered += sendPushToUser($pdo, (int)$row['id'], [
         'title' => $notification['title'],
         'body'  => $notification['message'],
         'url'   => './index.html',
     ]);
 }
+// One line per hourly run, even when nobody's due — so a missing line in
+// push.log means the cron job itself isn't running.
+pushLog("daily reminder: ran, $targeted user(s) due, $delivered delivery(ies) accepted");

@@ -5,15 +5,26 @@ require_once dirname(__DIR__) . '/vendor/autoload.php';
 use Minishlink\WebPush\WebPush;
 use Minishlink\WebPush\Subscription;
 
+// Appends a timestamped line to push.log in the site's logs/ folder — one
+// level above public_html, so it's never web-reachable. Push delivery happens
+// in cron/CLI with no user watching, so without this a failed send leaves no
+// trace anywhere.
+function pushLog(string $message): void {
+    $dir = dirname(__DIR__, 2) . '/logs';
+    if (!is_dir($dir)) @mkdir($dir, 0700, true);
+    @file_put_contents($dir . '/push.log', '[' . gmdate('Y-m-d H:i:s') . " UTC] $message\n", FILE_APPEND | LOCK_EX);
+}
+
 // Sends $payload (array, JSON-encoded) to every push subscription on file for
 // $userId. Expired/gone subscriptions (HTTP 404/410) are pruned as they're
 // encountered — standard Web Push hygiene, since browsers/OSes silently drop
-// subscriptions and never tell the server directly.
-function sendPushToUser(PDO $pdo, int $userId, array $payload): void {
+// subscriptions and never tell the server directly. Every failure (expired or
+// not) is logged via pushLog(). Returns the number of successful deliveries.
+function sendPushToUser(PDO $pdo, int $userId, array $payload): int {
     $stmt = $pdo->prepare('SELECT id, endpoint, p256dh, auth FROM push_subscriptions WHERE user_id = ?');
     $stmt->execute([$userId]);
     $rows = $stmt->fetchAll();
-    if (!$rows) return;
+    if (!$rows) return 0;
 
     $webPush = new WebPush([
         'VAPID' => [
@@ -33,13 +44,21 @@ function sendPushToUser(PDO $pdo, int $userId, array $payload): void {
         $webPush->queueNotification($subscription, $body);
     }
 
+    $delivered = 0;
     foreach ($webPush->flush() as $report) {
-        if ($report->isSuccess()) continue;
+        if ($report->isSuccess()) { $delivered++; continue; }
+        $response = $report->getResponse();
+        $status   = $response ? $response->getStatusCode() : 'no response';
+        $host     = parse_url($report->getEndpoint(), PHP_URL_HOST);
         if ($report->isSubscriptionExpired()) {
             $pdo->prepare('DELETE FROM push_subscriptions WHERE endpoint = ?')
                 ->execute([$report->getEndpoint()]);
+            pushLog("user $userId: subscription expired at $host (HTTP $status), pruned");
+        } else {
+            pushLog("user $userId: send failed at $host (HTTP $status): " . $report->getReason());
         }
     }
+    return $delivered;
 }
 
 // Sends $payload to every user who has at least one push subscription on
@@ -48,9 +67,11 @@ function sendPushToUser(PDO $pdo, int $userId, array $payload): void {
 // of users targeted.
 function broadcastPush(PDO $pdo, array $payload): int {
     $userIds = $pdo->query('SELECT DISTINCT user_id FROM push_subscriptions')->fetchAll(PDO::FETCH_COLUMN);
+    $delivered = 0;
     foreach ($userIds as $userId) {
-        sendPushToUser($pdo, (int)$userId, $payload);
+        $delivered += sendPushToUser($pdo, (int)$userId, $payload);
     }
+    pushLog('broadcast: ' . count($userIds) . " user(s) targeted, $delivered delivery(ies) accepted");
     return count($userIds);
 }
 
