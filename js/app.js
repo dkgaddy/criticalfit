@@ -630,7 +630,7 @@ function initDeleteConfirm() {
     try {
       const r = await fetch(url, { method: 'DELETE' });
       const j = await r.json();
-      if (j.ok) await refreshHomeForToday();
+      if (j.ok) await refreshHome();
     } catch (e) {
       console.error('Delete failed', e);
     }
@@ -700,10 +700,11 @@ async function initHome() {
   if (dragon.promoted) showLevelUp(dragon);
 }
 
-// ---- Refresh today's data after logging ----
+// ---- Refresh the viewed day's data after logging/deleting ----
+// Stays on viewingDate rather than jumping back to today, so backfilling
+// several entries on a past day doesn't land the next one on today by mistake.
 
-async function refreshHomeForToday() {
-  viewingDate = todayKey();
+async function refreshHome() {
   const [summary, food, exercise, summaries, dragon, weightRes] = await Promise.all([
     store.getDailySummary(viewingDate),
     store.getFoodEntries(viewingDate),

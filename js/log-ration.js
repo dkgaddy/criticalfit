@@ -240,7 +240,7 @@ async function logMealFromModal(mealId, btn) {
   btn.textContent = origText;
   closeModal();
   showEnergyToast();
-  if (typeof refreshHomeForToday === 'function') await refreshHomeForToday();
+  if (typeof refreshHome === 'function') await refreshHome();
 }
 
 async function showDefault() {
@@ -632,7 +632,7 @@ function initLogRation() {
     btn.textContent = 'Log It';
     closeModal();
     showEnergyToast();
-    if (typeof refreshHomeForToday === 'function') await refreshHomeForToday();
+    if (typeof refreshHome === 'function') await refreshHome();
   });
 }
 

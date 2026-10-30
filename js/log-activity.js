@@ -423,7 +423,7 @@ function initLogActivity() {
     btn.textContent = 'Log It';
     closeActivityModal();
     showActivityToast(cal);
-    if (typeof refreshHomeForToday === 'function') await refreshHomeForToday();
+    if (typeof refreshHome === 'function') await refreshHome();
   });
 }
 
