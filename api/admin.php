@@ -14,14 +14,16 @@ if (!$u || empty($u['is_dm'])) {
 // Top 20 users by days logged (food entries = engagement metric)
 $topUsers = $pdo->query("
     SELECT
-        u.name,
+        -- Character Sheet name, falling back to the name given at passkey
+        -- registration for users who never filled in their profile
+        COALESCE(NULLIF(u.name, ''), u.display_name) AS name,
         COALESCE(COUNT(DISTINCT fe.log_date), 0) AS days_logged,
         u.is_premium,
         MAX(vl.visited_at) AS last_login
     FROM users u
     LEFT JOIN food_entries fe ON fe.user_id = u.id
     LEFT JOIN visit_log vl    ON vl.user_id = u.id
-    GROUP BY u.id, u.name, u.is_premium
+    GROUP BY u.id, u.name, u.display_name, u.is_premium
     ORDER BY days_logged DESC
     LIMIT 20
 ")->fetchAll();
