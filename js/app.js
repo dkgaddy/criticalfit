@@ -31,7 +31,17 @@ const store = {
   getDailySummary: async (date) => {
     const r = await fetch(`api/daily.php?date=${date}`);
     const j = await r.json();
-    return j.ok ? j.data : { caloriesIn: 0, caloriesOut: 0 };
+    return j.ok ? j.data : { caloriesIn: 0, caloriesOut: 0, fasting: false };
+  },
+
+  setFasting: async (date, fasting) => {
+    const r = await fetch('api/fasting.php', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ date, fasting }),
+    });
+    const j = await r.json();
+    return j.ok;
   },
 
   getDragonProgress: async () => {
@@ -116,7 +126,7 @@ let cachedWeight         = null;
 let cachedSummaries      = [];
 let cachedExercise  = [];
 let cachedFood      = [];
-let cachedSummary   = { caloriesIn: 0, caloriesOut: 0 };
+let cachedSummary   = { caloriesIn: 0, caloriesOut: 0, fasting: false };
 let energyTickTimer = null;
 
 // ---- Helpers ----
@@ -179,6 +189,7 @@ async function _pastDayGoToday(fn) {
   renderWeekNav();
   renderEnergyBalance(summary, cachedUser);
   renderEnergyUsed();
+  renderFastingToggle();
   renderJournalEntries(food, exercise, cachedWeight);
   fn();
 }
@@ -498,11 +509,16 @@ function renderEnergyUsed() {
     barEl.style.width = pct + '%';
   }
 
-  // Life Points = deficit (energy used − calories consumed)
+  // Life Points = deficit (energy used − calories consumed). A finished day
+  // with no rations or activity logged scores 0 unless it was marked as a
+  // fasting day — otherwise forgetting to log would read as a perfect day.
   const lpVal  = document.getElementById('lp-value');
   const lpIcon = document.getElementById('lp-icon');
   if (lpVal && lpIcon) {
-    const lp    = Math.round(usedSoFar - state.caloriesConsumed);
+    const unlogged = cachedFood.length === 0 && cachedExercise.length === 0;
+    const lp    = (!state.isToday && unlogged && !cachedSummary.fasting)
+      ? 0
+      : Math.round(usedSoFar - state.caloriesConsumed);
     const hot   = lp >= 500;
     lpVal.textContent = (lp < 0 ? '−' : '') + Math.abs(lp).toLocaleString();
     lpVal.className   = 'lp-value' + (lp < 0 ? ' lp-negative' : '');
@@ -516,6 +532,35 @@ function startEnergyTick() {
   energyTickTimer = setInterval(() => {
     if (viewingDate === todayKey() && cachedUser) renderEnergyUsed();
   }, 60_000);
+}
+
+// ---- Fasting toggle ----
+
+function renderFastingToggle() {
+  const input = document.getElementById('fasting-toggle');
+  const label = document.getElementById('fasting-label');
+  if (!input) return;
+  input.checked = !!cachedSummary.fasting;
+  if (label) {
+    label.textContent = viewingDate === todayKey()
+      ? 'Are you fasting today?'
+      : 'Were you fasting this day?';
+  }
+}
+
+function initFastingToggle() {
+  const input = document.getElementById('fasting-toggle');
+  input?.addEventListener('change', async () => {
+    const date    = viewingDate;
+    const fasting = input.checked;
+    input.disabled = true;
+    const ok = await store.setFasting(date, fasting).catch(() => false);
+    input.disabled = false;
+    if (date !== viewingDate) return; // user navigated away mid-save
+    if (ok) cachedSummary.fasting = fasting;
+    renderFastingToggle();
+    renderEnergyUsed();
+  });
 }
 
 // ---- Journal Entries ----
@@ -659,6 +704,7 @@ async function shiftDay(delta) {
   renderWeekNav();
   renderEnergyBalance(summary, cachedUser);
   renderEnergyUsed();
+  renderFastingToggle();
   renderJournalEntries(food, exercise, cachedWeight);
   if (typeof applyQuestCardDateState === 'function') applyQuestCardDateState();
 }
@@ -691,9 +737,11 @@ async function initHome() {
   renderWeekNav();
   renderEnergyBalance(summary, user);
   renderEnergyUsed();
+  renderFastingToggle();
   renderEvoBar(dragon);
   renderJournalEntries(food, exercise, cachedWeight);
   initPastDayModal();
+  initFastingToggle();
   initProfileAlert();
   initDeleteConfirm();
 
@@ -723,6 +771,7 @@ async function refreshHome() {
   renderWeekNav();
   renderEnergyBalance(summary, cachedUser);
   renderEnergyUsed();
+  renderFastingToggle();
   renderEvoBar(dragon);
   renderJournalEntries(food, exercise, cachedWeight);
 

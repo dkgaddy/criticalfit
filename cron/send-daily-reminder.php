@@ -11,6 +11,7 @@ if (php_sapi_name() !== 'cli') {
 
 require_once __DIR__ . '/../api/db.php';
 require_once __DIR__ . '/../api/push-lib.php';
+require_once __DIR__ . '/../api/fasting-lib.php';
 
 const TARGET_LOCAL_HOUR = 19; // 7 PM in the user's own timezone
 const SLUG = 'unlogged_reminder';
@@ -36,6 +37,9 @@ if (!$notification) { pushLog('daily reminder: skipped, notification inactive');
 // hour a day per user, no "already sent today" bookkeeping is needed.
 $stmt = $pdo->query('SELECT id, timezone FROM users WHERE notifications = 1');
 $checkStmt = $pdo->prepare('SELECT 1 FROM food_entries WHERE user_id = ? AND log_date = ? LIMIT 1');
+// No "you haven't logged" nag on a day the user said they're fasting
+ensureFastingTable($pdo);
+$fastStmt  = $pdo->prepare('SELECT 1 FROM fasting_days WHERE user_id = ? AND fast_date = ?');
 
 $targeted = 0;
 $delivered = 0;
@@ -50,6 +54,9 @@ foreach ($stmt->fetchAll() as $row) {
 
     $checkStmt->execute([$row['id'], $now->format('Y-m-d')]);
     if ($checkStmt->fetch()) continue;
+
+    $fastStmt->execute([$row['id'], $now->format('Y-m-d')]);
+    if ($fastStmt->fetch()) continue;
 
     $targeted++;
     $delivered += sendPushToUser($pdo, (int)$row['id'], [

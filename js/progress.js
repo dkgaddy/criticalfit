@@ -350,6 +350,7 @@ async function loadProgress(days) {
   const food     = data.data.food     || {};
   const exercise = data.data.exercise || {};
   const weights  = data.data.weights  || {};
+  const fasting  = new Set(data.data.fasting || []);
 
   const bmr        = progressUser?.bmr || 0;
   const multiplier = (progressUser?.activity && CF_LIFESTYLE[progressUser.activity]) || 1.20;
@@ -379,7 +380,10 @@ async function loadProgress(days) {
     proteinArr.push(f.protein > 0 ? Math.round(f.protein) : null);
     exCalsArr.push(exCal > 0 ? exCal : null);
     totalUsedArr.push(used > 0 ? used : null);
-    lifePointsArr.push((cal > 0 || exCal > 0) ? used - cal : null);
+    // A day with nothing logged scores 0 (null) unless it was marked as a
+    // fasting day, in which case the whole day's burn counts.
+    const logged = date in food || date in exercise;
+    lifePointsArr.push((logged || fasting.has(date)) ? used - cal : null);
     weightArr.push(weights[date] ?? null);
   }
 

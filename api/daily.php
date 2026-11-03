@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/fasting-lib.php';
 $uid  = requireAuth();
 $date = $_GET['date'] ?? date('Y-m-d');
 if (!validDate($date)) $date = date('Y-m-d');
@@ -12,7 +13,12 @@ $stmt = db()->prepare('
 $stmt->execute([$uid, $date, $uid, $date]);
 $row = $stmt->fetch();
 
+ensureFastingTable(db());
+$stmt = db()->prepare('SELECT 1 FROM fasting_days WHERE user_id = ? AND fast_date = ?');
+$stmt->execute([$uid, $date]);
+
 json_out([
     'caloriesIn'  => (float)$row['calories_in'],
     'caloriesOut' => (float)$row['calories_out'],
+    'fasting'     => (bool)$stmt->fetchColumn(),
 ]);

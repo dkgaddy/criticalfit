@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/fasting-lib.php';
 $uid  = requireAuth();
 $pdo  = db();
 $days = min((int)($_GET['days'] ?? 30), 365);
@@ -38,6 +39,15 @@ $stmt = $pdo->prepare("
 $stmt->execute([$uid, $days]);
 $weightRows = $stmt->fetchAll();
 
+// Days the user marked as fasting
+ensureFastingTable($pdo);
+$stmt = $pdo->prepare("
+    SELECT fast_date FROM fasting_days
+    WHERE user_id = ? AND fast_date >= CURDATE() - INTERVAL ? DAY
+");
+$stmt->execute([$uid, $days]);
+$fasting = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
 // Index by date
 $food = [];
 foreach ($foodRows as $r) {
@@ -55,5 +65,5 @@ foreach ($exerciseRows as $r) $exercise[$r['log_date']] = (float)$r['calories'];
 $weights = [];
 foreach ($weightRows as $r) $weights[$r['log_date']] = (float)$r['weight'];
 
-json_out(['food' => $food, 'exercise' => $exercise, 'weights' => $weights]);
+json_out(['food' => $food, 'exercise' => $exercise, 'weights' => $weights, 'fasting' => $fasting]);
 exit;

@@ -2675,6 +2675,25 @@ input[type=number] { -moz-appearance: textfield; }
   cursor: not-allowed;
 }
 
+/* Journal fasting toggle */
+.fasting-card {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.fasting-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fasting-opt {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
 /* ============================================================
    MEALS
    ============================================================ */

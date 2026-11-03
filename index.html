@@ -136,6 +136,21 @@
 
     <div class="journal-divider">✦</div>
 
+    <!-- Fasting toggle — decides how a day with nothing logged is scored -->
+    <section class="card fasting-card">
+      <div class="setting-row">
+        <span class="setting-row-label" id="fasting-label">Are you fasting today?</span>
+        <div class="fasting-switch">
+          <span class="fasting-opt">No</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="fasting-toggle" aria-labelledby="fasting-label">
+            <span class="toggle-track"></span>
+          </label>
+          <span class="fasting-opt">Yes</span>
+        </div>
+      </div>
+    </section>
+
     <!-- Quick Actions -->
     <div class="quick-actions">
       <a href="log-ration.html" class="btn btn-primary">Log Ration</a>
