@@ -380,10 +380,14 @@ async function loadProgress(days) {
     proteinArr.push(f.protein > 0 ? Math.round(f.protein) : null);
     exCalsArr.push(exCal > 0 ? exCal : null);
     totalUsedArr.push(used > 0 ? used : null);
-    // A day with nothing logged scores 0 (null) unless it was marked as a
-    // fasting day, in which case the whole day's burn counts.
-    const logged = date in food || date in exercise;
-    lifePointsArr.push((logged || fasting.has(date)) ? used - cal : null);
+    // A finished day with nothing logged scores an actual 0 (plotted, not a
+    // gap — a gap lets the line bridge between logged days and make the
+    // skipped days look maxed out) unless it was marked as a fasting day, in
+    // which case the whole day's burn counts. Today, still in progress, stays
+    // a gap until something is logged.
+    const logged  = date in food || date in exercise;
+    const isToday = date === dates[dates.length - 1];
+    lifePointsArr.push((logged || fasting.has(date)) ? used - cal : (isToday ? null : 0));
     weightArr.push(weights[date] ?? null);
   }
 
