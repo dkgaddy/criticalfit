@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/fasting-lib.php';
 $uid = requireAuth();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
@@ -22,16 +23,21 @@ $STAGES = [
     ['level' => 5, 'title' => 'Ancient Dragon', 'days' => 60],
 ];
 
-// 1. Total distinct days where user logged anything
+ensureFastingTable($pdo);
+
+// 1. Total distinct days where user logged anything. A day marked as fasting
+// counts too — turning the toggle on means they showed up and used the app.
 $stmt = $pdo->prepare("
     SELECT COUNT(DISTINCT log_date) AS total
     FROM (
         SELECT log_date FROM food_entries     WHERE user_id = ?
         UNION
         SELECT log_date FROM exercise_entries WHERE user_id = ?
+        UNION
+        SELECT fast_date FROM fasting_days    WHERE user_id = ?
     ) combined
 ");
-$stmt->execute([$uid, $uid]);
+$stmt->execute([$uid, $uid, $uid]);
 $totalLoggedDays = (int) $stmt->fetchColumn();
 
 // 2. Most recent logged date
@@ -41,9 +47,11 @@ $stmt = $pdo->prepare("
         SELECT log_date FROM food_entries     WHERE user_id = ?
         UNION
         SELECT log_date FROM exercise_entries WHERE user_id = ?
+        UNION
+        SELECT fast_date FROM fasting_days    WHERE user_id = ?
     ) combined
 ");
-$stmt->execute([$uid, $uid]);
+$stmt->execute([$uid, $uid, $uid]);
 $lastActivityDate = $stmt->fetchColumn() ?: null;
 
 // Use client-supplied local date to handle timezone differences, but clamp

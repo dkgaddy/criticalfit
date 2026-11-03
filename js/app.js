@@ -557,9 +557,10 @@ function initFastingToggle() {
     const ok = await store.setFasting(date, fasting).catch(() => false);
     input.disabled = false;
     if (date !== viewingDate) return; // user navigated away mid-save
-    if (ok) cachedSummary.fasting = fasting;
-    renderFastingToggle();
-    renderEnergyUsed();
+    if (!ok) { renderFastingToggle(); return; } // revert the switch
+    // Full refresh, not just Life Points: a fasting day counts toward dragon
+    // leveling (api/dragon.php), so this can trigger a level-up.
+    await refreshHome();
   });
 }
 
